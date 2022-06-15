@@ -1,0 +1,13 @@
+add_subdirectory(glad)
+
+find_package(SDL2 CONFIG REQUIRED)
+target_link_libraries(pacman PRIVATE SDL2::SDL2 SDL2::SDL2main SDL2::SDL2-static)
+
+find_package(sdl2-image CONFIG REQUIRED)
+target_link_libraries(pacman PRIVATE SDL2::SDL2_image)
+
+find_package(glm CONFIG REQUIRED)
+target_link_libraries(pacman PRIVATE glm::glm)
+
+find_package(unofficial-sqlite3 CONFIG REQUIRED)
+target_link_libraries(pacman PRIVATE unofficial::sqlite3::sqlite3)

@@ -1,0 +1,2 @@
+target_sources(pacman PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/glad.c)
+target_include_directories(pacman PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
