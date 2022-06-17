@@ -21,8 +21,8 @@ class Shader :
     void set(const std::string& name, int value) const;
     void set(const std::string& name, bool value) const;
     void set(const std::string& name, float value) const;
-    void set(const std::string& name, const glm::vec3& value);
-    void set(const std::string& name, const glm::mat4& matrix);
+    void set(const std::string& name, const glm::vec3& value) const;
+    void set(const std::string& name, const glm::mat4& matrix) const;
 
   private:
     explicit Shader(uint64_t resourceId, uint32_t id);

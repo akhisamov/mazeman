@@ -17,66 +17,90 @@ ResourceManager::ResourceManager(const std::string& bundleFile)
 }
 
 template<>
-std::shared_ptr<Texture2D> ResourceManager::load(const std::string& name)
+const std::shared_ptr<Texture2D>& ResourceManager::load(const std::string& name)
 {
-    auto it = m_resources.find(name);
-    if (it != m_resources.end())
+    const auto& it = m_textures.find(name);
+    if (it != m_textures.end())
     {
-        return std::dynamic_pointer_cast<Texture2D>(it->second);
+        return it->second;
     }
 
     int resourceId = 0;
+    SDL_Surface* surface = nullptr;
+
     const auto data = readBundle("textures_v", name, resourceId);
     auto dataIt = data.find("file");
     if (dataIt != data.end())
     {
         SDL_RWops* rw = SDL_RWFromConstMem(dataIt->second.c_str(), dataIt->second.size());
-        SDL_Surface* surface = IMG_Load_RW(rw, 1);
-        if (surface != nullptr)
+        surface = IMG_Load_RW(rw, 1);
+        if (surface == nullptr)
         {
-            auto texture = Texture2D::create(resourceId, surface);
-            m_resources.emplace(name, texture);
-            SDL_FreeSurface(surface);
-            return texture;
-        }
-        else
-        {
-            std::cerr << "Resource Load Error [" << name << "]: " << IMG_GetError() << std::endl;
+            const std::string message = "Resource Load Error [" + name + "]: " + IMG_GetError();
+            throw std::runtime_error(message);
         }
     }
 
-    return nullptr;
+    const auto& pair = m_textures.emplace(name, Texture2D::create(resourceId, surface));
+    SDL_FreeSurface(surface);
+    if (!pair.second)
+    {
+        const std::string message = "Resource Load Error [" + name + "]: can not save resource";
+        throw std::runtime_error(message);
+    }
+    return pair.first->second;
 }
 
 template<>
-std::shared_ptr<class Shader> ResourceManager::load(const std::string& name)
+const std::shared_ptr<Shader>& ResourceManager::load(const std::string& name)
 {
-    auto it = m_resources.find(name);
-    if (it != m_resources.end())
+    const auto& it = m_shader.find(name);
+    if (it != m_shader.end())
     {
-        return std::dynamic_pointer_cast<Shader>(it->second);
+        return it->second;
     }
 
+    std::string vertexCode;
+    std::string fragmentCode;
     int resourceId = 0;
+
     const auto data = readBundle("shaders_v", name, resourceId);
-    auto vertexIt = data.find("vertex");
-    auto fragmentIt = data.find("fragment");
-    if (vertexIt != data.end() && fragmentIt != data.end())
+    if (!data.empty())
     {
-        auto shader = Shader::create(resourceId, vertexIt->second, fragmentIt->second);
-        if (shader)
+        auto vertexIt = data.find("vertex");
+        auto fragmentIt = data.find("fragment");
+        if (vertexIt != data.end() && fragmentIt != data.end())
         {
-            m_resources.emplace(name, shader);
-            return shader;
+            vertexCode = vertexIt->second;
+            fragmentCode = fragmentIt->second;
         }
     }
 
-    return nullptr;
+    if (data.empty() || fragmentCode.empty() || vertexCode.empty())
+    {
+        const std::string message = "Resource Load Error [" + name + "]: resource is not found";
+        throw std::runtime_error(message);
+    }
+
+    const auto& pair = m_shader.emplace(name, Shader::create(resourceId, vertexCode, fragmentCode));
+    if (!pair.second)
+    {
+        const std::string message = "Resource Load Error [" + name + "]: can not save resource";
+        throw std::runtime_error(message);
+    }
+    return pair.first->second;
 }
 
-bool ResourceManager::unload(const std::string &name)
+template<>
+bool ResourceManager::unload<Texture2D>(const std::string &name)
 {
-    return m_resources.erase(name) == 1;
+    return m_textures.erase(name) == 1;
+}
+
+template<>
+bool ResourceManager::unload<Shader>(const std::string& name)
+{
+    return m_shader.erase(name) == 1;
 }
 
 std::map<std::string, std::string> ResourceManager::readBundle(const std::string &viewName, const std::string &resourceName, int& resourceId)

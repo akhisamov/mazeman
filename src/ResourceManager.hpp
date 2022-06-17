@@ -5,29 +5,35 @@
 #include <map>
 #include <functional>
 
+class Texture2D;
+class Shader;
+
 class ResourceManager
 {
 public:
     explicit ResourceManager(const std::string& bundleFile);
 
-    template<typename T>
-    std::shared_ptr<T> load(const std::string& name)
-    {
-        return nullptr;
-    }
+    template<class T>
+    const std::shared_ptr<T>& load(const std::string& name);
 
+    template<class T>
     bool unload(const std::string& name);
 
 private:
     std::map<std::string, std::string> readBundle(const std::string& viewName, const std::string& resourceName, int& resourceId);
 
-private:
     std::filesystem::path m_bundleFile;
 
-    std::map<std::string, std::shared_ptr<class Resource>> m_resources;
+    std::map<std::string, std::shared_ptr<Texture2D>> m_textures;
+    std::map<std::string, std::shared_ptr<Shader>> m_shader;
 };
 
 template<>
-std::shared_ptr<class Texture2D> ResourceManager::load(const std::string& name);
+const std::shared_ptr<Texture2D>& ResourceManager::load(const std::string& name);
 template<>
-std::shared_ptr<class Shader> ResourceManager::load(const std::string& name);
+const std::shared_ptr<Shader>& ResourceManager::load(const std::string& name);
+
+template<>
+bool ResourceManager::unload<Texture2D>(const std::string& name);
+template<>
+bool ResourceManager::unload<Shader>(const std::string& name);

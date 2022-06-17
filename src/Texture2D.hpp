@@ -20,7 +20,7 @@ class Texture2D :
     void bind() const;
 
     [[nodiscard]] uint32_t getId() const { return m_id; }
-    const glm::vec2& getSize() const { return m_size; }
+    [[nodiscard]] const glm::vec2& getSize() const { return m_size; }
 
   private:
     explicit Texture2D(uint64_t resourceId, uint32_t id, const glm::vec2& size);

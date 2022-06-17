@@ -57,8 +57,9 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    auto resources = std::make_shared<ResourceManager>("resources.db");
-    auto texture = resources->load<Texture2D>("wall");
+    auto resources = std::make_unique<ResourceManager>("resources.db");
+
+    const auto& texture = resources->load<Texture2D>("wall");
     if (texture == nullptr)
     {
         return -1;
@@ -85,6 +86,8 @@ int main(int argc, char *argv[])
 
         SDL_GL_SwapWindow(window);
     }
+
+    resources->unload<Texture2D>("wall");
 
     SDL_GL_DeleteContext(glContext);
     SDL_DestroyWindow(window);
