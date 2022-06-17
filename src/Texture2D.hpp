@@ -9,9 +9,9 @@
 #include "Resource.hpp"
 
 class Texture2D :
-    public Resource
+        public Resource
 {
-  public:
+public:
     static std::shared_ptr<Texture2D> create(uint64_t resourceId, SDL_Surface* surface);
 
     Texture2D() = delete;
@@ -19,10 +19,16 @@ class Texture2D :
 
     void bind() const;
 
-    [[nodiscard]] uint32_t getId() const { return m_id; }
-    [[nodiscard]] const glm::vec2& getSize() const { return m_size; }
+    [[nodiscard]] uint32_t getId() const
+    {
+        return m_id;
+    }
+    [[nodiscard]] const glm::vec2& getSize() const
+    {
+        return m_size;
+    }
 
-  private:
+private:
     explicit Texture2D(uint64_t resourceId, uint32_t id, const glm::vec2& size);
 
     uint32_t m_id;

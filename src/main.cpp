@@ -5,16 +5,16 @@
 
 #include <iostream>
 
-#include "Texture2D.hpp"
+#include "ResourceManager/ResourceManager.hpp"
+
 #include "SpriteRenderer.hpp"
-#include "ResourceManager.hpp"
 
 void logError()
 {
     std::cerr << "SDL_Error: " << SDL_GetError() << std::endl;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
@@ -36,8 +36,8 @@ int main(int argc, char *argv[])
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-    SDL_Window *window = SDL_CreateWindow("Pac Man", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720,
-                                          SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+    SDL_Window* window = SDL_CreateWindow("Pac Man", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720,
+            SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
     if (window == nullptr)
     {
         logError();

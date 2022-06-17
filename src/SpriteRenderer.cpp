@@ -11,9 +11,10 @@
 #include "Texture2D.hpp"
 #include "Shader.hpp"
 
-SpriteRenderer::SpriteRenderer(const std::shared_ptr<Shader>& shader) :
-    m_quadVAO(0),
-    m_shader(shader)
+SpriteRenderer::SpriteRenderer(const std::shared_ptr<Shader>& shader)
+        :
+        m_quadVAO(0),
+        m_shader(shader)
 {
     if (m_shader)
     {
