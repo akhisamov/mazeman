@@ -3,26 +3,38 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
-#include "Texture2D.hpp"
-#include "Shader.hpp"
+#include "Resources/Texture2D.hpp"
+#include "Resources/Shader.hpp"
+
+template<>
+BaseResourceManager<Texture2D>::BaseResourceManager(const std::string& bundleFile)
+        : BundleReader(bundleFile, ResourceType::TEXTURE2D)
+{
+}
 
 template<>
 const std::shared_ptr<Texture2D>& BaseResourceManager<Texture2D>::baseLoad(const std::string& name)
 {
-    const auto& it = m_resources.find(name);
-    if (it != m_resources.end())
+    const BundleResource& resConfig = getResourceConfig(name);
+
+    const auto& resIt = m_resources.find(resConfig.id);
+    if (resIt != m_resources.end())
     {
-        return it->second;
+        return resIt->second;
     }
 
-    int resourceId = 0;
-    SDL_Surface* surface = nullptr;
-
-    const auto data = readBundle("textures_v", name, resourceId);
-    auto dataIt = data.find("file");
-    if (dataIt != data.end())
+    const auto& fileIt = resConfig.data.find("file");
+    if (fileIt == resConfig.data.end())
     {
-        SDL_RWops* rw = SDL_RWFromConstMem(dataIt->second.c_str(), dataIt->second.size());
+        const std::string message = "Resource Load Error [" + name + "]: texture file is not found";
+        throw std::runtime_error(message);
+    }
+
+    SDL_Surface* surface = nullptr;
+    const std::string data = getFileContent(fileIt->second);
+    if (!data.empty())
+    {
+        SDL_RWops* rw = SDL_RWFromConstMem(data.c_str(), data.size());
         surface = IMG_Load_RW(rw, 1);
         if (surface == nullptr)
         {
@@ -30,8 +42,13 @@ const std::shared_ptr<Texture2D>& BaseResourceManager<Texture2D>::baseLoad(const
             throw std::runtime_error(message);
         }
     }
+    else
+    {
+        const std::string message = "Resource Load Error [" + name + "]: resource is not found";
+        throw std::runtime_error(message);
+    }
 
-    const auto& pair = m_resources.emplace(name, Texture2D::create(resourceId, surface));
+    const auto& pair = m_resources.emplace(resConfig.id, Texture2D::create(resConfig.id, surface));
     SDL_FreeSurface(surface);
     if (!pair.second)
     {
@@ -42,37 +59,44 @@ const std::shared_ptr<Texture2D>& BaseResourceManager<Texture2D>::baseLoad(const
 }
 
 template<>
+BaseResourceManager<Shader>::BaseResourceManager(const std::string& bundleFile)
+        : BundleReader(bundleFile, ResourceType::SHADER)
+{
+}
+
+template<>
 const std::shared_ptr<Shader>& BaseResourceManager<Shader>::baseLoad(const std::string& name)
 {
-    const auto& it = m_resources.find(name);
-    if (it != m_resources.end())
+    const BundleResource& resourceConfig = getResourceConfig(name);
+
+    const auto& resIt = m_resources.find(resourceConfig.id);
+    if (resIt != m_resources.end())
     {
-        return it->second;
+        return resIt->second;
     }
 
     std::string vertexCode;
     std::string fragmentCode;
-    int resourceId = 0;
-
-    const auto data = readBundle("shaders_v", name, resourceId);
-    if (!data.empty())
+    for (const auto& it: resourceConfig.data)
     {
-        auto vertexIt = data.find("vertex");
-        auto fragmentIt = data.find("fragment");
-        if (vertexIt != data.end() && fragmentIt != data.end())
+        if (it.first == "vertex")
         {
-            vertexCode = vertexIt->second;
-            fragmentCode = fragmentIt->second;
+            vertexCode = getFileContent(it.second);
+        }
+        else if (it.first == "fragment")
+        {
+            fragmentCode = getFileContent(it.second);
         }
     }
 
-    if (data.empty() || fragmentCode.empty() || vertexCode.empty())
+    if (vertexCode.empty() || fragmentCode.empty())
     {
         const std::string message = "Resource Load Error [" + name + "]: resource is not found";
         throw std::runtime_error(message);
     }
 
-    const auto& pair = m_resources.emplace(name, Shader::create(resourceId, vertexCode, fragmentCode));
+    const auto& pair = m_resources
+            .emplace(resourceConfig.id, Shader::create(resourceConfig.id, vertexCode, fragmentCode));
     if (!pair.second)
     {
         const std::string message = "Resource Load Error [" + name + "]: can not save resource";

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include <string>
 
 class Resource
 {
@@ -8,11 +8,11 @@ public:
     virtual ~Resource() = default;
 
 protected:
-    explicit Resource(uint64_t resourceId)
+    explicit Resource(const std::string& resourceId)
             :m_resourceId(resourceId)
     {
     }
 
 private:
-    uint64_t m_resourceId;
+    std::string m_resourceId;
 };

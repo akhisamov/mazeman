@@ -1,0 +1,19 @@
+[
+  {
+    "id": "4bd81289-278d-487a-8d00-94bf5f7b2024",
+    "name": "wall",
+    "type": "texture2d",
+    "data": {
+      "file": "textures/wall.jpg"
+    }
+  },
+  {
+    "id": "bac7937d-0b1d-45d5-b138-cf60c096f894",
+    "name": "sprite",
+    "type": "shader",
+    "data": {
+      "vertex": "shaders/sprite.vert.glsl",
+      "fragment": "shaders/sprite.frag.glsl"
+    }
+  }
+]

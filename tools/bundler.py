@@ -1,34 +1,60 @@
 import argparse
+import json
 
 from pathlib import Path
 from zipfile import ZipFile
+from enum import Enum
+
+
+class ResourceType(Enum):
+    NONE = 0
+    TEXTURE2D = 1
+    SHADER = 2
+
+
+class ResourceConfig:
+    def __init__(self, res_id: str, name: str, res_type: str, data: dict):
+        assert res_id, "Resource ID shouldn't be empty"
+        assert name, "Resource name shouldn't be empty"
+        assert type, "Resource type shouldn't be empty"
+        assert data, "Resource data shouldn't be empty"
+        self.type = ResourceType[res_type.upper()]
+        if self.type == ResourceType.TEXTURE2D:
+            assert 'file' in data, "Resource data of TEXTURE2D should contain 'file'"
+        elif self.type == ResourceType.SHADER:
+            assert 'vertex' in data, "Resource data of SHADER should contain 'vertex'"
+            assert 'fragment' in data, "Resource data of SHADER should contain 'fragment'"
+        self.id = res_id
+        self.name = name
+        self.data = data
 
 
 class Config:
     def __init__(self, path: Path):
-        f = open(path, 'r')
-
         self.config_path = path
-        self.dict = {}
-        last_key = ""
-        for line in f.readlines():
-            line_wo_n = line.splitlines().pop(0)
-            if line_wo_n.startswith('[') and line_wo_n.endswith(']'):
-                last_key = line_wo_n[1:-1]
-                self.dict[last_key] = list()
-            else:
-                self.dict[last_key].append(line_wo_n)
-
+        f = open(path, 'r')
+        data = json.loads(f.read())
         f.close()
 
+        self.resources = list()
+        ids = list()
+        names = list()
+        for res in data:
+            resource = ResourceConfig(res['id'], res['name'], res['type'], res['data'])
+            assert resource.id not in ids
+            assert resource.name not in names
+            ids.append(resource.id)
+            names.append(resource.name)
+            self.resources.append(resource)
+
     def get_files(self):
-        files = list()
-        files.append(self.config_path)
+        result = list()
+        result.append(self.config_path)
         path = self.config_path.parent
-        for value in self.dict.values():
-            for file_path in value:
-                files.append(path / file_path)
-        return files
+        for resource in self.resources:
+            for file_path in resource.data.values():
+                result.append(path / file_path)
+        return result
 
 
 if __name__ == "__main__":

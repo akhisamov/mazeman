@@ -2,12 +2,10 @@
 
 #include <SDL.h>
 
-ResourceManager::ResourceManager(const std::string& bundleFile)
+ResourceManager::ResourceManager(const std::string& bundleFile) :
+        BaseResourceManager<Texture2D>(bundleFile),
+        BaseResourceManager<Shader>(bundleFile)
 {
-    std::filesystem::path path = SDL_GetBasePath();
-    path /= bundleFile;
-    BaseResourceManager<Texture2D>::setBundleFile(path);
-    BaseResourceManager<Shader>::setBundleFile(path);
 }
 
 ResourceManager::~ResourceManager()

@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-std::shared_ptr<Texture2D> Texture2D::create(uint64_t resourceId, SDL_Surface* surface)
+std::shared_ptr<Texture2D> Texture2D::create(const std::string& resourceId, SDL_Surface* surface)
 {
     bool success = true;
     uint32_t id = 0;
@@ -62,12 +62,12 @@ std::shared_ptr<Texture2D> Texture2D::create(uint64_t resourceId, SDL_Surface* s
     glBindBuffer(GL_TEXTURE_2D, 0);
     if (success)
     {
-        return std::shared_ptr<Texture2D>(new Texture2D(0, id, size));
+        return std::shared_ptr<Texture2D>(new Texture2D(resourceId, id, size));
     }
     return nullptr;
 }
 
-Texture2D::Texture2D(uint64_t resourceId, uint32_t id, const glm::vec2& size)
+Texture2D::Texture2D(const std::string& resourceId, uint32_t id, const glm::vec2& size)
         :
         Resource(resourceId),
         m_id(id),

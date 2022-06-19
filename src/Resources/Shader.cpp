@@ -38,7 +38,7 @@ namespace
 }
 
 std::shared_ptr<Shader>
-Shader::create(uint64_t resourceId, const std::string& vertexCode, const std::string& fragmentCode)
+Shader::create(const std::string& resourceId, const std::string& vertexCode, const std::string& fragmentCode)
 {
     uint32_t vertexShader = 0;
     uint32_t fragmentShader = 0;
@@ -87,7 +87,7 @@ Shader::create(uint64_t resourceId, const std::string& vertexCode, const std::st
     return nullptr;
 }
 
-Shader::Shader(uint64_t resourceId, uint32_t id)
+Shader::Shader(const std::string& resourceId, uint32_t id)
         :
         Resource(resourceId),
         m_id(id)

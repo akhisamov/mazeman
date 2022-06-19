@@ -8,8 +8,8 @@
 
 #include <vector>
 
-#include "Texture2D.hpp"
-#include "Shader.hpp"
+#include "Resources/Texture2D.hpp"
+#include "Resources/Shader.hpp"
 
 SpriteRenderer::SpriteRenderer(const std::shared_ptr<Shader>& shader)
         :

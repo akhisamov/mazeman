@@ -12,7 +12,7 @@ class Shader :
 {
 public:
     static std::shared_ptr<Shader>
-    create(uint64_t resourceId, const std::string& vertexCode, const std::string& fragmentCode);
+    create(const std::string& resourceId, const std::string& vertexCode, const std::string& fragmentCode);
 
     Shader() = delete;
     ~Shader() override;
@@ -26,7 +26,7 @@ public:
     void set(const std::string& name, const glm::mat4& matrix) const;
 
 private:
-    explicit Shader(uint64_t resourceId, uint32_t id);
+    explicit Shader(const std::string& resourceId, uint32_t id);
 
     uint32_t m_id;
 };

@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    auto resources = std::make_unique<ResourceManager>("resources.db");
+    auto resources = std::make_unique<ResourceManager>("res.bundle");
 
     const auto& texture = resources->load<Texture2D>("wall");
     if (texture == nullptr)

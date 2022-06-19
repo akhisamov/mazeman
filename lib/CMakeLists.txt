@@ -10,5 +10,8 @@ target_link_libraries(pacman PRIVATE SDL2::SDL2_image)
 find_package(glm CONFIG REQUIRED)
 target_link_libraries(pacman PRIVATE glm::glm)
 
-find_package(unofficial-sqlite3 CONFIG REQUIRED)
-target_link_libraries(pacman PRIVATE unofficial::sqlite3::sqlite3)
+find_package(libzip CONFIG REQUIRED)
+target_link_libraries(pacman PRIVATE libzip::zip)
+
+find_package(Boost REQUIRED COMPONENTS json)
+target_link_libraries(pacman PRIVATE Boost::boost Boost::json)
