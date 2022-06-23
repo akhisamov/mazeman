@@ -6,7 +6,9 @@
 
 #include <zip.h>
 
-BundleReader::BundleReader(const std::string& bundleFile, ResourceType type)
+#include "StringUtils.hpp"
+
+BundleReader::BundleReader(const std::string_view& bundleFile, ResourceType type)
 {
     m_bundleFile = SDL_GetBasePath();
     m_bundleFile /= bundleFile;
@@ -47,7 +49,7 @@ BundleReader::BundleReader(const std::string& bundleFile, ResourceType type)
     }
 }
 
-std::string BundleReader::getFileContent(const std::string& filename)
+std::string BundleReader::getFileContent(const std::string_view& filename)
 {
     int err = 0;
     zip* z = zip_open(m_bundleFile.string().c_str(), ZIP_RDONLY, &err);
@@ -55,12 +57,12 @@ std::string BundleReader::getFileContent(const std::string& filename)
     {
         struct zip_stat st{};
         zip_stat_init(&st);
-        zip_stat(z, filename.c_str(), 0, &st);
+        zip_stat(z, filename.data(), 0, &st);
 
         std::string result;
         result.resize(static_cast<size_t>(st.size));
 
-        zip_file* f = zip_fopen(z, filename.c_str(), 0);
+        zip_file* f = zip_fopen(z, filename.data(), 0);
         zip_fread(f, result.data(), st.size);
         zip_fclose(f);
 
@@ -71,16 +73,16 @@ std::string BundleReader::getFileContent(const std::string& filename)
     return {};
 }
 
-const BundleResource& BundleReader::getResourceConfig(const std::string& name)
+const BundleResource& BundleReader::getResourceConfig(const std::string_view& name)
 {
-    const auto& it = m_nameResources.find(name);
+    const auto& it = m_nameResources.find(name.data());
     if (it != m_nameResources.end())
     {
         return it->second;
     }
     else
     {
-        const std::string message = "Resource Load Error [" + name + "]: resource is not found";
-        throw std::runtime_error(message);
+        const std::string_view message = "Resource Load Error [%s]: resource is not found";
+        throw std::runtime_error(StringUtils::format(message, name.data()));
     }
 }

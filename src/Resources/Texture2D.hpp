@@ -12,7 +12,7 @@ class Texture2D :
         public Resource
 {
 public:
-    static std::shared_ptr<Texture2D> create(const std::string& resourceId, SDL_Surface* surface);
+    static std::shared_ptr<Texture2D> create(const std::string_view& resourceId, SDL_Surface* surface);
 
     Texture2D() = delete;
     ~Texture2D() override;
@@ -29,7 +29,7 @@ public:
     }
 
 private:
-    explicit Texture2D(const std::string& resourceId, uint32_t id, const glm::vec2& size);
+    explicit Texture2D(const std::string_view& resourceId, uint32_t id, const glm::vec2& size);
 
     uint32_t m_id;
     glm::vec2 m_size;

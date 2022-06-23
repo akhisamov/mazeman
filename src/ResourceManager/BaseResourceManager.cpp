@@ -6,14 +6,16 @@
 #include "Resources/Texture2D.hpp"
 #include "Resources/Shader.hpp"
 
+#include "StringUtils.hpp"
+
 template<>
-BaseResourceManager<Texture2D>::BaseResourceManager(const std::string& bundleFile)
+BaseResourceManager<Texture2D>::BaseResourceManager(const std::string_view& bundleFile)
         : BundleReader(bundleFile, ResourceType::TEXTURE2D)
 {
 }
 
 template<>
-const std::shared_ptr<Texture2D>& BaseResourceManager<Texture2D>::baseLoad(const std::string& name)
+const std::shared_ptr<Texture2D>& BaseResourceManager<Texture2D>::baseLoad(const std::string_view& name)
 {
     const BundleResource& resConfig = getResourceConfig(name);
 
@@ -26,8 +28,8 @@ const std::shared_ptr<Texture2D>& BaseResourceManager<Texture2D>::baseLoad(const
     const auto& fileIt = resConfig.data.find("file");
     if (fileIt == resConfig.data.end())
     {
-        const std::string message = "Resource Load Error [" + name + "]: texture file is not found";
-        throw std::runtime_error(message);
+        const std::string_view message = "Resource Load Error [%s]: texture file is not found";
+        throw std::runtime_error(StringUtils::format(message, name.data()));
     }
 
     SDL_Surface* surface = nullptr;
@@ -38,34 +40,34 @@ const std::shared_ptr<Texture2D>& BaseResourceManager<Texture2D>::baseLoad(const
         surface = IMG_Load_RW(rw, 1);
         if (surface == nullptr)
         {
-            const std::string message = "Resource Load Error [" + name + "]: " + IMG_GetError();
-            throw std::runtime_error(message);
+            const std::string_view message = "Resource Load Error [%s]: %s";
+            throw std::runtime_error(StringUtils::format(message, name.data(), IMG_GetError()));
         }
     }
     else
     {
-        const std::string message = "Resource Load Error [" + name + "]: resource is not found";
-        throw std::runtime_error(message);
+        const std::string_view message = "Resource Load Error [%s]: resource is not found";
+        throw std::runtime_error(StringUtils::format(message, name.data()));
     }
 
     const auto& pair = m_resources.emplace(resConfig.id, Texture2D::create(resConfig.id, surface));
     SDL_FreeSurface(surface);
     if (!pair.second)
     {
-        const std::string message = "Resource Load Error [" + name + "]: can not save resource";
-        throw std::runtime_error(message);
+        const std::string_view message = "Resource Load Error [%s]: can not save resource";
+        throw std::runtime_error(StringUtils::format(message, name.data()));
     }
     return pair.first->second;
 }
 
 template<>
-BaseResourceManager<Shader>::BaseResourceManager(const std::string& bundleFile)
+BaseResourceManager<Shader>::BaseResourceManager(const std::string_view& bundleFile)
         : BundleReader(bundleFile, ResourceType::SHADER)
 {
 }
 
 template<>
-const std::shared_ptr<Shader>& BaseResourceManager<Shader>::baseLoad(const std::string& name)
+const std::shared_ptr<Shader>& BaseResourceManager<Shader>::baseLoad(const std::string_view& name)
 {
     const BundleResource& resourceConfig = getResourceConfig(name);
 
@@ -91,16 +93,16 @@ const std::shared_ptr<Shader>& BaseResourceManager<Shader>::baseLoad(const std::
 
     if (vertexCode.empty() || fragmentCode.empty())
     {
-        const std::string message = "Resource Load Error [" + name + "]: resource is not found";
-        throw std::runtime_error(message);
+        const std::string_view message = "Resource Load Error [%s]: resource is not found";
+        throw std::runtime_error(StringUtils::format(message, name.data()));
     }
 
     const auto& pair = m_resources
             .emplace(resourceConfig.id, Shader::create(resourceConfig.id, vertexCode, fragmentCode));
     if (!pair.second)
     {
-        const std::string message = "Resource Load Error [" + name + "]: can not save resource";
-        throw std::runtime_error(message);
+        const std::string_view message = "Resource Load Error [%s]: can not save resource";
+        throw std::runtime_error(StringUtils::format(message, name.data()));
     }
     return pair.first->second;
 }

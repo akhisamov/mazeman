@@ -2,7 +2,7 @@
 
 #include <SDL.h>
 
-ResourceManager::ResourceManager(const std::string& bundleFile) :
+ResourceManager::ResourceManager(const std::string_view& bundleFile) :
         BaseResourceManager<Texture2D>(bundleFile),
         BaseResourceManager<Shader>(bundleFile)
 {

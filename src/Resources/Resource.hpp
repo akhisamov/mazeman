@@ -8,7 +8,7 @@ public:
     virtual ~Resource() = default;
 
 protected:
-    explicit Resource(const std::string& resourceId)
+    explicit Resource(const std::string_view& resourceId)
             :m_resourceId(resourceId)
     {
     }

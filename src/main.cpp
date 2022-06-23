@@ -8,10 +8,11 @@
 #include "ResourceManager/ResourceManager.hpp"
 
 #include "SpriteRenderer.hpp"
+#include "StringUtils.hpp"
 
 void logError()
 {
-    std::cerr << "SDL_Error: " << SDL_GetError() << std::endl;
+    std::cerr << StringUtils::format("SDL_Error: %s", SDL_GetError()) << std::endl;
 }
 
 int main(int argc, char* argv[])
@@ -32,10 +33,6 @@ int main(int argc, char* argv[])
         }
     }
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
     SDL_Window* window = SDL_CreateWindow("Pac Man", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720,
             SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
     if (window == nullptr)
@@ -43,6 +40,10 @@ int main(int argc, char* argv[])
         logError();
         return -1;
     }
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     SDL_GLContext glContext = SDL_GL_CreateContext(window);
     if (glContext == nullptr)

@@ -6,7 +6,9 @@
 
 #include <iostream>
 
-std::shared_ptr<Texture2D> Texture2D::create(const std::string& resourceId, SDL_Surface* surface)
+#include "StringUtils.hpp"
+
+std::shared_ptr<Texture2D> Texture2D::create(const std::string_view& resourceId, SDL_Surface* surface)
 {
     bool success = true;
     uint32_t id = 0;
@@ -23,7 +25,7 @@ std::shared_ptr<Texture2D> Texture2D::create(const std::string& resourceId, SDL_
     glm::vec2 size(0.0f);
     if (!surface)
     {
-        std::cerr << "IMG_Load: " << IMG_GetError() << std::endl;
+        std::cerr << StringUtils::format("IMG_Load: %s", IMG_GetError()) << std::endl;
         success = false;
     }
     else
@@ -67,7 +69,7 @@ std::shared_ptr<Texture2D> Texture2D::create(const std::string& resourceId, SDL_
     return nullptr;
 }
 
-Texture2D::Texture2D(const std::string& resourceId, uint32_t id, const glm::vec2& size)
+Texture2D::Texture2D(const std::string_view& resourceId, uint32_t id, const glm::vec2& size)
         :
         Resource(resourceId),
         m_id(id),

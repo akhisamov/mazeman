@@ -6,8 +6,6 @@
 #include <string>
 #include <filesystem>
 
-using BundleData = std::map<std::string, std::string>;
-
 struct BundleResource
 {
     std::string id;
@@ -18,12 +16,12 @@ struct BundleResource
 class BundleReader
 {
 public:
-    explicit BundleReader(const std::string& bundleFile, ResourceType type);
+    explicit BundleReader(const std::string_view& bundleFile, ResourceType type);
     virtual ~BundleReader() = default;
 
 protected:
-    std::string getFileContent(const std::string& filename);
-    const BundleResource& getResourceConfig(const std::string& name);
+    std::string getFileContent(const std::string_view& filename);
+    const BundleResource& getResourceConfig(const std::string_view& name);
 
     std::filesystem::path m_bundleFile;
 

@@ -19,7 +19,7 @@ public:
             :m_type(type)
     {
     }
-    ResourceType(const std::string& type)
+    ResourceType(const std::string_view& type)
             :m_type(NONE)
     {
         if (type == "texture2d")
