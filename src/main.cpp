@@ -8,6 +8,7 @@
 #include "ResourceManager/ResourceManager.hpp"
 
 #include "SpriteRenderer.hpp"
+#include "Sprite.hpp"
 #include "StringUtils.hpp"
 
 void logError()
@@ -60,11 +61,8 @@ int main(int argc, char* argv[])
 
     auto resources = std::make_unique<ResourceManager>("res.bundle");
 
-    const auto& texture = resources->load<Texture2D>("wall");
-    if (texture == nullptr)
-    {
-        return -1;
-    }
+    const auto& sprite = Sprite::create(resources->load<Texture2D>("wall"));
+    sprite->setOrigin(0.0f, 0.0f);
 
     auto renderer = std::make_shared<SpriteRenderer>(resources->load<Shader>("sprite"));
 
@@ -83,7 +81,7 @@ int main(int argc, char* argv[])
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        renderer->draw(texture);
+        renderer->draw(sprite);
 
         SDL_GL_SwapWindow(window);
     }

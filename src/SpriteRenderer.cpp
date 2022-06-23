@@ -11,6 +11,8 @@
 #include "Resources/Texture2D.hpp"
 #include "Resources/Shader.hpp"
 
+#include "Sprite.hpp"
+
 SpriteRenderer::SpriteRenderer(const std::shared_ptr<Shader>& shader)
         :
         m_quadVAO(0),
@@ -58,24 +60,27 @@ SpriteRenderer::~SpriteRenderer()
     glDeleteVertexArrays(1, &m_quadVAO);
 }
 
-void SpriteRenderer::draw(const std::shared_ptr<Texture2D>& texture)
+void SpriteRenderer::draw(const std::shared_ptr<Sprite>& sprite)
 {
-    if (texture && m_shader)
+    if (sprite && m_shader)
     {
-        m_shader->use();
-        glm::vec2 position(0.0f);
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(position, 0.0f));
-//        model = glm::translate(model, glm::vec3(0.5f * 200, 0.5f * 200, 0.0f));  // move origin of rotation to center of quad
-//        model = glm::rotate(model, glm::radians(rotate), glm::vec3(0.0f, 0.0f, 1.0f)); // then rotate
-//        model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f)); // move origin back
-        model = glm::scale(model, glm::vec3(texture->getSize(), 1.0f)); // last scale
-        m_shader->set("model", model);
+        const glm::vec2& origin = sprite->getOrigin();
+        const glm::vec2& size = sprite->getTexture()->getSize();
 
-        m_shader->set("spriteColor", glm::vec3(1.0f));
+        m_shader->use();
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(sprite->getPosition(), 0.0f));
+
+        model = glm::rotate(model, glm::radians(sprite->getDegrees()), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::translate(model, glm::vec3(-origin.x * size.x, -origin.y * size.y, 0.0f));
+
+        model = glm::scale(model, glm::vec3(size, 1.0f));
+
+        m_shader->set("model", model);
+        m_shader->set("spriteColor", sprite->getColor());
 
         glActiveTexture(GL_TEXTURE0);
-        texture->bind();
+        sprite->getTexture()->bind();
 
         glBindVertexArray(m_quadVAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
