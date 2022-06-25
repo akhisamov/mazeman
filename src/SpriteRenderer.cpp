@@ -20,9 +20,6 @@ SpriteRenderer::SpriteRenderer(const std::shared_ptr<Shader>& shader)
 {
     if (m_shader)
     {
-        m_shader->use();
-        m_shader->set("projection", glm::ortho(0.0f, 1280.0f, 720.0f, 0.0f, -1.0f, 1.0f));
-
         uint32_t VBO;
         std::vector<float> vertices = {
                 0.0f, 1.0f, 0.0f, 1.0f,

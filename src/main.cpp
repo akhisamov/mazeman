@@ -3,6 +3,8 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
+#include <glm/ext/matrix_clip_space.hpp>
+
 #include <iostream>
 
 #include "ResourceManager/ResourceManager.hpp"
@@ -10,6 +12,13 @@
 #include "Sprite.hpp"
 #include "SpriteRenderer.hpp"
 #include "StringUtils.hpp"
+
+namespace WindowDefaults
+{
+    constexpr float width = 1280;
+
+    constexpr float height = 720;
+}
 
 int main(int argc, char* argv[])
 {
@@ -26,7 +35,8 @@ int main(int argc, char* argv[])
             throw std::runtime_error(StringUtils::format("IMG Init Error: %s", IMG_GetError()));
         }
 
-        SDL_Window* window = SDL_CreateWindow("Pac Man", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720,
+        SDL_Window* window = SDL_CreateWindow("Pac Man", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                static_cast<int>(WindowDefaults::width), static_cast<int>(WindowDefaults::height),
                 SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
         if (window == nullptr)
         {
@@ -50,10 +60,14 @@ int main(int argc, char* argv[])
 
         auto resources = std::make_unique<ResourceManager>("res.bundle");
 
+        const auto& spriteShader = resources->load<Shader>("sprite");
+        spriteShader->use();
+        spriteShader->set("projection", glm::ortho(0.0f,
+                WindowDefaults::width, WindowDefaults::height, 0.0f, -1.0f, 1.0f));
+        auto renderer = std::make_shared<SpriteRenderer>(spriteShader);
+
         const auto& sprite = Sprite::create(resources->load<Texture2D>("wall"));
         sprite->setOrigin(0.0f, 0.0f);
-
-        auto renderer = std::make_shared<SpriteRenderer>(resources->load<Shader>("sprite"));
 
         bool isRunning = true;
         while (isRunning)
@@ -67,7 +81,7 @@ int main(int argc, char* argv[])
                 }
             }
 
-            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+            glClearColor(0.39f, 0.58f, 0.93f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
             renderer->draw(sprite);
@@ -76,6 +90,7 @@ int main(int argc, char* argv[])
         }
 
         resources->unload(sprite->getTexture());
+        resources->unload(spriteShader);
 
         SDL_GL_DeleteContext(glContext);
         SDL_DestroyWindow(window);
