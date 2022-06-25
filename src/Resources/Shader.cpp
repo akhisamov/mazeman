@@ -38,7 +38,8 @@ namespace
 }
 
 std::shared_ptr<Shader>
-Shader::create(const std::string_view& resourceId, const std::string_view& vertexCode, const std::string_view& fragmentCode)
+Shader::create(const std::string_view& resourceId, const std::string_view& vertexCode,
+        const std::string_view& fragmentCode)
 {
     uint32_t vertexShader = 0;
     uint32_t fragmentShader = 0;

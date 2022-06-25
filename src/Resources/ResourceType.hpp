@@ -37,12 +37,12 @@ public:
         return m_type;
     }
 
-    friend bool operator== (const ResourceType& t1, const Type& t2)
+    friend bool operator==(const ResourceType& t1, const Type& t2)
     {
         return t1.m_type == t2;
     }
 
-    friend bool operator== (const ResourceType& t1, const ResourceType& t2)
+    friend bool operator==(const ResourceType& t1, const ResourceType& t2)
     {
         return t1.m_type == t2.m_type;
     }

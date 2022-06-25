@@ -28,4 +28,11 @@ public:
         static_assert(std::is_base_of_v<Resource, T>);
         return BaseResourceManager<T>::baseUnload(name);
     }
+
+    template<class T>
+    bool unload(const std::shared_ptr<T>& resource)
+    {
+        static_assert(std::is_base_of_v<Resource, T>);
+        return BaseResourceManager<T>::m_resources.erase(resource->getResourceId()) == 1;
+    }
 };

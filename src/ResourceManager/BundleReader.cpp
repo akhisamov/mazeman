@@ -22,7 +22,7 @@ BundleReader::BundleReader(const std::string_view& bundleFile, ResourceType type
     }
 
     json j = json::parse(data);
-    for (const auto& it : j)
+    for (const auto& it: j)
     {
         const std::string typeStr = it.at("type");
         ResourceType resType(typeStr.c_str());
@@ -35,7 +35,7 @@ BundleReader::BundleReader(const std::string_view& bundleFile, ResourceType type
             BundleResource res;
             res.id = it.at("id");
             res.type = resType;
-            for (const auto& p : it.at("data").items())
+            for (const auto& p: it.at("data").items())
             {
                 res.data.emplace(p.key(), p.value());
             }

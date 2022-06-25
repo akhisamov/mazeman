@@ -12,7 +12,8 @@ class Shader :
 {
 public:
     static std::shared_ptr<Shader>
-    create(const std::string_view& resourceId, const std::string_view& vertexCode, const std::string_view& fragmentCode);
+    create(const std::string_view& resourceId, const std::string_view& vertexCode,
+            const std::string_view& fragmentCode);
 
     Shader() = delete;
     ~Shader() override;

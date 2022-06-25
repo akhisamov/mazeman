@@ -12,11 +12,7 @@ std::shared_ptr<Sprite> Sprite::create(const std::shared_ptr<Texture2D>& texture
 }
 
 Sprite::Sprite(const std::shared_ptr<Texture2D>& texture)
-    : m_texture(texture)
-    , m_position(0.0f)
-    , m_origin(0.5f)
-    , m_degrees(0.0f)
-    , m_color(1.0f)
+        :m_texture(texture), m_position(0.0f), m_origin(0.5f), m_degrees(0.0f), m_color(1.0f)
 {
 }
 

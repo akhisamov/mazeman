@@ -14,6 +14,6 @@ public:
     void draw(const std::shared_ptr<Sprite>& sprite);
 
 private:
-    std::shared_ptr<Shader> m_shader;
+    const std::shared_ptr<Shader>& m_shader;
     uint32_t m_quadVAO;
 };
