@@ -13,5 +13,5 @@ target_link_libraries(pacman PRIVATE glm::glm)
 find_package(libzip CONFIG REQUIRED)
 target_link_libraries(pacman PRIVATE libzip::zip)
 
-find_package(Boost REQUIRED COMPONENTS json)
-target_link_libraries(pacman PRIVATE Boost::boost Boost::json)
+find_package(nlohmann_json CONFIG REQUIRED)
+target_link_libraries(pacman PRIVATE nlohmann_json::nlohmann_json)

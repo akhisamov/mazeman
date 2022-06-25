@@ -2,11 +2,13 @@
 
 #include <SDL_filesystem.h>
 
-#include <boost/json/src.hpp>
+#include <nlohmann/json.hpp>
 
 #include <zip.h>
 
 #include "StringUtils.hpp"
+
+using namespace nlohmann;
 
 BundleReader::BundleReader(const std::string_view& bundleFile, ResourceType type)
 {
@@ -19,17 +21,11 @@ BundleReader::BundleReader(const std::string_view& bundleFile, ResourceType type
         throw std::runtime_error("Bundle Config is not found");
     }
 
-    boost::json::error_code ec;
-    boost::json::value jv = boost::json::parse(data, ec);
-    if (ec)
+    json j = json::parse(data);
+    for (const auto& it : j)
     {
-        throw std::runtime_error("Bundle Config parsing error: " + ec.message());
-    }
-
-    for (const auto& it : jv.get_array())
-    {
-        const auto& resObject = it.get_object();
-        ResourceType resType(resObject.at("type").get_string().c_str());
+        const std::string typeStr = it.at("type");
+        ResourceType resType(typeStr.c_str());
         if (resType == ResourceType::NONE)
         {
             throw std::runtime_error("Bundle Config parsing error: Resource type is none");
@@ -37,14 +33,13 @@ BundleReader::BundleReader(const std::string_view& bundleFile, ResourceType type
         if (resType == type)
         {
             BundleResource res;
-            res.id = resObject.at("id").get_string();
+            res.id = it.at("id");
             res.type = resType;
-            const auto& dataValue = resObject.at("data");
-            for (auto p : dataValue.get_object())
+            for (const auto& p : it.at("data").items())
             {
-                res.data.emplace(p.key(), p.value().get_string());
+                res.data.emplace(p.key(), p.value());
             }
-            m_nameResources.emplace(resObject.at("name").get_string(), res);
+            m_nameResources.emplace(it.at("name"), res);
         }
     }
 }
