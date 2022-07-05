@@ -1,6 +1,6 @@
 #include "BundleReader.hpp"
 
-#include <SDL_filesystem.h>
+#include <SDL2/SDL_filesystem.h>
 
 #include <nlohmann/json.hpp>
 

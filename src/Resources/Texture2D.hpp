@@ -2,7 +2,7 @@
 
 #include <glm/vec2.hpp>
 
-#include <SDL_surface.h>
+#include <SDL2/SDL_surface.h>
 
 #include <memory>
 
