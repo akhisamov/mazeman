@@ -23,6 +23,11 @@ struct GameData
     std::shared_ptr<Sprite> sprite = nullptr;
 };
 
+std::unique_ptr<Game> Game::create()
+{
+    return std::unique_ptr<Game>(new Game());
+}
+
 Game::Game() :
         m_isRunning(false),
         m_data(std::make_unique<GameData>()),

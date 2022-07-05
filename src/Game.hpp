@@ -5,7 +5,7 @@
 class Game
 {
 public:
-    Game();
+    static std::unique_ptr<Game> create();
     ~Game();
 
     void init();
@@ -19,6 +19,8 @@ public:
     [[nodiscard]] bool isRunning() const { return m_isRunning; }
 
 private:
+    Game();
+
     bool m_isRunning;
 
     std::unique_ptr<struct GameData> m_data;

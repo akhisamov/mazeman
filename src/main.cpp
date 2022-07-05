@@ -6,7 +6,7 @@ int main(int argc, char* argv[])
 {
     try
     {
-        auto game = std::make_unique<Game>();
+        auto game = Game::create();
 
         game->init();
         game->loadResource();
