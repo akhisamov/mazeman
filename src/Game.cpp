@@ -2,15 +2,14 @@
 
 #include <glad/glad.h>
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+#include <SDL.h>
+#include <SDL_image.h>
 
 #include <glm/ext/matrix_clip_space.hpp>
 
 #include <stdexcept>
 
-#include "ResourceManager/ResourceManager.hpp"
-
+#include "Resources/ResourceManager.hpp"
 #include "Resources/Shader.hpp"
 
 #include "SpriteRenderer.hpp"
@@ -31,8 +30,8 @@ std::unique_ptr<Game> Game::create()
 Game::Game() :
         m_isRunning(false),
         m_data(std::make_unique<GameData>()),
-        m_window(nullptr),
         m_resources(nullptr),
+        m_window(nullptr),
         m_renderer(nullptr)
 {
 }
@@ -60,9 +59,9 @@ void Game::init()
     m_window = std::make_unique<Window>(title, width, height);
 
     constexpr std::string_view bundleFile = "res.bundle";
-    m_resources = std::make_unique<ResourceManager>(bundleFile);
+    m_resources = ResourceManager::create({ bundleFile });
 
-    const auto& spriteShader = m_resources->load<Shader>("sprite");
+    const auto& spriteShader = m_resources->load<Shader>("shaders/sprite");
     spriteShader->use();
     spriteShader->set("projection", glm::ortho(0.0f,
             static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1.0f));
@@ -73,13 +72,13 @@ void Game::init()
 
 void Game::loadResource()
 {
-    m_data->sprite = Sprite::create(m_resources->load<Texture2D>("wall"));
+    m_data->sprite = Sprite::create(m_resources->load<Texture2D>("textures/wall"));
     m_data->sprite->setOrigin(0.0f, 0.0f);
 }
 
 void Game::unloadResource()
 {
-    m_resources->unload(m_data->sprite->getTexture());
+    m_resources->unload<Texture2D>("textures/wall.jpg");
     m_data->sprite = nullptr;
 }
 

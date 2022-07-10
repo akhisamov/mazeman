@@ -1,23 +1,23 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 class Resource
 {
 public:
     virtual ~Resource() = default;
 
-    [[nodiscard]] const std::string& getResourceId() const
+    static std::vector<std::string> getFiles(const std::string_view& name, const std::vector<std::string_view>& exts)
     {
-        return m_resourceId;
-    }
+        std::vector<std::string> result;
 
-protected:
-    explicit Resource(const std::string_view& resourceId)
-            :m_resourceId(resourceId)
-    {
-    }
+        for (auto ext : exts)
+        {
+            std::string nameWithExt = std::string(name) + std::string(ext);
+            result.push_back(nameWithExt);
+        }
 
-private:
-    std::string m_resourceId;
+        return result;
+    }
 };

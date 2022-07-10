@@ -2,13 +2,13 @@
 
 #include <glad/glad.h>
 
-#include <SDL2/SDL_image.h>
+#include <SDL_image.h>
 
 #include <iostream>
 
 #include "StringUtils.hpp"
 
-std::shared_ptr<Texture2D> Texture2D::create(const std::string_view& resourceId, SDL_Surface* surface)
+std::shared_ptr<Texture2D> Texture2D::create(SDL_Surface* surface)
 {
     bool success = true;
     uint32_t id = 0;
@@ -64,16 +64,42 @@ std::shared_ptr<Texture2D> Texture2D::create(const std::string_view& resourceId,
     glBindBuffer(GL_TEXTURE_2D, 0);
     if (success)
     {
-        return std::shared_ptr<Texture2D>(new Texture2D(resourceId, id, size));
+        return std::shared_ptr<Texture2D>(new Texture2D(id, size));
     }
     return nullptr;
 }
 
-Texture2D::Texture2D(const std::string_view& resourceId, uint32_t id, const glm::vec2& size)
-        :
-        Resource(resourceId),
-        m_id(id),
-        m_size(size)
+std::shared_ptr<Texture2D> Texture2D::createFromData(const std::map<std::string, std::string>& data)
+{
+    SDL_Surface* surface = nullptr;
+    for (const auto& it : data)
+    {
+        SDL_RWops* rw = SDL_RWFromConstMem(it.second.data(), it.second.size());
+        surface = IMG_Load_RW(rw, 1);
+        if (surface)
+        {
+            break;
+        }
+    }
+
+    if (surface == nullptr)
+    {
+        const std::string_view message = "Creation Texture2D from data ERROR: %s";
+        throw std::runtime_error(StringUtils::format(message, IMG_GetError()));
+    }
+
+    return create(surface);
+}
+
+std::vector<std::string> Texture2D::getFiles(const std::string_view& name)
+{
+    const std::vector<std::string_view> exts = { ".jpg" };
+    return Resource::getFiles(name, exts);
+}
+
+Texture2D::Texture2D(uint32_t id, const glm::vec2& size)
+        : m_id(id)
+        , m_size(size)
 {
 }
 

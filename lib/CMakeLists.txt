@@ -13,5 +13,6 @@ target_link_libraries(pacman PRIVATE glm::glm)
 add_subdirectory(json)
 target_link_libraries(pacman PRIVATE nlohmann_json::nlohmann_json)
 
-find_package(libzip 1.8.0 CONFIG REQUIRED)
-target_link_libraries(pacman PRIVATE libzip::zip)
+add_subdirectory(physfs)
+target_link_libraries(pacman PRIVATE physfs)
+target_include_directories(pacman PRIVATE physfs/src)

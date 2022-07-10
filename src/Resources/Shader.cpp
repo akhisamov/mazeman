@@ -35,11 +35,12 @@ namespace
         }
         return true;
     }
+
+    constexpr std::string_view vertexExt = ".vert.glsl";
+    constexpr std::string_view fragmentExt = ".frag.glsl";
 }
 
-std::shared_ptr<Shader>
-Shader::create(const std::string_view& resourceId, const std::string_view& vertexCode,
-        const std::string_view& fragmentCode)
+std::shared_ptr<Shader> Shader::create(const std::string_view& vertexCode, const std::string_view& fragmentCode)
 {
     uint32_t vertexShader = 0;
     uint32_t fragmentShader = 0;
@@ -82,16 +83,46 @@ Shader::create(const std::string_view& resourceId, const std::string_view& verte
     }
     if (shaderProgram != 0)
     {
-        return std::shared_ptr<Shader>(new Shader(resourceId, shaderProgram));
+        return std::shared_ptr<Shader>(new Shader(shaderProgram));
     }
 
     return nullptr;
 }
 
-Shader::Shader(const std::string_view& resourceId, uint32_t id)
-        :
-        Resource(resourceId),
-        m_id(id)
+std::shared_ptr<Shader> Shader::createFromData(const std::map<std::string, std::string>& data)
+{
+    std::string vertexCode;
+    std::string fragmentCode;
+
+    for (const auto& it : data)
+    {
+        const std::string_view& filename = it.first;
+        if (it.first.rfind(vertexExt) == it.first.size() - vertexExt.size())
+        {
+            vertexCode = it.second;
+        }
+        else if (it.first.rfind(fragmentExt) == it.first.size() - fragmentExt.size())
+        {
+            fragmentCode = it.second;
+        }
+    }
+
+    if (vertexCode.empty() || fragmentCode.empty())
+    {
+        throw std::runtime_error("Creation Shader from data ERROR: resource is not found");
+    }
+
+    return create(vertexCode, fragmentCode);
+}
+
+std::vector<std::string> Shader::getFiles(const std::string_view& name)
+{
+    const std::vector<std::string_view> exts = { fragmentExt, vertexExt };
+    return Resource::getFiles(name, exts);
+}
+
+Shader::Shader(uint32_t id)
+        : m_id(id)
 {
 }
 

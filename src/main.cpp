@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "Game.hpp"
+#include "Resources/ResourceManager.hpp"
 
 int main(int argc, char* argv[])
 {
