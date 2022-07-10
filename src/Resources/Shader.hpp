@@ -2,14 +2,13 @@
 
 #include <glm/mat4x4.hpp>
 
+#include <map>
 #include <memory>
 #include <string>
-#include <map>
 
 #include "Resource.hpp"
 
-class Shader :
-        public Resource
+class Shader : public Resource
 {
 public:
     static std::shared_ptr<Shader> create(const std::string_view& vertexCode, const std::string_view& fragmentCode);

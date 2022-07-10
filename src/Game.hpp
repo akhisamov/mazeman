@@ -21,6 +21,8 @@ public:
 private:
     Game();
 
+    void initRenderer();
+
     bool m_isRunning;
 
     std::unique_ptr<struct GameData> m_data;

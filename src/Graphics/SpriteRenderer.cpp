@@ -8,28 +8,21 @@
 
 #include <vector>
 
-#include "Resources/Texture2D.hpp"
 #include "Resources/Shader.hpp"
+#include "Resources/Texture2D.hpp"
 
 #include "Sprite.hpp"
 
 SpriteRenderer::SpriteRenderer(const std::shared_ptr<Shader>& shader)
-        :
-        m_quadVAO(0),
-        m_shader(shader)
+    : m_quadVAO(0)
+    , m_shader(shader)
 {
     if (m_shader)
     {
         uint32_t VBO;
-        std::vector<float> vertices = {
-                0.0f, 1.0f, 0.0f, 1.0f,
-                1.0f, 0.0f, 1.0f, 0.0f,
-                0.0f, 0.0f, 0.0f, 0.0f,
+        std::vector<float> vertices = { 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
 
-                0.0f, 1.0f, 0.0f, 1.0f,
-                1.0f, 1.0f, 1.0f, 1.0f,
-                1.0f, 0.0f, 1.0f, 0.0f
-        };
+                                        0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f };
 
         glGenVertexArrays(1, &m_quadVAO);
         glGenBuffers(1, &VBO);
@@ -52,10 +45,7 @@ SpriteRenderer::SpriteRenderer(const std::shared_ptr<Shader>& shader)
     }
 }
 
-SpriteRenderer::~SpriteRenderer()
-{
-    glDeleteVertexArrays(1, &m_quadVAO);
-}
+SpriteRenderer::~SpriteRenderer() { glDeleteVertexArrays(1, &m_quadVAO); }
 
 void SpriteRenderer::draw(const std::shared_ptr<Sprite>& sprite)
 {

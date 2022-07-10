@@ -15,8 +15,8 @@ struct WindowData
 
     void create(const std::string_view& title, int width, int height)
     {
-        window = SDL_CreateWindow(title.data(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                width, height, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+        window = SDL_CreateWindow(title.data(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
+                                  SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
         if (window == nullptr)
         {
             throw std::runtime_error(StringUtils::format("Window Creation Error: %s", SDL_GetError()));
@@ -45,8 +45,8 @@ struct WindowData
     }
 };
 
-Window::Window(const std::string_view& title, int width, int height) :
-    m_data(std::make_unique<WindowData>())
+Window::Window(const std::string_view& title, int width, int height)
+    : m_data(std::make_unique<WindowData>())
 {
     m_data->create(title, width, height);
 }
@@ -57,7 +57,15 @@ Window::~Window()
     SDL_Quit();
 }
 
-void Window::display()
+void Window::display() { SDL_GL_SwapWindow(m_data->window); }
+
+glm::vec2 Window::getWindowSize() const
 {
-    SDL_GL_SwapWindow(m_data->window);
+    int w = 0;
+    int h = 0;
+    if (m_data->window)
+    {
+        SDL_GetWindowSize(m_data->window, &w, &h);
+    }
+    return { w, h };
 }

@@ -122,29 +122,20 @@ std::vector<std::string> Shader::getFiles(const std::string_view& name)
 }
 
 Shader::Shader(uint32_t id)
-        : m_id(id)
+    : m_id(id)
 {
 }
 
-Shader::~Shader()
-{
-    glDeleteProgram(m_id);
-}
+Shader::~Shader() { glDeleteProgram(m_id); }
 
-void Shader::use() const
-{
-    glUseProgram(m_id);
-}
+void Shader::use() const { glUseProgram(m_id); }
 
 void Shader::set(const std::string_view& name, int value) const
 {
     glUniform1i(glGetUniformLocation(m_id, name.data()), value);
 }
 
-void Shader::set(const std::string_view& name, bool value) const
-{
-    set(name, static_cast<int>(value));
-}
+void Shader::set(const std::string_view& name, bool value) const { set(name, static_cast<int>(value)); }
 
 void Shader::set(const std::string_view& name, float value) const
 {

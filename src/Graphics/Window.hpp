@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/vec2.hpp>
+
 #include <memory>
 #include <string_view>
 
@@ -10,6 +12,8 @@ public:
     ~Window();
 
     void display();
+
+    [[nodiscard]] glm::vec2 getWindowSize() const;
 
 private:
     std::unique_ptr<struct WindowData> m_data;

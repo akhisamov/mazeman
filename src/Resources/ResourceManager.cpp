@@ -6,7 +6,7 @@
 
 #include "physfs.h"
 
-#include<filesystem>
+#include <filesystem>
 
 std::shared_ptr<ResourceManager> ResourceManager::create(const std::vector<std::string_view>& searchPaths)
 {

@@ -9,8 +9,8 @@
 
 #include <stdexcept>
 
-#include "Graphics/SpriteRenderer.hpp"
 #include "Graphics/Sprite.hpp"
+#include "Graphics/SpriteRenderer.hpp"
 #include "Graphics/Window.hpp"
 
 #include "Resources/ResourceManager.hpp"
@@ -23,23 +23,18 @@ struct GameData
     std::shared_ptr<Sprite> sprite = nullptr;
 };
 
-std::unique_ptr<Game> Game::create()
-{
-    return std::unique_ptr<Game>(new Game());
-}
+std::unique_ptr<Game> Game::create() { return std::unique_ptr<Game>(new Game()); }
 
-Game::Game() :
-        m_isRunning(false),
-        m_data(std::make_unique<GameData>()),
-        m_resources(nullptr),
-        m_window(nullptr),
-        m_renderer(nullptr)
+Game::Game()
+    : m_isRunning(false)
+    , m_data(std::make_unique<GameData>())
+    , m_resources(nullptr)
+    , m_window(nullptr)
+    , m_renderer(nullptr)
 {
 }
 
-Game::~Game()
-{
-}
+Game::~Game() { }
 
 void Game::init()
 {
@@ -62,13 +57,21 @@ void Game::init()
     constexpr std::string_view bundleFile = "res.bundle";
     m_resources = ResourceManager::create({ bundleFile });
 
-    const auto& spriteShader = m_resources->load<Shader>("shaders/sprite");
-    spriteShader->use();
-    spriteShader->set("projection", glm::ortho(0.0f,
-            static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1.0f));
-    m_renderer = std::make_unique<SpriteRenderer>(spriteShader);
+    initRenderer();
 
     m_isRunning = true;
+}
+
+void Game::initRenderer()
+{
+    const glm::vec2 windowSize = m_window->getWindowSize();
+    constexpr std::string_view projectionName = "projection";
+    const glm::mat4 matrix = glm::ortho(0.0f, windowSize.x, windowSize.y, 0.0f, -1.0f, 1.0f);
+    const auto& spriteShader = m_resources->load<Shader>("shaders/sprite");
+
+    spriteShader->use();
+    spriteShader->set(projectionName, matrix);
+    m_renderer = std::make_unique<SpriteRenderer>(spriteShader);
 }
 
 void Game::loadResource()
