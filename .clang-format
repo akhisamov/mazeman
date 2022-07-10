@@ -7,3 +7,4 @@ ColumnLimit: 120
 AlignAfterOpenBracket: Align
 NamespaceIndentation: All
 AlwaysBreakTemplateDeclarations: Yes
+BreakInheritanceList: BeforeComma

@@ -1,21 +1,24 @@
 #pragma once
 
-#include <map>
-#include <memory>
 #include <vector>
+
+#include "Resources/ResourceStorage.hpp"
+#include "Resources/Shader.hpp"
+#include "Resources/Texture2D.hpp"
 
 #include "StringUtils.hpp"
 
-class ResourceManager
+class ResourceManager final
+    : public ResourceStorage<Texture2D>
+    , public ResourceStorage<Shader>
 {
 public:
     static std::shared_ptr<ResourceManager> create(const std::vector<std::string_view>& searchPaths);
-    ~ResourceManager() = default;
 
     template <class T>
     const std::shared_ptr<T>& load(const std::string_view& name)
     {
-        auto& resources = getResources<T>();
+        auto& resources = ResourceStorage<T>::getResources();
         if (!resources.empty())
         {
             const auto& it = resources.find(name);
@@ -37,7 +40,7 @@ public:
     template <class T>
     bool unload(const std::string_view& name)
     {
-        return getResources<T>().erase(name) == 1;
+        return ResourceStorage<T>::getResources().erase(name) == 1;
     }
 
 private:
@@ -60,13 +63,5 @@ private:
         }
 
         return result;
-    }
-
-    // TODO change it to ResourceStorage<T> class
-    template <class T>
-    std::map<std::string_view, std::shared_ptr<T>>& getResources()
-    {
-        static std::map<std::string_view, std::shared_ptr<T>> resources;
-        return resources;
     }
 };
