@@ -9,13 +9,14 @@
 
 #include <stdexcept>
 
+#include "Graphics/SpriteRenderer.hpp"
+#include "Graphics/Sprite.hpp"
+#include "Graphics/Window.hpp"
+
 #include "Resources/ResourceManager.hpp"
 #include "Resources/Shader.hpp"
 
-#include "SpriteRenderer.hpp"
-#include "Sprite.hpp"
 #include "StringUtils.hpp"
-#include "Window.hpp"
 
 struct GameData
 {

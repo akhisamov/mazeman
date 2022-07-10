@@ -10,9 +10,6 @@ target_link_libraries(pacman PRIVATE SDL2_image::SDL2_image)
 add_subdirectory(glm)
 target_link_libraries(pacman PRIVATE glm::glm)
 
-add_subdirectory(json)
-target_link_libraries(pacman PRIVATE nlohmann_json::nlohmann_json)
-
 add_subdirectory(physfs)
-target_link_libraries(pacman PRIVATE physfs)
+target_link_libraries(pacman PRIVATE physfs-static)
 target_include_directories(pacman PRIVATE physfs/src)
