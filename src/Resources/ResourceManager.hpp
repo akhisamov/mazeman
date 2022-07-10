@@ -12,7 +12,8 @@ public:
     static std::shared_ptr<ResourceManager> create(const std::vector<std::string_view>& searchPaths);
     ~ResourceManager() = default;
 
-    template <class T> const std::shared_ptr<T>& load(const std::string_view& name)
+    template <class T>
+    const std::shared_ptr<T>& load(const std::string_view& name)
     {
         auto& resources = getResources<T>();
         if (!resources.empty())
@@ -33,14 +34,19 @@ public:
         return pair.first->second;
     }
 
-    template <class T> bool unload(const std::string_view& name) { return getResources<T>().erase(name) == 1; }
+    template <class T>
+    bool unload(const std::string_view& name)
+    {
+        return getResources<T>().erase(name) == 1;
+    }
 
 private:
     ResourceManager() = default;
 
     static std::string readFileData(const std::string_view& filename);
 
-    template <typename T> std::map<std::string, std::string> getData(const std::string_view& name)
+    template <typename T>
+    std::map<std::string, std::string> getData(const std::string_view& name)
     {
         std::map<std::string, std::string> result;
 
@@ -56,7 +62,9 @@ private:
         return result;
     }
 
-    template <class T> std::map<std::string_view, std::shared_ptr<T>>& getResources()
+    // TODO change it to ResourceStorage<T> class
+    template <class T>
+    std::map<std::string_view, std::shared_ptr<T>>& getResources()
     {
         static std::map<std::string_view, std::shared_ptr<T>> resources;
         return resources;

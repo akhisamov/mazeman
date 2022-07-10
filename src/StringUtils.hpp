@@ -6,7 +6,8 @@
 class StringUtils
 {
 public:
-    template <typename... Args> static std::string format(const std::string_view& format, Args... args)
+    template <typename... Args>
+    static std::string format(const std::string_view& format, Args... args)
     {
         int size = std::snprintf(nullptr, 0, format.data(), args...) + 1;
         if (size <= 0)

@@ -6,3 +6,4 @@ BreakBeforeBraces: Allman
 ColumnLimit: 120
 AlignAfterOpenBracket: Align
 NamespaceIndentation: All
+AlwaysBreakTemplateDeclarations: Yes
