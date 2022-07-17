@@ -1,4 +1,7 @@
 # CMake
 cmake-build-*/
+Debug/
 
 .idea/*
+.vim/*
+.vscode/*

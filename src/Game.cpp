@@ -6,6 +6,7 @@
 #include <SDL_image.h>
 
 #include <glm/ext/matrix_clip_space.hpp>
+#include <glm/ext/matrix_transform.hpp>
 
 #include <stdexcept>
 
@@ -16,11 +17,13 @@
 #include "Resources/ResourceManager.hpp"
 #include "Resources/Shader.hpp"
 
+#include "Camera2D.hpp"
 #include "StringUtils.hpp"
 
 struct GameData
 {
     std::shared_ptr<Sprite> sprite = nullptr;
+    std::shared_ptr<Camera2D> camera = nullptr;
 };
 
 std::unique_ptr<Game> Game::create() { return std::unique_ptr<Game>(new Game()); }
@@ -59,6 +62,8 @@ void Game::init()
 
     initRenderer();
 
+    m_data->camera = std::make_shared<Camera2D>();
+
     m_isRunning = true;
 }
 
@@ -96,14 +101,32 @@ void Game::handleEvents()
             m_isRunning = false;
         }
     }
+
+    constexpr float cameraSpeed = 1.0f;
+    const uint8_t* currentKeyStates = SDL_GetKeyboardState(nullptr);
+    if (currentKeyStates[SDL_SCANCODE_UP])
+    {
+        m_data->camera->moveY(-cameraSpeed);
+    }
+    if (currentKeyStates[SDL_SCANCODE_DOWN])
+    {
+        m_data->camera->moveY(cameraSpeed);
+    }
+    if (currentKeyStates[SDL_SCANCODE_RIGHT])
+    {
+        m_data->camera->moveX(cameraSpeed);
+    }
+    if (currentKeyStates[SDL_SCANCODE_LEFT])
+    {
+        m_data->camera->moveX(-cameraSpeed);
+    }
 }
 
 void Game::draw()
 {
-    glClearColor(0.39f, 0.58f, 0.93f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
+    m_renderer->begin(m_data->camera->getView());
     m_renderer->draw(m_data->sprite);
+    m_renderer->end();
 
     m_window->display();
 }

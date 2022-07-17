@@ -16,6 +16,7 @@
 SpriteRenderer::SpriteRenderer(const std::shared_ptr<Shader>& shader)
     : m_quadVAO(0)
     , m_shader(shader)
+    , m_view(1.0f)
 {
     if (m_shader)
     {
@@ -47,6 +48,18 @@ SpriteRenderer::SpriteRenderer(const std::shared_ptr<Shader>& shader)
 
 SpriteRenderer::~SpriteRenderer() { glDeleteVertexArrays(1, &m_quadVAO); }
 
+void SpriteRenderer::begin(const glm::mat4& view)
+{
+    m_view = view;
+    begin();
+}
+
+void SpriteRenderer::begin()
+{
+    glClearColor(0.39f, 0.58f, 0.93f, 1.0f); // TODO move color to argument
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
 void SpriteRenderer::draw(const std::shared_ptr<Sprite>& sprite)
 {
     if (sprite && m_shader)
@@ -54,17 +67,9 @@ void SpriteRenderer::draw(const std::shared_ptr<Sprite>& sprite)
         const glm::vec2& origin = sprite->getOrigin();
         const glm::vec2& size = sprite->getTexture()->getSize();
 
-        m_shader->use();
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(sprite->getPosition(), 0.0f));
-
-        model = glm::rotate(model, glm::radians(sprite->getDegrees()), glm::vec3(0.0f, 0.0f, 1.0f));
-        model = glm::translate(model, glm::vec3(-origin.x * size.x, -origin.y * size.y, 0.0f));
-
-        model = glm::scale(model, glm::vec3(size, 1.0f));
-
-        m_shader->set("model", model);
+        m_shader->set("model", sprite->getModel());
         m_shader->set("spriteColor", sprite->getColor());
+        m_shader->set("view", m_view);
 
         glActiveTexture(GL_TEXTURE0);
         sprite->getTexture()->bind();
@@ -74,3 +79,5 @@ void SpriteRenderer::draw(const std::shared_ptr<Sprite>& sprite)
         glBindVertexArray(0);
     }
 }
+
+void SpriteRenderer::end() { m_view = glm::mat4(1.0f); }
