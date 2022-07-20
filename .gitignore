@@ -5,3 +5,7 @@ Debug/
 .idea/*
 .vim/*
 .vscode/*
+
+.exrc
+
+src/Generated/*

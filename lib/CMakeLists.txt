@@ -4,10 +4,17 @@ target_include_directories(pacman PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/glad/inclu
 add_subdirectory(SDL)
 target_link_libraries(pacman PRIVATE SDL2::SDL2main SDL2::SDL2)
 
+if (NOT MSVC)
 set(BUILD_SHARED_LIBS FALSE)
+endif()
 set(SDL2IMAGE_SAMPLES FALSE)
 add_subdirectory(SDL_image)
+
+if (BUILD_SHARED_LIBS)
+target_link_libraries(pacman PRIVATE SDL2_image::SDL2_image)
+else()
 target_link_libraries(pacman PRIVATE SDL2_image::SDL2_image-static)
+endif()
 
 add_subdirectory(glm)
 target_link_libraries(pacman PRIVATE glm::glm)
