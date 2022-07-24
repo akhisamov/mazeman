@@ -29,7 +29,11 @@ void Sprite::setPosition(const glm::vec2& position)
     updateModel();
 }
 
-void Sprite::setPosition(float x, float y) { m_position = glm::vec2(x, y); }
+void Sprite::setPosition(float x, float y)
+{
+    m_position = glm::vec2(x, y);
+    updateModel();
+}
 
 void Sprite::setOrigin(const glm::vec2& origin)
 {

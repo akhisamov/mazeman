@@ -2,7 +2,7 @@
 
 #include <glm/mat4x4.hpp>
 
-class Camera2D // TODO make zoom
+class Camera2D
 {
 public:
     Camera2D();
