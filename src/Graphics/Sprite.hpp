@@ -6,12 +6,20 @@
 
 class Texture2D;
 
-class Sprite
+class Sprite final
 {
     friend class SpriteRenderer;
 
+protected:
+    struct Data
+    {
+        const std::shared_ptr<Texture2D>& texture;
+    };
+
 public:
     static std::shared_ptr<Sprite> create(const std::shared_ptr<Texture2D>& texture);
+
+    explicit Sprite(const Data& data);
 
     [[nodiscard]] const std::shared_ptr<Texture2D>& getTexture() const { return m_texture; }
 
@@ -34,8 +42,6 @@ protected:
     const glm::mat4& getModel() const { return m_model; }
 
 private:
-    explicit Sprite(const std::shared_ptr<Texture2D>& texture);
-
     void updateModel();
 
     const std::shared_ptr<Texture2D>& m_texture;

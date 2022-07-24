@@ -9,13 +9,21 @@
 
 #include "Resource.hpp"
 
-class Texture2D : public Resource
+class Texture2D final : public Resource
 {
+protected:
+    struct Data
+    {
+        uint32_t id = 0;
+        glm::vec2 size;
+    };
+
 public:
     static std::shared_ptr<Texture2D> create(SDL_Surface* surface);
     static std::shared_ptr<Texture2D> createFromData(const std::map<std::string, std::string>& data);
     static std::vector<std::string> getFiles(const std::string_view& name);
 
+    explicit Texture2D(const Data& data);
     Texture2D() = delete;
     ~Texture2D() override;
 
@@ -25,8 +33,6 @@ public:
     [[nodiscard]] const glm::vec2& getSize() const { return m_size; }
 
 private:
-    explicit Texture2D(uint32_t id, const glm::vec2& size);
-
     uint32_t m_id;
     glm::vec2 m_size;
 };

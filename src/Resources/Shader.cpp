@@ -42,9 +42,9 @@ namespace
 
 std::shared_ptr<Shader> Shader::create(const std::string_view& vertexCode, const std::string_view& fragmentCode)
 {
+    Shader::Data data;
     uint32_t vertexShader = 0;
     uint32_t fragmentShader = 0;
-    uint32_t shaderProgram = 0;
 
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
     const char* vertexCodeStr = vertexCode.data();
@@ -61,14 +61,14 @@ std::shared_ptr<Shader> Shader::create(const std::string_view& vertexCode, const
         if (checkShaderStatus(fragmentShader, GL_COMPILE_STATUS))
         {
 
-            shaderProgram = glCreateProgram();
-            glAttachShader(shaderProgram, vertexShader);
-            glAttachShader(shaderProgram, fragmentShader);
-            glLinkProgram(shaderProgram);
+            data.id = glCreateProgram();
+            glAttachShader(data.id, vertexShader);
+            glAttachShader(data.id, fragmentShader);
+            glLinkProgram(data.id);
 
-            if (!checkShaderStatus(shaderProgram, GL_LINK_STATUS))
+            if (!checkShaderStatus(data.id, GL_LINK_STATUS))
             {
-                shaderProgram = 0;
+                data.id = 0;
             }
         }
     }
@@ -81,9 +81,9 @@ std::shared_ptr<Shader> Shader::create(const std::string_view& vertexCode, const
     {
         glDeleteShader(fragmentShader);
     }
-    if (shaderProgram != 0)
+    if (data.id != 0)
     {
-        return std::shared_ptr<Shader>(new Shader(shaderProgram));
+        return std::make_shared<Shader>(data);
     }
 
     return nullptr;
@@ -121,8 +121,8 @@ std::vector<std::string> Shader::getFiles(const std::string_view& name)
     return Resource::getFiles(name, exts);
 }
 
-Shader::Shader(uint32_t id)
-    : m_id(id)
+Shader::Shader(const Data& data)
+    : m_id(data.id)
 {
 }
 

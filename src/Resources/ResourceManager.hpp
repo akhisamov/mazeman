@@ -12,8 +12,16 @@ class ResourceManager final
     : public ResourceStorage<Texture2D>
     , public ResourceStorage<Shader>
 {
+protected:
+    struct Token
+    {
+    };
+
 public:
     static std::shared_ptr<ResourceManager> create(const std::vector<std::string_view>& searchPaths);
+
+    explicit ResourceManager(Token);
+    ResourceManager() = delete;
 
     template <class T>
     const std::shared_ptr<T>& load(const std::string_view& name)
@@ -44,8 +52,6 @@ public:
     }
 
 private:
-    ResourceManager() = default;
-
     static std::string readFileData(const std::string_view& filename);
 
     template <typename T>

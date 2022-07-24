@@ -10,10 +10,10 @@
 
 std::shared_ptr<Texture2D> Texture2D::create(SDL_Surface* surface)
 {
+    Texture2D::Data data;
     bool success = true;
-    uint32_t id = 0;
-    glGenTextures(1, &id);
-    glBindTexture(GL_TEXTURE_2D, id);
+    glGenTextures(1, &data.id);
+    glBindTexture(GL_TEXTURE_2D, data.id);
 
     // set the texture wrapping parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
@@ -22,7 +22,6 @@ std::shared_ptr<Texture2D> Texture2D::create(SDL_Surface* surface)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glm::vec2 size(0.0f);
     if (!surface)
     {
         std::cerr << StringUtils::format("IMG_Load: %s", IMG_GetError()) << std::endl;
@@ -53,7 +52,7 @@ std::shared_ptr<Texture2D> Texture2D::create(SDL_Surface* surface)
 
         if (success)
         {
-            size = glm::vec2(surface->w, surface->h);
+            data.size = glm::vec2(surface->w, surface->h);
             glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLsizei>(mode), surface->w, surface->h, 0, mode,
                          GL_UNSIGNED_BYTE, surface->pixels);
             glGenerateMipmap(GL_TEXTURE_2D);
@@ -63,7 +62,7 @@ std::shared_ptr<Texture2D> Texture2D::create(SDL_Surface* surface)
     glBindBuffer(GL_TEXTURE_2D, 0);
     if (success)
     {
-        return std::shared_ptr<Texture2D>(new Texture2D(id, size));
+        return std::make_shared<Texture2D>(data);
     }
     return nullptr;
 }
@@ -96,9 +95,9 @@ std::vector<std::string> Texture2D::getFiles(const std::string_view& name)
     return Resource::getFiles(name, exts);
 }
 
-Texture2D::Texture2D(uint32_t id, const glm::vec2& size)
-    : m_id(id)
-    , m_size(size)
+Texture2D::Texture2D(const Data& data)
+    : m_id(data.id)
+    , m_size(data.size)
 {
 }
 

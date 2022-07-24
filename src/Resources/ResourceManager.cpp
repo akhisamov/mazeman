@@ -31,7 +31,7 @@ std::shared_ptr<ResourceManager> ResourceManager::create(const std::vector<std::
         }
     }
 
-    return std::shared_ptr<ResourceManager>(new ResourceManager);
+    return std::make_shared<ResourceManager>(ResourceManager::Token {});
 }
 
 std::string ResourceManager::readFileData(const std::string_view& filename)
@@ -60,3 +60,5 @@ std::string ResourceManager::readFileData(const std::string_view& filename)
     }
     return buffer;
 }
+
+ResourceManager::ResourceManager(Token) { }

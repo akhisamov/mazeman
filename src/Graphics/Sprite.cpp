@@ -10,11 +10,11 @@ std::shared_ptr<Sprite> Sprite::create(const std::shared_ptr<Texture2D>& texture
     {
         throw std::runtime_error("Failed to create Sprite: texture is empty");
     }
-    return std::shared_ptr<Sprite>(new Sprite(texture));
+    return std::make_shared<Sprite>(Sprite::Data { texture });
 }
 
-Sprite::Sprite(const std::shared_ptr<Texture2D>& texture)
-    : m_texture(texture)
+Sprite::Sprite(const Data& data)
+    : m_texture(data.texture)
     , m_position(0.0f)
     , m_origin(0.5f)
     , m_degrees(0.0f)
