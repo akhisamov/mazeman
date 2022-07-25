@@ -14,11 +14,11 @@
 #include "Camera2D.hpp"
 #include "Sprite.hpp"
 
-SpriteRenderer::SpriteRenderer(const glm::vec2& size)
+SpriteRenderer::SpriteRenderer()
     : m_shader(Shader::create(shaders::sprite_vert, shaders::sprite_frag))
-    , m_view(1.0f)
     , m_vao(0)
     , m_vbo(0)
+    , m_cameraMatrix(1.0f)
 {
     std::vector<float> vertices = { 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
 
@@ -40,7 +40,6 @@ SpriteRenderer::SpriteRenderer(const glm::vec2& size)
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-    setSize(size);
 }
 
 SpriteRenderer::~SpriteRenderer()
@@ -49,13 +48,11 @@ SpriteRenderer::~SpriteRenderer()
     glDeleteVertexArrays(1, &m_vao);
 }
 
-void SpriteRenderer::setSize(const glm::vec2& size) { m_projection = glm::ortho(0.0f, size.x, size.y, 0.0f); }
-
 void SpriteRenderer::begin(const glm::vec4 clearColor, const std::shared_ptr<Camera2D>& camera)
 {
     if (camera)
     {
-        m_view = camera->getView();
+        m_cameraMatrix = camera->getMatrix();
     }
 
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
@@ -67,9 +64,7 @@ void SpriteRenderer::draw(const std::shared_ptr<Sprite>& sprite)
     if (sprite && m_shader)
     {
         m_shader->use();
-        m_shader->set("model", sprite->getModel());
-        m_shader->set("view", m_view);
-        m_shader->set("projection", m_projection);
+        m_shader->set("MVP", m_cameraMatrix * sprite->getModel());
         m_shader->set("spriteColor", sprite->getColor());
 
         glActiveTexture(GL_TEXTURE0);
@@ -81,4 +76,4 @@ void SpriteRenderer::draw(const std::shared_ptr<Sprite>& sprite)
     }
 }
 
-void SpriteRenderer::end() { m_view = glm::mat4(1.0f); }
+void SpriteRenderer::end() { m_cameraMatrix = glm::mat4(1.0f); }

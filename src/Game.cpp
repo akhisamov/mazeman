@@ -62,8 +62,9 @@ void Game::init()
     constexpr std::string_view bundleFile = "res.bundle";
     m_resources = ResourceManager::create({ bundleFile });
 
-    m_renderer = std::make_unique<SpriteRenderer>(m_window->getWindowSize());
+    m_renderer = std::make_unique<SpriteRenderer>();
     m_data->camera = std::make_shared<Camera2D>();
+    m_data->camera->setWindowSize(width, height);
 
     m_isRunning = true;
 }
@@ -92,7 +93,21 @@ void Game::handleEvents()
         }
         else if (e.type == SDL_WINDOWEVENT_RESIZED)
         {
-            m_renderer->setSize(m_window->getWindowSize());
+            const Window::Size windowSize = m_window->getWindowSize();
+            m_data->camera->setWindowSize(windowSize.width, windowSize.height);
+        }
+        else if (e.type == SDL_MOUSEWHEEL)
+        {
+            constexpr float scalar = 0.1f;
+            const float cameraScale = m_data->camera->getScale();
+            if (e.wheel.y > 0)
+            {
+                m_data->camera->setScale(cameraScale + scalar);
+            }
+            else if (e.wheel.y < 0)
+            {
+                m_data->camera->setScale(cameraScale - scalar);
+            }
         }
     }
 
@@ -100,11 +115,11 @@ void Game::handleEvents()
     const uint8_t* currentKeyStates = SDL_GetKeyboardState(nullptr);
     if (currentKeyStates[SDL_SCANCODE_UP])
     {
-        m_data->camera->moveY(-cameraSpeed);
+        m_data->camera->moveY(cameraSpeed);
     }
     if (currentKeyStates[SDL_SCANCODE_DOWN])
     {
-        m_data->camera->moveY(cameraSpeed);
+        m_data->camera->moveY(-cameraSpeed);
     }
     if (currentKeyStates[SDL_SCANCODE_RIGHT])
     {

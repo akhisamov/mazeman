@@ -59,13 +59,12 @@ Window::~Window()
 
 void Window::display() { SDL_GL_SwapWindow(m_data->window); }
 
-glm::vec2 Window::getWindowSize() const
+Window::Size Window::getWindowSize() const
 {
-    int w = 0;
-    int h = 0;
+    Size size;
     if (m_data->window)
     {
-        SDL_GetWindowSize(m_data->window, &w, &h);
+        SDL_GetWindowSize(m_data->window, &size.width, &size.height);
     }
-    return { w, h };
+    return size;
 }

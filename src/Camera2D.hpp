@@ -7,14 +7,25 @@ class Camera2D
 public:
     Camera2D();
 
-    const glm::mat4& getView() const { return m_view; }
-
     void moveX(float velocity);
     void moveY(float velocity);
 
+    float getScale() const { return m_scale; }
+    void setScale(float scale);
+
+    void setWindowSize(int width, int height);
+
+    const glm::mat4& getMatrix() const { return m_cameraMatrix; }
+
 private:
-    void updateView();
+    void updateMatrix();
+
+    float m_scale;
+
+    glm::vec2 m_windowSize;
 
     glm::vec3 m_position;
-    glm::mat4 m_view;
+
+    glm::mat4 m_cameraMatrix;
+    glm::mat4 m_orthoMatrix;
 };
