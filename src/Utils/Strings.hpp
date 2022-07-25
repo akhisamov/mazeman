@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <string>
 
-class StringUtils
+class Strings
 {
 public:
     template <typename... Args>

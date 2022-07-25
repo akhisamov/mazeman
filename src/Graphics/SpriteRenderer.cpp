@@ -51,14 +51,14 @@ SpriteRenderer::~SpriteRenderer()
 
 void SpriteRenderer::setSize(const glm::vec2& size) { m_projection = glm::ortho(0.0f, size.x, size.y, 0.0f); }
 
-void SpriteRenderer::begin(const std::shared_ptr<Camera2D>& camera)
+void SpriteRenderer::begin(const glm::vec4 clearColor, const std::shared_ptr<Camera2D>& camera)
 {
     if (camera)
     {
         m_view = camera->getView();
     }
 
-    glClearColor(0.39f, 0.58f, 0.93f, 1.0f);
+    glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     glClear(GL_COLOR_BUFFER_BIT);
 }
 

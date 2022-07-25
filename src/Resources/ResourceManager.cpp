@@ -1,10 +1,9 @@
 #include "ResourceManager.hpp"
-#include "StringUtils.hpp"
 
-#include "SDL_filesystem.h"
-#include "SDL_image.h"
+#include <SDL_filesystem.h>
+#include <SDL_image.h>
 
-#include "physfs.h"
+#include <physfs.h>
 
 #include <filesystem>
 
@@ -18,7 +17,7 @@ std::shared_ptr<ResourceManager> ResourceManager::create(const std::vector<std::
     constexpr std::string_view errorMessage = "ResourceManager Init Error: %s";
     if (PHYSFS_init(nullptr) == 0)
     {
-        throw std::runtime_error(StringUtils::format(errorMessage, PHYSFS_getLastError()));
+        throw std::runtime_error(Strings::format(errorMessage, PHYSFS_getLastError()));
     }
 
     for (auto path : searchPaths)
@@ -27,7 +26,7 @@ std::shared_ptr<ResourceManager> ResourceManager::create(const std::vector<std::
         absolutePath /= path.data();
         if (PHYSFS_mount(absolutePath.string().c_str(), nullptr, 1) == 0)
         {
-            throw std::runtime_error(StringUtils::format(errorMessage, PHYSFS_getLastError()));
+            throw std::runtime_error(Strings::format(errorMessage, PHYSFS_getLastError()));
         }
     }
 
@@ -50,13 +49,13 @@ std::string ResourceManager::readFileData(const std::string_view& filename)
         else
         {
             constexpr std::string_view message = "Resource Load Error [%s]: %s";
-            throw std::runtime_error(StringUtils::format(message, filename.data(), PHYSFS_getLastError()));
+            throw std::runtime_error(Strings::format(message, filename.data(), PHYSFS_getLastError()));
         }
     }
     else
     {
         constexpr std::string_view message = "Resource Load Error [%s]: resource is not found";
-        throw std::runtime_error(StringUtils::format(message, filename.data()));
+        throw std::runtime_error(Strings::format(message, filename.data()));
     }
     return buffer;
 }

@@ -17,8 +17,10 @@
 #include "Resources/ResourceManager.hpp"
 #include "Resources/Shader.hpp"
 
+#include "Utils/Colors.hpp"
+#include "Utils/Strings.hpp"
+
 #include "Camera2D.hpp"
-#include "StringUtils.hpp"
 
 struct GameData
 {
@@ -43,13 +45,13 @@ void Game::init()
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
-        throw std::runtime_error(StringUtils::format("SDL Init Error: %s", SDL_GetError()));
+        throw std::runtime_error(Strings::format("SDL Init Error: %s", SDL_GetError()));
     }
 
     constexpr int imgFlags = IMG_INIT_JPG | IMG_INIT_PNG;
     if ((IMG_Init(imgFlags) & imgFlags) != imgFlags)
     {
-        throw std::runtime_error(StringUtils::format("IMG Init Error: %s", IMG_GetError()));
+        throw std::runtime_error(Strings::format("IMG Init Error: %s", IMG_GetError()));
     }
 
     constexpr std::string_view title = "Pac Man";
@@ -116,7 +118,7 @@ void Game::handleEvents()
 
 void Game::draw()
 {
-    m_renderer->begin(m_data->camera);
+    m_renderer->begin(Colors::toGL(0x3AB4F2), m_data->camera);
     m_renderer->draw(m_data->sprite);
     m_renderer->end();
 

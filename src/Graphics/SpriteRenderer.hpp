@@ -17,7 +17,7 @@ public:
 
     void setSize(const glm::vec2& size);
 
-    void begin(const std::shared_ptr<Camera2D>& camera = nullptr);
+    void begin(const glm::vec4 clearColor, const std::shared_ptr<Camera2D>& camera = nullptr);
     void draw(const std::shared_ptr<Sprite>& sprite);
     void end();
 

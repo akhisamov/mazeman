@@ -6,7 +6,7 @@
 #include "Resources/Shader.hpp"
 #include "Resources/Texture2D.hpp"
 
-#include "StringUtils.hpp"
+#include "Utils/Strings.hpp"
 
 class ResourceManager final
     : public ResourceStorage<Texture2D>
@@ -40,7 +40,7 @@ public:
         if (!pair.second)
         {
             constexpr std::string_view message = "Resource Load Error [%s]: can not save resource";
-            throw std::runtime_error(StringUtils::format(message, name.data()));
+            throw std::runtime_error(Strings::format(message, name.data()));
         }
         return pair.first->second;
     }

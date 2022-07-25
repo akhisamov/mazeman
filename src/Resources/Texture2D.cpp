@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-#include "StringUtils.hpp"
+#include "Utils/Strings.hpp"
 
 std::shared_ptr<Texture2D> Texture2D::create(SDL_Surface* surface)
 {
@@ -24,7 +24,7 @@ std::shared_ptr<Texture2D> Texture2D::create(SDL_Surface* surface)
 
     if (!surface)
     {
-        std::cerr << StringUtils::format("IMG_Load: %s", IMG_GetError()) << std::endl;
+        std::cerr << Strings::format("IMG_Load: %s", IMG_GetError()) << std::endl;
         success = false;
     }
     else
@@ -83,7 +83,7 @@ std::shared_ptr<Texture2D> Texture2D::createFromData(const std::map<std::string,
     if (surface == nullptr)
     {
         const std::string_view message = "Creation Texture2D from data ERROR: %s";
-        throw std::runtime_error(StringUtils::format(message, IMG_GetError()));
+        throw std::runtime_error(Strings::format(message, IMG_GetError()));
     }
 
     return create(surface);
