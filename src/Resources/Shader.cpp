@@ -36,8 +36,8 @@ namespace
         return true;
     }
 
-    constexpr std::string_view vertexExt = ".vert.glsl";
-    constexpr std::string_view fragmentExt = ".frag.glsl";
+    constexpr std::string_view vertexExt = ".vert";
+    constexpr std::string_view fragmentExt = ".frag";
 }
 
 std::shared_ptr<Shader> Shader::create(const std::string_view& vertexCode, const std::string_view& fragmentCode)
@@ -113,12 +113,6 @@ std::shared_ptr<Shader> Shader::createFromData(const std::map<std::string, std::
     }
 
     return create(vertexCode, fragmentCode);
-}
-
-std::vector<std::string> Shader::getFiles(const std::string_view& name)
-{
-    const std::vector<std::string_view> exts = { fragmentExt, vertexExt };
-    return Resource::getFiles(name, exts);
 }
 
 Shader::Shader(const Data& data)

@@ -19,7 +19,7 @@ struct WindowData
                                   SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
         if (window == nullptr)
         {
-            throw std::runtime_error(Strings::format("Window Creation Error: %s", SDL_GetError()));
+            throw std::runtime_error(strings::format("Window Creation Error: %s", SDL_GetError()));
         }
 
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -29,7 +29,7 @@ struct WindowData
         glContext = SDL_GL_CreateContext(window);
         if (glContext == nullptr)
         {
-            throw std::runtime_error(Strings::format("GL Context Creation Error: %s", SDL_GetError()));
+            throw std::runtime_error(strings::format("GL Context Creation Error: %s", SDL_GetError()));
         }
 
         if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))

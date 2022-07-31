@@ -26,6 +26,7 @@ struct GameData
 {
     std::shared_ptr<Sprite> sprite = nullptr;
     std::shared_ptr<Camera2D> camera = nullptr;
+    glm::vec4 bgColor;
 };
 
 std::unique_ptr<Game> Game::create() { return std::unique_ptr<Game>(new Game()); }
@@ -45,40 +46,46 @@ void Game::init()
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
-        throw std::runtime_error(Strings::format("SDL Init Error: %s", SDL_GetError()));
+        throw std::runtime_error(strings::format("SDL Init Error: %s", SDL_GetError()));
     }
 
     constexpr int imgFlags = IMG_INIT_JPG | IMG_INIT_PNG;
     if ((IMG_Init(imgFlags) & imgFlags) != imgFlags)
     {
-        throw std::runtime_error(Strings::format("IMG Init Error: %s", IMG_GetError()));
+        throw std::runtime_error(strings::format("IMG Init Error: %s", IMG_GetError()));
     }
 
+    // Init window
     constexpr std::string_view title = "Pac Man";
     constexpr int width = 1280;
     constexpr int height = 720;
     m_window = std::make_unique<Window>(title, width, height);
 
-    constexpr std::string_view bundleFile = "res.bundle";
-    m_resources = ResourceManager::create({ bundleFile });
-
+    // Init renderer and camera
     m_renderer = std::make_unique<SpriteRenderer>();
     m_data->camera = std::make_shared<Camera2D>();
     m_data->camera->setWindowSize(width, height);
+
+    // Init resources
+    m_resources = ResourceManager::create();
+    m_resources->addSearchPath("res.bundle", "res");
+    m_resources->addFile<Texture2D>("wall", "res/textures/wall.jpg");
+
+    m_data->bgColor = colors::toGL(0x3AB4F2);
 
     m_isRunning = true;
 }
 
 void Game::loadResource()
 {
-    const auto& texture = m_resources->load<Texture2D>("textures/wall");
+    const auto& texture = m_resources->load<Texture2D>("wall");
     m_data->sprite = Sprite::create(texture);
     m_data->sprite->setOrigin(0.0f, 0.0f);
 }
 
 void Game::unloadResource()
 {
-    m_resources->unload<Texture2D>("textures/wall");
+    m_resources->unload<Texture2D>("wall");
     m_data->sprite = nullptr;
 }
 
@@ -133,7 +140,7 @@ void Game::handleEvents()
 
 void Game::draw()
 {
-    m_renderer->begin(Colors::toGL(0x3AB4F2), m_data->camera);
+    m_renderer->begin(m_data->bgColor, m_data->camera);
     m_renderer->draw(m_data->sprite);
     m_renderer->end();
 

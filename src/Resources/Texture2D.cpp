@@ -24,7 +24,7 @@ std::shared_ptr<Texture2D> Texture2D::create(SDL_Surface* surface)
 
     if (!surface)
     {
-        std::cerr << Strings::format("IMG_Load: %s", IMG_GetError()) << std::endl;
+        std::cerr << strings::format("IMG_Load: %s", IMG_GetError()) << std::endl;
         success = false;
     }
     else
@@ -83,16 +83,10 @@ std::shared_ptr<Texture2D> Texture2D::createFromData(const std::map<std::string,
     if (surface == nullptr)
     {
         const std::string_view message = "Creation Texture2D from data ERROR: %s";
-        throw std::runtime_error(Strings::format(message, IMG_GetError()));
+        throw std::runtime_error(strings::format(message, IMG_GetError()));
     }
 
     return create(surface);
-}
-
-std::vector<std::string> Texture2D::getFiles(const std::string_view& name)
-{
-    const std::vector<std::string_view> exts = { ".jpg" };
-    return Resource::getFiles(name, exts);
 }
 
 Texture2D::Texture2D(const Data& data)

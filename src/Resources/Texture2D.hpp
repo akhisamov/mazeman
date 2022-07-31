@@ -6,10 +6,9 @@
 
 #include <map>
 #include <memory>
+#include <string>
 
-#include "Resource.hpp"
-
-class Texture2D final : public Resource
+class Texture2D
 {
 protected:
     struct Data
@@ -21,11 +20,10 @@ protected:
 public:
     static std::shared_ptr<Texture2D> create(SDL_Surface* surface);
     static std::shared_ptr<Texture2D> createFromData(const std::map<std::string, std::string>& data);
-    static std::vector<std::string> getFiles(const std::string_view& name);
 
     explicit Texture2D(const Data& data);
     Texture2D() = delete;
-    ~Texture2D() override;
+    ~Texture2D();
 
     void bind() const;
 

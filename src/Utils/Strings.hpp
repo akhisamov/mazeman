@@ -3,11 +3,10 @@
 #include <stdexcept>
 #include <string>
 
-class Strings
+namespace strings
 {
-public:
     template <typename... Args>
-    static std::string format(const std::string_view& format, Args... args)
+    inline std::string format(const std::string_view& format, Args... args)
     {
         int size = std::snprintf(nullptr, 0, format.data(), args...) + 1;
         if (size <= 0)

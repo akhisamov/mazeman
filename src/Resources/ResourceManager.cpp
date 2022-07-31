@@ -7,30 +7,41 @@
 
 #include <filesystem>
 
-std::shared_ptr<ResourceManager> ResourceManager::create(const std::vector<std::string_view>& searchPaths)
+#include "Utils/Strings.hpp"
+
+std::shared_ptr<ResourceManager> ResourceManager::create()
 {
     if (PHYSFS_isInit())
     {
         return nullptr;
     }
 
-    constexpr std::string_view errorMessage = "ResourceManager Init Error: %s";
     if (PHYSFS_init(nullptr) == 0)
     {
-        throw std::runtime_error(Strings::format(errorMessage, PHYSFS_getLastError()));
-    }
-
-    for (auto path : searchPaths)
-    {
-        std::filesystem::path absolutePath = SDL_GetBasePath();
-        absolutePath /= path.data();
-        if (PHYSFS_mount(absolutePath.string().c_str(), nullptr, 1) == 0)
-        {
-            throw std::runtime_error(Strings::format(errorMessage, PHYSFS_getLastError()));
-        }
+        constexpr std::string_view message = "ResourceManager Init Error: %s";
+        throw std::runtime_error(strings::format(message, PHYSFS_getLastError()));
     }
 
     return std::make_shared<ResourceManager>(ResourceManager::Token {});
+}
+
+void ResourceManager::addSearchPath(const std::string_view& searchPath, const std::string_view& mountPoint)
+{
+    std::filesystem::path absolutePath = SDL_GetBasePath();
+    absolutePath /= searchPath.data();
+    if (PHYSFS_mount(absolutePath.string().c_str(), mountPoint.data(), 1) == 0)
+    {
+        constexpr std::string_view message = "ResourceManager::addSearchPath Error: %s";
+        throw std::runtime_error(strings::format(message, PHYSFS_getLastError()));
+    }
+}
+
+void ResourceManager::addSearchPaths(const std::map<std::string_view, std::string_view>& searchPaths)
+{
+    for (auto it : searchPaths)
+    {
+        addSearchPath(it.first, it.second);
+    }
 }
 
 std::string ResourceManager::readFileData(const std::string_view& filename)
@@ -49,13 +60,13 @@ std::string ResourceManager::readFileData(const std::string_view& filename)
         else
         {
             constexpr std::string_view message = "Resource Load Error [%s]: %s";
-            throw std::runtime_error(Strings::format(message, filename.data(), PHYSFS_getLastError()));
+            throw std::runtime_error(strings::format(message, filename.data(), PHYSFS_getLastError()));
         }
     }
     else
     {
         constexpr std::string_view message = "Resource Load Error [%s]: resource is not found";
-        throw std::runtime_error(Strings::format(message, filename.data()));
+        throw std::runtime_error(strings::format(message, filename.data()));
     }
     return buffer;
 }
