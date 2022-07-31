@@ -22,6 +22,7 @@ public:
 private:
     uint32_t m_vao;
     uint32_t m_vbo;
+    uint32_t m_ebo;
     std::shared_ptr<Shader> m_shader;
 
     glm::mat4 m_cameraMatrix;

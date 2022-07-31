@@ -18,32 +18,35 @@ SpriteRenderer::SpriteRenderer()
     : m_shader(Shader::create(shaders::sprite_vert, shaders::sprite_frag))
     , m_vao(0)
     , m_vbo(0)
+    , m_ebo(0)
     , m_cameraMatrix(1.0f)
 {
-    std::vector<float> vertices = { 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-
-                                    0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f };
+    std::vector<glm::vec2> vertices = { { 0.0f, 1.0f }, { 1.0f, 1.0f }, { 1.0f, 0.0f }, { 0.0f, 0.0f } };
+    uint32_t indices[] = { 0, 2, 3, 0, 1, 2 };
 
     glGenVertexArrays(1, &m_vao);
     glGenBuffers(1, &m_vbo);
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+    glGenBuffers(1, &m_ebo);
 
     glBindVertexArray(m_vao);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec2), vertices.data(), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
 
 SpriteRenderer::~SpriteRenderer()
 {
+    glDeleteBuffers(1, &m_ebo);
     glDeleteBuffers(1, &m_vbo);
     glDeleteVertexArrays(1, &m_vao);
 }
@@ -71,7 +74,13 @@ void SpriteRenderer::draw(const std::shared_ptr<Sprite>& sprite)
         sprite->getTexture()->bind();
 
         glBindVertexArray(m_vao);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
     }
 }
