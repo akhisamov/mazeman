@@ -18,6 +18,8 @@ public:
     };
     Size getWindowSize() const;
 
+    void setTitle(const std::string_view& title);
+
 private:
     std::unique_ptr<struct WindowData> m_data;
 };

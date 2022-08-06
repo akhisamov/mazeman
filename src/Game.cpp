@@ -4,6 +4,7 @@
 
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_timer.h>
 
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -22,14 +23,33 @@
 
 #include "Camera2D.hpp"
 
+namespace
+{
+    constexpr std::string_view title = "PacMan";
+    constexpr std::string_view fpsString = "Avg FPS: %s";
+    constexpr std::string_view delimeter = "%s | %s";
+
+    std::string makeWindowTitle(const std::string_view& avgFps)
+    {
+        std::string result(title);
+        if (!avgFps.empty())
+        {
+            const std::string fps = strings::format(fpsString, avgFps.data());
+            result = strings::format(delimeter, result.c_str(), fps.c_str());
+        }
+        return result;
+    }
+
+    constexpr int screenFps = 30;
+    constexpr int screenTicksPerFrame = 1000 / screenFps;
+}
+
 struct GameData
 {
     std::shared_ptr<Sprite> sprite = nullptr;
     std::shared_ptr<Camera2D> camera = nullptr;
     glm::vec4 bgColor;
 };
-
-std::unique_ptr<Game> Game::create() { return std::unique_ptr<Game>(new Game()); }
 
 Game::Game()
     : m_isRunning(false)
@@ -40,7 +60,49 @@ Game::Game()
 {
 }
 
-Game::~Game() { }
+Game::~Game() = default;
+
+void Game::run()
+{
+    if (!m_isRunning)
+    {
+        init();
+        loadResource();
+
+        uint32_t totalFrames = 0;
+        GameTime gameTime;
+        while (m_isRunning)
+        {
+            totalFrames++;
+            const uint64_t start = SDL_GetPerformanceCounter();
+
+            handleEvents();
+            gameTime.beginUpdate();
+            update(gameTime);
+            gameTime.endUpdate();
+            draw();
+
+            const uint64_t end = SDL_GetPerformanceCounter();
+            if (m_window)
+            {
+                m_window->setTitle(makeWindowTitle(std::to_string(totalFrames / gameTime.getTotalMs())));
+
+                const float elapsedMs = (end - start) / static_cast<float>(SDL_GetPerformanceFrequency()) * 1000.0f;
+                if (screenTicksPerFrame > elapsedMs)
+                {
+                    SDL_Delay(screenTicksPerFrame - elapsedMs);
+                }
+            }
+
+            if (totalFrames > 20000)
+            {
+                totalFrames = 0;
+            }
+        }
+
+        unloadResource();
+    }
+}
 
 void Game::init()
 {
@@ -56,7 +118,6 @@ void Game::init()
     }
 
     // Init window
-    constexpr std::string_view title = "Pac Man";
     constexpr int width = 1280;
     constexpr int height = 720;
     m_window = std::make_unique<Window>(title, width, height);
@@ -137,6 +198,8 @@ void Game::handleEvents()
         m_data->camera->moveX(-cameraSpeed);
     }
 }
+
+void Game::update(const GameTime& gameTime) { }
 
 void Game::draw()
 {

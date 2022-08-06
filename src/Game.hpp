@@ -2,24 +2,25 @@
 
 #include <memory>
 
+#include "Utils/GameTime.hpp"
+
 class Game
 {
 public:
-    static std::unique_ptr<Game> create();
+    Game();
     ~Game();
 
+    void run();
+
+private:
     void init();
 
     void loadResource();
     void unloadResource();
 
     void handleEvents();
+    void update(const GameTime& gameTime);
     void draw();
-
-    [[nodiscard]] bool isRunning() const { return m_isRunning; }
-
-private:
-    Game();
 
     bool m_isRunning;
 

@@ -68,3 +68,11 @@ Window::Size Window::getWindowSize() const
     }
     return size;
 }
+
+void Window::setTitle(const std::string_view& title)
+{
+    if (m_data->window)
+    {
+        SDL_SetWindowTitle(m_data->window, title.data());
+    }
+}
