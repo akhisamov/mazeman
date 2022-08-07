@@ -118,14 +118,12 @@ void Game::init()
     }
 
     // Init window
-    constexpr int width = 1280;
-    constexpr int height = 720;
-    m_window = std::make_unique<Window>(title, width, height);
+    constexpr glm::ivec2 windowSize(1280, 720);
+    m_window = std::make_unique<Window>(title, windowSize.x, windowSize.y);
 
     // Init renderer and camera
     m_renderer = std::make_unique<SpriteRenderer>();
-    m_data->camera = std::make_shared<Camera2D>();
-    m_data->camera->setWindowSize(width, height);
+    m_data->camera = std::make_shared<Camera2D>(windowSize, 1.0f, 0.0f);
 
     // Init resources
     m_resources = ResourceManager::create();
@@ -161,8 +159,7 @@ void Game::handleEvents()
         }
         else if (e.type == SDL_WINDOWEVENT_RESIZED)
         {
-            const Window::Size windowSize = m_window->getWindowSize();
-            m_data->camera->setWindowSize(windowSize.width, windowSize.height);
+            m_data->camera->setWindowSize(m_window->getWindowSize());
         }
         else if (e.type == SDL_MOUSEWHEEL)
         {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/ext/vector_int2.hpp>
+
 #include <memory>
 #include <string_view>
 
@@ -11,12 +13,7 @@ public:
 
     void display();
 
-    struct Size
-    {
-        int width = 0;
-        int height = 0;
-    };
-    Size getWindowSize() const;
+    glm::ivec2 getWindowSize() const;
 
     void setTitle(const std::string_view& title);
 
