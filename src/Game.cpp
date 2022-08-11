@@ -164,7 +164,7 @@ void Game::handleEvents()
         else if (e.type == SDL_MOUSEWHEEL)
         {
             constexpr float scalar = 0.1f;
-            const float cameraScale = m_data->camera->getScale();
+            const glm::vec2& cameraScale = m_data->camera->getScale();
             if (e.wheel.y > 0)
             {
                 m_data->camera->setScale(cameraScale + scalar);
@@ -180,19 +180,19 @@ void Game::handleEvents()
     const uint8_t* currentKeyStates = SDL_GetKeyboardState(nullptr);
     if (currentKeyStates[SDL_SCANCODE_UP])
     {
-        m_data->camera->moveY(cameraSpeed);
+        m_data->camera->move(0, cameraSpeed);
     }
     if (currentKeyStates[SDL_SCANCODE_DOWN])
     {
-        m_data->camera->moveY(-cameraSpeed);
+        m_data->camera->move(0, -cameraSpeed);
     }
     if (currentKeyStates[SDL_SCANCODE_RIGHT])
     {
-        m_data->camera->moveX(cameraSpeed);
+        m_data->camera->move(cameraSpeed, 0);
     }
     if (currentKeyStates[SDL_SCANCODE_LEFT])
     {
-        m_data->camera->moveX(-cameraSpeed);
+        m_data->camera->move(-cameraSpeed, 0);
     }
 }
 

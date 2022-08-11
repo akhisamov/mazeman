@@ -1,38 +1,25 @@
 #pragma once
 
-#include <glm/mat4x4.hpp>
+#include "Transformable.hpp"
 
-class Camera2D
+class Camera2D : public Transformable
 {
 public:
     explicit Camera2D(const glm::ivec2& windowSize);
     Camera2D(const glm::ivec2& windowSize, float scale, float origin);
+    ~Camera2D() = default;
 
-    void moveX(float velocity);
-    void moveY(float velocity);
-
-    float getScale() const { return m_scale; }
-    void setScale(float scale);
-
-    glm::vec2 getOrigin() const { return m_origin; }
-    void setOrigin(float value);
-    void setOrigin(const glm::vec2& origin);
+    Camera2D() = delete;
+    Camera2D(Camera2D&&) = delete;
+    Camera2D(const Camera2D&) = delete;
 
     void setWindowSize(int width, int height);
     void setWindowSize(const glm::ivec2& windowSize);
 
-    const glm::mat4& getMatrix() const { return m_cameraMatrix; }
+protected:
+    using Transformable::setSize;
+    glm::mat4 getIdentity() override;
 
 private:
-    void updateMatrix();
-
-    float m_scale;
-
-    glm::vec2 m_windowSize;
-    glm::vec2 m_origin;
-
-    glm::vec3 m_position;
-
-    glm::mat4 m_cameraMatrix;
     glm::mat4 m_orthoMatrix;
 };

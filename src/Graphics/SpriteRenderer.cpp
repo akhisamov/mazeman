@@ -55,7 +55,7 @@ void SpriteRenderer::begin(const glm::vec4 clearColor, const std::shared_ptr<Cam
 {
     if (camera)
     {
-        m_cameraMatrix = camera->getMatrix();
+        m_cameraMatrix = camera->getTransformation();
     }
 
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
@@ -67,7 +67,7 @@ void SpriteRenderer::draw(const std::shared_ptr<Sprite>& sprite)
     if (sprite && m_shader)
     {
         m_shader->use();
-        m_shader->set("MVP", m_cameraMatrix * sprite->getModel());
+        m_shader->set("MVP", m_cameraMatrix * sprite->getTransformation());
         m_shader->set("spriteColor", sprite->getColor());
 
         glActiveTexture(GL_TEXTURE0);

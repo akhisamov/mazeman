@@ -1,7 +1,5 @@
 #include "Sprite.hpp"
 
-#include <glm/ext/matrix_transform.hpp>
-
 #include <stdexcept>
 
 std::shared_ptr<Sprite> Sprite::create(const std::shared_ptr<Texture2D>& texture)
@@ -14,66 +12,16 @@ std::shared_ptr<Sprite> Sprite::create(const std::shared_ptr<Texture2D>& texture
 }
 
 Sprite::Sprite(const Data& data)
-    : m_texture(data.texture)
-    , m_position(0.0f)
-    , m_origin(0.5f)
-    , m_degrees(0.0f)
+    : Transformable(0.0f, glm::vec2(data.texture->getSize()), glm::vec2(0.5f), glm::vec2(1.0f), glm::vec2(0.0f))
+    , m_texture(data.texture)
     , m_color(1.0f)
-    , m_model(1.0f)
 {
 }
 
-void Sprite::setPosition(const glm::vec2& position)
-{
-    m_position = position;
-    updateModel();
-}
-
-void Sprite::setPosition(float x, float y)
-{
-    m_position = glm::vec2(x, y);
-    updateModel();
-}
-
-void Sprite::setOrigin(const glm::vec2& origin)
-{
-    m_origin = origin;
-    updateModel();
-}
-
-void Sprite::setOrigin(float x, float y)
-{
-    m_origin = glm::vec2(x, y);
-    updateModel();
-}
-
-void Sprite::setDegrees(float degrees)
-{
-    m_degrees = degrees;
-    updateModel();
-}
-
-void Sprite::setColor(const glm::vec3& color)
-{
-    m_color = color;
-    updateModel();
-}
+void Sprite::setColor(const glm::vec3& color) { m_color = color; }
 
 void Sprite::setColor(uint8_t r, uint8_t g, uint8_t b)
 {
     m_color = glm::vec3(r / UINT8_MAX, g / UINT8_MAX, b / UINT8_MAX);
-    updateModel();
 }
 
-void Sprite::updateModel()
-{
-    m_model = glm::mat4(1.0f);
-    m_model = glm::translate(m_model, glm::vec3(m_position, 0.0f));
-
-    m_model = glm::rotate(m_model, glm::radians(m_degrees), glm::vec3(0.0f, 0.0f, 1.0f));
-
-    const glm::vec2& size = m_texture->getSize();
-    m_model = glm::translate(m_model, glm::vec3(-m_origin.x * size.x, -m_origin.y * size.y, 0.0f));
-
-    m_model = glm::scale(m_model, glm::vec3(size, 1.0f));
-}
