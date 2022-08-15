@@ -5,6 +5,8 @@
 namespace
 {
     constexpr double pi = 3.1415926535897931;
+    constexpr double unitRadian = 180 / pi;
+    constexpr double unitDegree = pi / 180;
 }
 
 Transformable::Transformable(float radians, const glm::vec2& size, const glm::vec2& origin, const glm::vec2& scale,
@@ -24,8 +26,8 @@ void Transformable::setRadians(float radians)
     setDirty();
 }
 
-float Transformable::getDegrees() const { return (m_radians / pi) * 180; }
-void Transformable::setDegrees(float degrees) { setRadians((degrees / 180) * pi); }
+float Transformable::getDegrees() const { return m_radians * unitRadian; }
+void Transformable::setDegrees(float degrees) { setRadians(degrees * unitDegree); }
 
 void Transformable::setSize(const glm::vec2& size)
 {
