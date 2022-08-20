@@ -10,6 +10,3 @@
 [submodule "lib/physfs"]
 	path = lib/physfs
 	url = https://github.com/icculus/physfs.git
-[submodule "assets"]
-	path = assets
-	url = git@github.com:AmiyoH/pacman-assets.git
