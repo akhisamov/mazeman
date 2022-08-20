@@ -127,8 +127,8 @@ void Game::init()
 
     // Init resources
     m_resources = ResourceManager::create();
-    m_resources->addSearchPath("res.bundle", "res");
-    m_resources->addFile<Texture2D>("wall", "res/textures/wall.jpg");
+    m_resources->addSearchPath("sprites.bundle", "sprites");
+    m_resources->addFile<Texture2D>("pacman", "sprites/pacman.png");
 
     m_data->bgColor = colors::toGL(0x3AB4F2);
 
@@ -137,14 +137,14 @@ void Game::init()
 
 void Game::loadResource()
 {
-    const auto& texture = m_resources->load<Texture2D>("wall");
+    const auto& texture = m_resources->load<Texture2D>("pacman");
     m_data->sprite = Sprite::create(texture);
     m_data->sprite->setOrigin(0.0f, 0.0f);
 }
 
 void Game::unloadResource()
 {
-    m_resources->unload<Texture2D>("wall");
+    m_resources->unload<Texture2D>("pacman");
     m_data->sprite = nullptr;
 }
 
