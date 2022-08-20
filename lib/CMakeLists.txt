@@ -16,11 +16,21 @@ else()
 target_link_libraries(pacman PRIVATE SDL2_image::SDL2_image-static)
 endif()
 
-add_subdirectory(glm)
-target_link_libraries(pacman PRIVATE glm::glm)
+CPMAddPackage("gh:g-truc/glm#0.9.9.8")
+if(glm_ADDED)
+    target_link_libraries(pacman PRIVATE glm::glm)
+endif()
 
-option(PHYSFS_BUILD_SHARED "" FALSE)
-option(PHYSFS_BUILD_TEST "" FALSE)
-add_subdirectory(physfs)
-target_link_libraries(pacman PRIVATE physfs-static)
-target_include_directories(pacman PRIVATE physfs/src)
+CPMAddPackage(
+  NAME physfs
+  VERSION 3.0.2
+  GITHUB_REPOSITORY icculus/physfs
+  GIT_TAG release-3.0.2
+  OPTIONS
+    "PHYSFS_BUILD_SHARED OFF"
+	"PHYSFS_BUILD_TEST OFF"
+)
+if(physfs_ADDED)
+    target_link_libraries(pacman PRIVATE physfs-static)
+    target_include_directories(pacman PRIVATE ${physfs_SOURCE_DIR}/src)
+endif()
