@@ -48,7 +48,7 @@ struct GameData
 {
     std::shared_ptr<Sprite> sprite = nullptr;
     std::shared_ptr<Camera2D> camera = nullptr;
-    glm::vec4 bgColor;
+    glm::vec4 bgColor {};
 };
 
 Game::Game()
@@ -124,6 +124,7 @@ void Game::init()
     // Init renderer and camera
     m_renderer = std::make_unique<SpriteRenderer>();
     m_data->camera = std::make_shared<Camera2D>(windowSize, 1.0f, 0.0f);
+    m_data->camera->setScale(5.0f);
 
     // Init resources
     m_resources = ResourceManager::create();

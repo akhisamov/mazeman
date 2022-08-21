@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.14)
 project(Pac-Man C CXX)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -50,3 +52,10 @@ add_dependencies(pacman Shaders)
 add_subdirectory(lib)
 
 add_subdirectory(src)
+
+get_target_property(PACMAN_FILES pacman SOURCES)
+foreach(FILE ${PACMAN_FILES})
+    get_filename_component(PARENT_DIR "${FILE}" DIRECTORY)
+    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" GROUP "${PARENT_DIR}")
+    source_group("${GROUP}" FILES "${FILE}")
+endforeach()

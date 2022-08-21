@@ -38,7 +38,7 @@ void ResourceManager::addSearchPath(const std::string_view& searchPath, const st
 
 void ResourceManager::addSearchPaths(const std::map<std::string_view, std::string_view>& searchPaths)
 {
-    for (auto it : searchPaths)
+    for (const auto& it : searchPaths)
     {
         addSearchPath(it.first, it.second);
     }

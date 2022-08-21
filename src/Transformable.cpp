@@ -17,6 +17,7 @@ Transformable::Transformable(float radians, const glm::vec2& size, const glm::ve
     , m_origin(origin)
     , m_scale(scale)
     , m_position(position)
+    , m_transformation(1.0f)
 {
 }
 
@@ -73,7 +74,6 @@ const glm::mat4& Transformable::getTransformation()
     {
         m_isDirty = false;
 
-        // TODO check sprite and camera transformation
         m_transformation = getIdentity();
 
         const glm::vec3 positionTranslate(-m_position.x, -m_position.y, 0.0f);
