@@ -3,4 +3,6 @@ target_sources(pacman PRIVATE
     GameTime.hpp GameTime.cpp
     Strings.hpp
     Random.hpp Random.cpp
+
+    CMakeLists.txt
 )

@@ -35,14 +35,17 @@ foreach(VERT ${GLSL_VERT_FILES})
         OUTPUT ${GLSL_HEADER}
         COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_SOURCE_DIR}/src/Generated/shaders"
         COMMAND lua "${CMAKE_CURRENT_SOURCE_DIR}/tools/embedshader.lua" ${GLSL_HEADER} -- ${VERT} ${FRAG}
-        DEPENDS ${VERT})
+        DEPENDS ${VERT} ${FRAG})
     list(APPEND GLSL_HEADERS ${GLSL_HEADER})
 endforeach(VERT)
 
 add_custom_target(
     Shaders
     DEPENDS ${GLSL_HEADERS}
+    SOURCES ${GLSL_VERT_FILES} ${GLSL_FRAG_FILES}
 )
+source_group("Vertex Shaders" FILES ${GLSL_VERT_FILES})
+source_group("Fragment Shaders" FILES ${GLSL_FRAG_FILES})
 
 add_executable(pacman)
 target_include_directories(pacman PRIVATE src)

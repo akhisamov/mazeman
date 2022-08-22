@@ -1,3 +1,4 @@
+target_sources(pacman PRIVATE CMakeLists.txt)
 target_sources(pacman PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/glad/src/glad.c)
 target_include_directories(pacman PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/glad/include)
 
@@ -7,7 +8,7 @@ set_target_properties(SDL2 PROPERTIES FOLDER "ThirdParty")
 set_target_properties(SDL2main PROPERTIES FOLDER "ThirdParty")
 target_link_libraries(pacman PRIVATE SDL2::SDL2main SDL2::SDL2)
 
-if (NOT MSVC)
+if (WIN32 AND NOT MSVC)
     set(BUILD_SHARED_LIBS FALSE)
 endif()
 set(SDL2IMAGE_SAMPLES FALSE)
