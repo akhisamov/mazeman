@@ -29,4 +29,5 @@ private:
     std::shared_ptr<class ResourceManager> m_resources;
     std::unique_ptr<class Window> m_window;
     std::unique_ptr<class SpriteRenderer> m_renderer;
+    std::unique_ptr<class SpriteBatch> m_spriteBatch;
 };

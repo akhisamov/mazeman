@@ -9,6 +9,8 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
+#include <Generated/shaders/newSprite.hpp>
+
 #include <stdexcept>
 
 #include "Graphics/Sprite.hpp"
@@ -22,6 +24,8 @@
 #include "Utils/Strings.hpp"
 
 #include "Camera2D.hpp"
+
+#include "SpriteBatch.hpp"
 
 namespace
 {
@@ -49,6 +53,15 @@ struct GameData
     std::shared_ptr<Sprite> sprite = nullptr;
     std::shared_ptr<Camera2D> camera = nullptr;
     glm::vec4 bgColor {};
+    glm::mat4 ortho {};
+
+    const glm::vec2 cameraSize = glm::vec2(300, 50);
+    glm::vec2 cameraPos = glm::vec2(0.0f);
+    glm::mat4& updateOrtho()
+    {
+        ortho = glm::ortho(cameraPos.x, cameraPos.x + cameraSize.x, cameraPos.y, cameraPos.y + cameraSize.y);
+        return ortho;
+    }
 };
 
 Game::Game()
@@ -57,6 +70,7 @@ Game::Game()
     , m_resources(nullptr)
     , m_window(nullptr)
     , m_renderer(nullptr)
+    , m_spriteBatch(nullptr)
 {
 }
 
@@ -122,7 +136,7 @@ void Game::init()
     m_window = std::make_unique<Window>(title, windowSize.x, windowSize.y);
 
     // Init renderer and camera
-    m_renderer = std::make_unique<SpriteRenderer>();
+    //m_renderer = std::make_unique<SpriteRenderer>();
     m_data->camera = std::make_shared<Camera2D>(windowSize, 1.0f, 0.0f);
     m_data->camera->setScale(5.0f);
 
@@ -131,7 +145,18 @@ void Game::init()
     m_resources->addSearchPath("sprites.bundle", "sprites");
     m_resources->addFile<Texture2D>("pacman", "sprites/pacman.png");
 
+    if (!m_resources->has<Shader>("sprite"))
+    {
+        const auto& spriteShader = m_resources->loadOrCreate<Shader>("sprite", shaders::newSprite_vert, shaders::newSprite_frag);
+        if (spriteShader)
+        {
+            m_spriteBatch = std::make_unique<SpriteBatch>(spriteShader);
+        }
+    }
+
     m_data->bgColor = colors::toGL(0x3AB4F2);
+
+    m_data->ortho = glm::ortho(0, 192, 0, 32);
 
     m_isRunning = true;
 }
@@ -181,18 +206,26 @@ void Game::handleEvents()
     const uint8_t* currentKeyStates = SDL_GetKeyboardState(nullptr);
     if (currentKeyStates[SDL_SCANCODE_UP])
     {
+        m_data->cameraPos.y += cameraSpeed;
+        m_data->updateOrtho();
         m_data->camera->move(0, cameraSpeed);
     }
     if (currentKeyStates[SDL_SCANCODE_DOWN])
     {
+        m_data->cameraPos.y -= cameraSpeed;
+        m_data->updateOrtho();
         m_data->camera->move(0, -cameraSpeed);
     }
     if (currentKeyStates[SDL_SCANCODE_RIGHT])
     {
+        m_data->cameraPos.x += cameraSpeed;
+        m_data->updateOrtho();
         m_data->camera->move(cameraSpeed, 0);
     }
     if (currentKeyStates[SDL_SCANCODE_LEFT])
     {
+        m_data->cameraPos.x -= cameraSpeed;
+        m_data->updateOrtho();
         m_data->camera->move(-cameraSpeed, 0);
     }
 }
@@ -201,9 +234,15 @@ void Game::update(const GameTime& gameTime) { }
 
 void Game::draw()
 {
-    m_renderer->begin(m_data->bgColor, m_data->camera);
-    m_renderer->draw(m_data->sprite);
-    m_renderer->end();
+    m_window->clear(m_data->bgColor);
+
+    //m_renderer->begin(m_data->bgColor, m_data->camera);
+    //m_renderer->draw(m_data->sprite);
+    //m_renderer->end();
+
+    m_spriteBatch->begin(m_data->ortho);
+    m_spriteBatch->draw(m_resources->load<Texture2D>("pacman"), glm::vec4(1.0f), glm::vec2(0.0f));
+    m_spriteBatch->end();
 
     m_window->display();
 }
