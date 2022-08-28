@@ -1,11 +1,12 @@
 #version 330 core
-in vec2 TexCoords;
-out vec4 color;
+in vec2 uv;
+in vec4 color;
+
+out vec4 out_color;
 
 uniform sampler2D image;
-uniform vec3 spriteColor;
 
 void main()
 {
-    color = vec4(spriteColor, 1.0) * texture(image, TexCoords);
+    out_color = texelFetch(image, ivec2(uv), 0) * color;
 }

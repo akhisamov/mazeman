@@ -35,6 +35,12 @@ struct SpriteData
         }
     };
     std::vector<VertexData> vertices;
+    std::vector<uint32_t> indices;
+
+    SpriteData()
+        : texture(nullptr)
+    {
+    }
 
     SpriteData(const std::shared_ptr<Texture2D>& texture)
         : texture(texture)
@@ -49,10 +55,13 @@ SpriteBatch::SpriteBatch(const std::shared_ptr<Shader>& spriteShader)
     , m_shader(spriteShader)
     , m_vao(0)
     , m_vbo(0)
+    , m_ebo(0)
     , m_transformMatrix(1.0f)
 {
+
     glGenVertexArrays(1, &m_vao);
     glGenBuffers(1, &m_vbo);
+    glGenBuffers(1, &m_ebo);
 
     glBindVertexArray(m_vao);
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -74,10 +83,6 @@ SpriteBatch::~SpriteBatch()
 void SpriteBatch::begin(const glm::mat4& transformMatrix)
 {
     m_transformMatrix = transformMatrix;
-
-    // TODO
-    // glBlend
-
     m_isBegan = true;
 }
 
@@ -100,18 +105,17 @@ void SpriteBatch::draw(const std::shared_ptr<Texture2D>& texture, const glm::vec
 {
     // TODO
     // how to rotate vertices?
-    if (!m_isBegan || m_shader == nullptr || m_vbo == 0 || texture == nullptr)
+    if (!m_isBegan || m_shader == nullptr || m_vbo == 0 || m_vao == 0 || texture == nullptr)
     {
         return;
     }
 
     SpriteData data(texture);
-    data.vertices.emplace_back(glm::vec2(destRect.x, destRect.y), glm::vec2(sourceRect.x, sourceRect.y), color);
-    data.vertices.emplace_back(glm::vec2(destRect.x + destRect.z, destRect.y), glm::vec2(sourceRect.z, sourceRect.y), color);
-    data.vertices.emplace_back(glm::vec2(destRect.x, destRect.y + destRect.w), glm::vec2(sourceRect.x, sourceRect.w), color);
-    data.vertices.emplace_back(glm::vec2(destRect.x + destRect.z, destRect.y), glm::vec2(sourceRect.z, sourceRect.y), color);
-    data.vertices.emplace_back(glm::vec2(destRect.x, destRect.y + destRect.w), glm::vec2(sourceRect.x, sourceRect.w), color);
-    data.vertices.emplace_back(glm::vec2(destRect.x + destRect.z, destRect.y + destRect.w), glm::vec2(sourceRect.z, sourceRect.w), color);
+    data.vertices.emplace_back(glm::vec2(destRect.x, destRect.y), glm::vec2(sourceRect.x, sourceRect.y), color); // 0
+    data.vertices.emplace_back(glm::vec2(destRect.x + destRect.z, destRect.y), glm::vec2(sourceRect.z, sourceRect.y), color); // 1
+    data.vertices.emplace_back(glm::vec2(destRect.x, destRect.y + destRect.w), glm::vec2(sourceRect.x, sourceRect.w), color); // 2
+    data.vertices.emplace_back(glm::vec2(destRect.x + destRect.z, destRect.y + destRect.w), glm::vec2(sourceRect.z, sourceRect.w), color); // 3
+    data.indices = { 0, 1, 2, 1, 2, 3 };
 
     m_spriteBuffer.push_back(data);
 }
@@ -132,17 +136,9 @@ void SpriteBatch::draw(const std::shared_ptr<Texture2D>& texture, const glm::vec
 {
     if (texture != nullptr)
     {
-        if (sourceRect == glm::vec4(0.0f))
-        {
-            const glm::vec4 defaultSourceRect(0.0f, 0.0f, texture->getSize());
-            const glm::vec4 destRect(position, texture->getSize());
-            draw(texture, color, destRect, defaultSourceRect, rotationInRadian, origin);
-        }
-        else
-        {
-            const glm::vec4 destRect(position, sourceRect.z, sourceRect.w);
-            draw(texture, color, destRect, sourceRect, rotationInRadian, origin);
-        }
+        const glm::vec4 sRect = sourceRect != glm::vec4(0.0f) ? sourceRect : glm::vec4(0.0f, 0.0f, texture->getSize());
+        const glm::vec4 destRect(position, texture->getSize());
+        draw(texture, color, destRect, sRect, rotationInRadian, origin);
     }
 }
 
@@ -155,10 +151,14 @@ void SpriteBatch::end()
 
 void SpriteBatch::flush()
 {
-    if (m_shader == nullptr || m_spriteBuffer.empty() || m_vbo == 0)
+    if (m_shader == nullptr || m_spriteBuffer.empty() || m_vbo == 0 || m_vao == 0)
     {
         return;
     }
+
+    // AlphaBlend
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     m_shader->use();
     m_shader->set("transform", m_transformMatrix);
@@ -170,6 +170,7 @@ void SpriteBatch::flush()
         {
             glActiveTexture(GL_TEXTURE0);
             it.texture->bind();
+            m_shader->set("image", 0);
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -180,7 +181,11 @@ void SpriteBatch::flush()
         glEnableVertexAttribArray(1);
         glEnableVertexAttribArray(2);
 
-        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(it.vertices.size()));
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(it.indices) * it.indices.size(), it.indices.data(),
+                     GL_STATIC_DRAW);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);

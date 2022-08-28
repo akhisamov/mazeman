@@ -47,6 +47,7 @@ private:
     std::shared_ptr<Shader> m_shader;
     uint32_t m_vao;
     uint32_t m_vbo;
+    uint32_t m_ebo;
 
     glm::mat4 m_transformMatrix;
 
