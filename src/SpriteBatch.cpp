@@ -2,6 +2,8 @@
 
 #include <glad/glad.h>
 
+#include <glm/ext/matrix_transform.hpp>
+
 #include "Resources/Texture2D.hpp"
 #include "Resources/Shader.hpp"
 
@@ -36,6 +38,9 @@ struct SpriteData
     };
     std::vector<VertexData> vertices;
     std::vector<uint32_t> indices;
+
+    float radian = 0.0f;
+    glm::vec2 origin = glm::vec2(0.0f);
 
     SpriteData()
         : texture(nullptr)
@@ -103,8 +108,6 @@ void SpriteBatch::draw(const std::shared_ptr<Texture2D>& texture, const glm::vec
 void SpriteBatch::draw(const std::shared_ptr<Texture2D>& texture, const glm::vec4& color, const glm::vec4& destRect,
               const glm::vec4& sourceRect, float rotationInRadian, const glm::vec2& origin)
 {
-    // TODO
-    // how to rotate vertices?
     if (!m_isBegan || m_shader == nullptr || m_vbo == 0 || m_vao == 0 || texture == nullptr)
     {
         return;
@@ -116,6 +119,9 @@ void SpriteBatch::draw(const std::shared_ptr<Texture2D>& texture, const glm::vec
     data.vertices.emplace_back(glm::vec2(destRect.x, destRect.y + destRect.w), glm::vec2(sourceRect.x, sourceRect.w), color); // 2
     data.vertices.emplace_back(glm::vec2(destRect.x + destRect.z, destRect.y + destRect.w), glm::vec2(sourceRect.z, sourceRect.w), color); // 3
     data.indices = { 0, 1, 2, 1, 2, 3 };
+
+    data.radian = rotationInRadian;
+    data.origin = origin;
 
     m_spriteBuffer.push_back(data);
 }
@@ -172,6 +178,9 @@ void SpriteBatch::flush()
             it.texture->bind();
             m_shader->set("image", 0);
         }
+
+        m_shader->set("radian", it.radian);
+        m_shader->set("origin", it.origin);
 
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeOfVertexData * it.vertices.size(), it.vertices.data(), GL_STATIC_DRAW);

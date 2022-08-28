@@ -20,6 +20,7 @@
 #include "Resources/Shader.hpp"
 
 #include "Utils/Colors.hpp"
+#include "Utils/Math.hpp"
 #include "Utils/Strings.hpp"
 
 #include "Camera2D.hpp"
@@ -234,7 +235,7 @@ void Game::draw()
 
     m_spriteBatch->begin(m_data->camera->getTransform());
     m_spriteBatch->draw(m_resources->load<Texture2D>("pacman"), colors::toGL(0x6FEDD6ff), glm::vec4(0, 0, 32, 32),
-                        m_data->sourceRect);
+                        m_data->sourceRect, math::degreesToRadians(90.0f), glm::vec2(0, 32));
     m_spriteBatch->end();
 
     m_window->display();

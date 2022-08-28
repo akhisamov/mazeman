@@ -36,9 +36,6 @@ public:
 
     void end();
 
-    // todo
-    // void drawString(...);
-
 private:
     void flush();
 

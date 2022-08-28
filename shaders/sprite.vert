@@ -7,10 +7,22 @@ out vec2 uv;
 out vec4 color;
 
 uniform mat4 transform;
+uniform float radian;
+uniform vec2 origin;
+
+vec2 rotate(vec2 v, float a)
+{
+    float s = sin(a);
+    float c = cos(a);
+    mat2 m = mat2(c, -s, s, c);
+    return m * v;
+}
 
 void main()
 {
-    gl_Position = transform * vec4(in_position, 0, 1);
+    vec2 position = rotate(in_position, radian);
+    position += origin;
+    gl_Position = transform * vec4(position, 0, 1);
 
     uv = in_uv;
     color = in_color;

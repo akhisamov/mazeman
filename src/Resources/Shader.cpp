@@ -136,6 +136,11 @@ void Shader::set(const std::string_view& name, float value) const
     glUniform1f(glGetUniformLocation(m_id, name.data()), value);
 }
 
+void Shader::set(const std::string_view& name, const glm::vec2& value) const
+{
+    glUniform2f(glGetUniformLocation(m_id, name.data()), value.x, value.y);
+}
+
 void Shader::set(const std::string_view& name, const glm::vec3& value) const
 {
     glUniform3f(glGetUniformLocation(m_id, name.data()), value.x, value.y, value.z);
