@@ -4,8 +4,8 @@
 
 #include <glm/ext/matrix_transform.hpp>
 
-#include "Resources/Texture2D.hpp"
 #include "Resources/Shader.hpp"
+#include "Resources/Texture2D.hpp"
 
 /* TODO
  * Enum SpriteSortMode
@@ -100,13 +100,14 @@ void SpriteBatch::draw(const std::shared_ptr<Texture2D>& texture, const glm::vec
     }
 }
 
-void SpriteBatch::draw(const std::shared_ptr<Texture2D>& texture, const glm::vec4& color, const glm::vec4& destRect, const glm::vec4& sourceRect)
+void SpriteBatch::draw(const std::shared_ptr<Texture2D>& texture, const glm::vec4& color, const glm::vec4& destRect,
+                       const glm::vec4& sourceRect)
 {
     draw(texture, color, destRect, sourceRect, 0.0f, glm::vec2(0.0f));
 }
 
 void SpriteBatch::draw(const std::shared_ptr<Texture2D>& texture, const glm::vec4& color, const glm::vec4& destRect,
-              const glm::vec4& sourceRect, float rotationInRadian, const glm::vec2& origin)
+                       const glm::vec4& sourceRect, float rotationInRadian, const glm::vec2& origin)
 {
     if (!m_isBegan || m_shader == nullptr || m_vbo == 0 || m_vao == 0 || texture == nullptr)
     {
@@ -115,9 +116,12 @@ void SpriteBatch::draw(const std::shared_ptr<Texture2D>& texture, const glm::vec
 
     SpriteData data(texture);
     data.vertices.emplace_back(glm::vec2(destRect.x, destRect.y), glm::vec2(sourceRect.x, sourceRect.y), color); // 0
-    data.vertices.emplace_back(glm::vec2(destRect.x + destRect.z, destRect.y), glm::vec2(sourceRect.z, sourceRect.y), color); // 1
-    data.vertices.emplace_back(glm::vec2(destRect.x, destRect.y + destRect.w), glm::vec2(sourceRect.x, sourceRect.w), color); // 2
-    data.vertices.emplace_back(glm::vec2(destRect.x + destRect.z, destRect.y + destRect.w), glm::vec2(sourceRect.z, sourceRect.w), color); // 3
+    data.vertices.emplace_back(glm::vec2(destRect.x + destRect.z, destRect.y), glm::vec2(sourceRect.z, sourceRect.y),
+                               color); // 1
+    data.vertices.emplace_back(glm::vec2(destRect.x, destRect.y + destRect.w), glm::vec2(sourceRect.x, sourceRect.w),
+                               color); // 2
+    data.vertices.emplace_back(glm::vec2(destRect.x + destRect.z, destRect.y + destRect.w),
+                               glm::vec2(sourceRect.z, sourceRect.w), color); // 3
     data.indices = { 0, 1, 2, 1, 2, 3 };
 
     data.radian = rotationInRadian;
@@ -132,13 +136,13 @@ void SpriteBatch::draw(const std::shared_ptr<Texture2D>& texture, const glm::vec
 }
 
 void SpriteBatch::draw(const std::shared_ptr<Texture2D>& texture, const glm::vec4& color, const glm::vec2& position,
-              const glm::vec4& sourceRect)
+                       const glm::vec4& sourceRect)
 {
     draw(texture, color, position, sourceRect, 0.0f, glm::vec2(0.0f));
 }
 
 void SpriteBatch::draw(const std::shared_ptr<Texture2D>& texture, const glm::vec4& color, const glm::vec2& position,
-              const glm::vec4& sourceRect, float rotationInRadian, const glm::vec2& origin)
+                       const glm::vec4& sourceRect, float rotationInRadian, const glm::vec2& origin)
 {
     if (texture != nullptr)
     {

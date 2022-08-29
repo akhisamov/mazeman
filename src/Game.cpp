@@ -14,18 +14,16 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "Graphics/SpriteBatch.hpp"
 #include "Graphics/Window.hpp"
 
 #include "Resources/ResourceManager.hpp"
 #include "Resources/Shader.hpp"
 
+#include "Utils/Camera2D.hpp"
 #include "Utils/Colors.hpp"
 #include "Utils/Math.hpp"
 #include "Utils/Strings.hpp"
-
-#include "Camera2D.hpp"
-
-#include "SpriteBatch.hpp"
 
 namespace
 {
@@ -111,7 +109,7 @@ void Game::run()
                 const float elapsedMs = (end - start) / static_cast<float>(SDL_GetPerformanceFrequency()) * 1000.0f;
                 if (screenTicksPerFrame > elapsedMs)
                 {
-                    SDL_Delay(screenTicksPerFrame - elapsedMs);
+                    SDL_Delay(static_cast<uint32_t>(screenTicksPerFrame - elapsedMs));
                 }
             }
 
