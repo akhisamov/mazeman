@@ -46,21 +46,6 @@ namespace
         }
         return result;
     }
-
-    std::string toString(glm::vec4 vec4)
-    {
-        std::string result = "[";
-        for (int i = 0; i < 4; ++i)
-        {
-            result += std::to_string(vec4[i]);
-            if (i != 3)
-            {
-                result += ", ";
-            }
-        }
-        result += "]";
-        return result;
-    }
 }
 
 struct GameData
@@ -142,9 +127,7 @@ void Game::init()
     // Init resources
     m_resources = ResourceManager::create();
     m_resources->addSearchPath("sprites.bundle", "sprites");
-    m_resources->addSearchPath(".", "lol");
     m_resources->addFile<Texture2D>("pacman", "sprites/pacman.png");
-    m_resources->addFile<Texture2D>("wall", "lol/wall.jpg");
 
     // Init renderer and camera
     if (!m_resources->has<Shader>("sprite"))
@@ -186,11 +169,11 @@ void Game::handleEvents()
             const glm::vec2& cameraScale = m_data->camera->getScale();
             if (e.wheel.y > 0)
             {
-                m_data->camera->setScale(cameraScale + scalar);
+                m_data->camera->setScale(cameraScale - scalar);
             }
             else if (e.wheel.y < 0)
             {
-                m_data->camera->setScale(cameraScale - scalar);
+                m_data->camera->setScale(cameraScale + scalar);
             }
         }
     }
