@@ -29,6 +29,7 @@ public:
     void set(const std::string_view& name, float value) const;
     void set(const std::string_view& name, const glm::vec2& value) const;
     void set(const std::string_view& name, const glm::vec3& value) const;
+    void set(const std::string_view& name, const glm::vec4& value) const;
     void set(const std::string_view& name, const glm::mat4& matrix) const;
 
 private:

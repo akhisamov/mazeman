@@ -27,12 +27,10 @@ struct SpriteData
     {
         glm::vec2 position;
         glm::vec2 uv;
-        glm::vec4 color;
 
-        VertexData(const glm::vec2& position, const glm::vec2& uv, const glm::vec4& color)
+        VertexData(const glm::vec2& position, const glm::vec2& uv)
             : position(position)
             , uv(uv)
-            , color(color)
         {
         }
     };
@@ -41,6 +39,7 @@ struct SpriteData
 
     float radian = 0.0f;
     glm::vec2 origin = glm::vec2(0.0f);
+    glm::vec4 color = glm::vec4(1.0f);
 
     SpriteData()
         : texture(nullptr)
@@ -73,7 +72,6 @@ SpriteBatch::SpriteBatch(const std::shared_ptr<Shader>& spriteShader)
 
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeOfVertexData, (void*)0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeOfVertexData, (void*)sizeof(glm::vec2));
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeOfVertexData, (void*)sizeof(glm::vec4));
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -115,17 +113,18 @@ void SpriteBatch::draw(const std::shared_ptr<Texture2D>& texture, const glm::vec
     }
 
     SpriteData data(texture);
-    data.vertices.emplace_back(glm::vec2(destRect.x, destRect.y), glm::vec2(sourceRect.x, sourceRect.y), color); // 0
-    data.vertices.emplace_back(glm::vec2(destRect.x + destRect.z, destRect.y), glm::vec2(sourceRect.z, sourceRect.y),
-                               color); // 1
-    data.vertices.emplace_back(glm::vec2(destRect.x, destRect.y + destRect.w), glm::vec2(sourceRect.x, sourceRect.w),
-                               color); // 2
+    data.vertices.emplace_back(glm::vec2(destRect.x, destRect.y), glm::vec2(sourceRect.x, sourceRect.y)); // 0
+    data.vertices.emplace_back(glm::vec2(destRect.x + destRect.z, destRect.y),
+                               glm::vec2(sourceRect.z, sourceRect.y)); // 1
+    data.vertices.emplace_back(glm::vec2(destRect.x, destRect.y + destRect.w),
+                               glm::vec2(sourceRect.x, sourceRect.w)); // 2
     data.vertices.emplace_back(glm::vec2(destRect.x + destRect.z, destRect.y + destRect.w),
-                               glm::vec2(sourceRect.z, sourceRect.w), color); // 3
+                               glm::vec2(sourceRect.z, sourceRect.w)); // 3
     data.indices = { 0, 1, 2, 1, 2, 3 };
 
     data.radian = rotationInRadian;
     data.origin = origin;
+    data.color = color;
 
     m_spriteBuffer.push_back(data);
 }
@@ -185,6 +184,7 @@ void SpriteBatch::flush()
 
         m_shader->set("radian", it.radian);
         m_shader->set("origin", it.origin);
+        m_shader->set("color", it.color);
 
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeOfVertexData * it.vertices.size(), it.vertices.data(), GL_STATIC_DRAW);
@@ -192,7 +192,6 @@ void SpriteBatch::flush()
 
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
-        glEnableVertexAttribArray(2);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(it.indices) * it.indices.size(), it.indices.data(),
@@ -202,7 +201,6 @@ void SpriteBatch::flush()
 
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
-        glDisableVertexAttribArray(2);
     }
     glBindVertexArray(0);
 
