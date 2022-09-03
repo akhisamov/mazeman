@@ -1,14 +1,23 @@
 #pragma once
 
+#include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
-#include <glm/mat4x4.hpp>
 
+#include <map>
 #include <memory>
 #include <vector>
 
 class Texture2D;
 class Shader;
+struct SpriteData;
+
+enum class SpriteSortMode
+{
+    DEFERRED,
+    IMMEDIATE,
+    TEXTURE
+};
 
 class SpriteBatch
 {
@@ -20,7 +29,7 @@ public:
     SpriteBatch(SpriteBatch&&) = delete;
     SpriteBatch(const SpriteBatch&) = delete;
 
-    void begin(const glm::mat4& transformMatrix = glm::mat4(1.0f));
+    void begin(const glm::mat4& transformMatrix = glm::mat4(1.0f), SpriteSortMode sortMode = SpriteSortMode::DEFERRED);
 
     void draw(const std::shared_ptr<Texture2D>& texture, const glm::vec4& color, const glm::vec4& destRect);
     void draw(const std::shared_ptr<Texture2D>& texture, const glm::vec4& color, const glm::vec4& destRect,
@@ -38,6 +47,7 @@ public:
 
 private:
     void flush();
+    void flushData(const SpriteData& data);
 
     bool m_isBegan;
 
@@ -47,6 +57,8 @@ private:
     uint32_t m_ebo;
 
     glm::mat4 m_transformMatrix;
+    SpriteSortMode m_sortMode;
 
-    std::vector<struct SpriteData> m_spriteBuffer;
+    std::vector<SpriteData> m_spriteBuffer;
+    std::map<uint32_t, std::vector<size_t>> m_texturesOrder;
 };

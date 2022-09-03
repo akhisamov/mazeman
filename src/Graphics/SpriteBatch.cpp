@@ -4,20 +4,11 @@
 
 #include <glm/ext/matrix_transform.hpp>
 
+#include <algorithm>
+#include <functional>
+
 #include "Resources/Shader.hpp"
 #include "Resources/Texture2D.hpp"
-
-/* TODO
- * Enum SpriteSortMode
- * {
- *      Deferred,   // All sprites are drawing when End() invokes,
- *                  // in order of draw call sequence.
- *      Immediate,  // Each sprite is drawing at individual draw call,
- *                  // instead of End().
- *      Texture,    // Same as Deferred, except sprites are sorted by
- *                  // texture prior to drawing.
- * }
- */
 
 struct SpriteData
 {
@@ -52,8 +43,6 @@ struct SpriteData
     }
 };
 
-constexpr std::size_t sizeOfVertexData = sizeof(SpriteData::VertexData);
-
 SpriteBatch::SpriteBatch(const std::shared_ptr<Shader>& spriteShader)
     : m_isBegan(false)
     , m_shader(spriteShader)
@@ -61,6 +50,7 @@ SpriteBatch::SpriteBatch(const std::shared_ptr<Shader>& spriteShader)
     , m_vbo(0)
     , m_ebo(0)
     , m_transformMatrix(1.0f)
+    , m_sortMode(SpriteSortMode::DEFERRED)
 {
 
     glGenVertexArrays(1, &m_vao);
@@ -70,8 +60,8 @@ SpriteBatch::SpriteBatch(const std::shared_ptr<Shader>& spriteShader)
     glBindVertexArray(m_vao);
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeOfVertexData, (void*)0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeOfVertexData, (void*)sizeof(glm::vec2));
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(SpriteData::VertexData), (void*)0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(SpriteData::VertexData), (void*)sizeof(glm::vec2));
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -83,9 +73,10 @@ SpriteBatch::~SpriteBatch()
     glDeleteVertexArrays(1, &m_vao);
 }
 
-void SpriteBatch::begin(const glm::mat4& transformMatrix)
+void SpriteBatch::begin(const glm::mat4& transformMatrix, SpriteSortMode sortMode)
 {
     m_transformMatrix = transformMatrix;
+    m_sortMode = sortMode;
     m_isBegan = true;
 }
 
@@ -126,7 +117,26 @@ void SpriteBatch::draw(const std::shared_ptr<Texture2D>& texture, const glm::vec
     data.origin = origin;
     data.color = color;
 
+    if (m_sortMode == SpriteSortMode::TEXTURE)
+    {
+        const uint32_t textureId = data.texture->getId();
+        auto it = m_texturesOrder.find(textureId);
+        if (it != m_texturesOrder.end())
+        {
+            it->second.push_back(m_spriteBuffer.size());
+        }
+        else
+        {
+            m_texturesOrder.emplace(textureId, std::vector { m_spriteBuffer.size() });
+        }
+    }
+
     m_spriteBuffer.push_back(data);
+
+    if (m_sortMode == SpriteSortMode::IMMEDIATE)
+    {
+        flush();
+    }
 }
 
 void SpriteBatch::draw(const std::shared_ptr<Texture2D>& texture, const glm::vec4& color, const glm::vec2& position)
@@ -173,36 +183,52 @@ void SpriteBatch::flush()
     m_shader->set("transform", m_transformMatrix);
 
     glBindVertexArray(m_vao);
-    for (const auto& it : m_spriteBuffer)
+    if (m_sortMode == SpriteSortMode::TEXTURE)
     {
-        if (it.texture != nullptr)
+        for (const auto& it : m_texturesOrder)
         {
-            glActiveTexture(GL_TEXTURE0);
-            it.texture->bind();
-            m_shader->set("image", 0);
+            for (size_t index : it.second)
+            {
+                const SpriteData& data = m_spriteBuffer.at(index);
+                flushData(data);
+            }
         }
-
-        m_shader->set("radian", it.radian);
-        m_shader->set("origin", it.origin);
-        m_shader->set("color", it.color);
-
-        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeOfVertexData * it.vertices.size(), it.vertices.data(), GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(it.indices) * it.indices.size(), it.indices.data(),
-                     GL_STATIC_DRAW);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
+    }
+    else
+    {
+        std::for_each(m_spriteBuffer.begin(), m_spriteBuffer.end(), std::bind(&SpriteBatch::flushData, this, std::placeholders::_1));
     }
     glBindVertexArray(0);
 
     m_spriteBuffer.clear();
+}
+
+void SpriteBatch::flushData(const SpriteData& data)
+{
+    if (data.texture != nullptr)
+    {
+        glActiveTexture(GL_TEXTURE0);
+        data.texture->bind();
+        m_shader->set("image", 0);
+    }
+
+    m_shader->set("radian", data.radian);
+    m_shader->set("origin", data.origin);
+    m_shader->set("color", data.color);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(data.vertices) * data.vertices.size(), data.vertices.data(), GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(data.indices) * data.indices.size(), data.indices.data(),
+                 GL_STATIC_DRAW);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
 }
