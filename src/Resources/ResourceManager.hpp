@@ -82,10 +82,50 @@ public:
         return pair.first->second;
     }
 
+    template <class T, class... Args>
+    const std::shared_ptr<T> loadOrCreate(const std::string_view& name, Args... args)
+    {
+        auto& resources = ResourceStorage<T>::m_resources;
+        if (!resources.empty())
+        {
+            const auto& it = resources.find(name);
+            if (it != resources.end())
+            {
+                return it->second;
+            }
+        }
+
+        std::shared_ptr<T> resource = T::create(args...);
+        if (resource == nullptr)
+        {
+            return nullptr;
+        }
+
+        const auto& pair = resources.emplace(name, resource);
+        if (!pair.second)
+        {
+            constexpr std::string_view message = "Resource Load Error [%s]: can not save resource";
+            throw std::runtime_error(strings::format(message, name.data()));
+        }
+        return pair.first->second;
+    }
+
     template <class T>
     bool unload(const std::string_view& name)
     {
         return ResourceStorage<T>::m_resources.erase(name) == 1;
+    }
+
+    template <class T>
+    bool has(const std::string_view& name)
+    {
+        auto& resources = ResourceStorage<T>::m_resources;
+        if (!resources.empty())
+        {
+            const auto& it = resources.find(name);
+            return it != resources.end();
+        }
+        return false;
     }
 
 private:

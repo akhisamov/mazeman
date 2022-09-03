@@ -57,6 +57,12 @@ Window::~Window()
     SDL_Quit();
 }
 
+void Window::clear(const glm::vec4& color)
+{
+    glClearColor(color.r, color.g, color.b, color.a);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
 void Window::display() { SDL_GL_SwapWindow(m_data->window); }
 
 glm::ivec2 Window::getWindowSize() const

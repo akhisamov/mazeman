@@ -9,12 +9,16 @@ namespace colors
         return glm::vec4(r / 255, g / 255, b / 255, a / 255);
     };
 
-    inline glm::vec4 toGL(int hexValue)
+    inline glm::vec4 toGL(uint32_t hexValue)
     {
         glm::vec4 result(1.0f);
-        result.r = ((hexValue >> 16) & 0xFF) / 255.0f;
-        result.g = ((hexValue >> 8) & 0xFF) / 255.0f;
-        result.b = (hexValue & 0xFF) / 255.0f;
+
+        for (int i = 0; i < 4; ++i)
+        {
+            const int shift = 32 - ((i + 1) * 8);
+            result[i] = ((hexValue >> shift) & 0xFF) / 255.0f;
+        }
+
         return result;
     };
 };

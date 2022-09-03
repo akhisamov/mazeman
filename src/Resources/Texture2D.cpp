@@ -13,12 +13,8 @@ std::shared_ptr<Texture2D> Texture2D::create(SDL_Surface* surface)
     Texture2D::Data data;
     bool success = true;
     glGenTextures(1, &data.id);
-    glBindTexture(GL_TEXTURE_2D, data.id);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, data.id);
 
     if (!surface)
     {
@@ -53,11 +49,15 @@ std::shared_ptr<Texture2D> Texture2D::create(SDL_Surface* surface)
             data.size = glm::vec2(surface->w, surface->h);
             glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLsizei>(mode), surface->w, surface->h, 0, mode,
                          GL_UNSIGNED_BYTE, surface->pixels);
-            glGenerateMipmap(GL_TEXTURE_2D);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         }
     }
+    glBindTexture(GL_TEXTURE_2D, 0);
 
-    glBindBuffer(GL_TEXTURE_2D, 0);
     if (success)
     {
         return std::make_shared<Texture2D>(data);
