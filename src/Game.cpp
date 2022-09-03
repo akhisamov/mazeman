@@ -11,9 +11,6 @@
 
 #include <Generated/shaders/sprite.hpp>
 
-#include <iostream>
-#include <stdexcept>
-
 #include "Graphics/SpriteBatch.hpp"
 #include "Graphics/Window.hpp"
 
@@ -51,7 +48,7 @@ namespace
 struct GameData
 {
     std::shared_ptr<Camera2D> camera = nullptr;
-    glm::vec4 bgColor {};
+    glm::vec4 bgColor = glm::vec4(0,0,0,1);
     glm::vec4 sourceRect = glm::vec4(0, 0, 32, 32);
 };
 
@@ -140,8 +137,6 @@ void Game::init()
         }
     }
     m_data->camera = std::make_shared<Camera2D>(windowSize, 0.5f);
-
-    m_data->bgColor = colors::toGL(0x3AB4F2FF);
 
     m_isRunning = true;
 }
