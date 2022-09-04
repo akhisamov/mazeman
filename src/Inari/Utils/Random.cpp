@@ -3,7 +3,7 @@
 #include <random>
 #include <sstream>
 
-namespace random
+namespace inari::random
 {
     std::string generateUUID()
     {

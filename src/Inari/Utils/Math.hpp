@@ -1,6 +1,6 @@
 #pragma once
 
-namespace math
+namespace inari::math
 {
     constexpr float pi = 3.14159274101257324219;
 

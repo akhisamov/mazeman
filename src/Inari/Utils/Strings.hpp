@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace strings
+namespace inari::strings
 {
     template <typename... Args>
     inline std::string format(const std::string_view& format, Args... args)

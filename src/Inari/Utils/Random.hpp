@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace random
+namespace inari::random
 {
     std::string generateUUID();
 }
