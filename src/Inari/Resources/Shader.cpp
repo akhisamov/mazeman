@@ -111,7 +111,7 @@ namespace inari
 
         if (vertexCode.empty() || fragmentCode.empty())
         {
-            throw std::runtime_error("Creation Shader from data ERROR: resource is not found");
+            return nullptr;
         }
 
         return create(vertexCode, fragmentCode);

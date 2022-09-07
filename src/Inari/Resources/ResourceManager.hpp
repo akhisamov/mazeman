@@ -55,7 +55,7 @@ namespace inari
         }
 
         template <class T>
-        const std::shared_ptr<T>& load(const std::string_view& name)
+        std::shared_ptr<T> load(const std::string_view& name)
         {
             auto& resources = ResourceStorage<T>::m_resources;
             if (!resources.empty())
@@ -70,21 +70,24 @@ namespace inari
             std::vector<std::string_view> filenames = ResourceStorage<T>::getFiles(name);
             if (filenames.empty())
             {
-                constexpr std::string_view message = "Resource Load Error [%s]: can not find files";
-                throw std::runtime_error(strings::format(message, name.data()));
+                return nullptr;
             }
 
-            const auto& pair = resources.emplace(name, T::createFromData(getData(filenames)));
-            if (!pair.second)
+            std::shared_ptr<T> resource = T::createFromData(getData(filenames));
+            if (resource == nullptr)
             {
-                constexpr std::string_view message = "Resource Load Error [%s]: can not save resource";
-                throw std::runtime_error(strings::format(message, name.data()));
+                return nullptr;
             }
-            return pair.first->second;
+
+            if (!resources.emplace(name, resource).second)
+            {
+                return nullptr;
+            }
+            return resource;
         }
 
         template <class T, class... Args>
-        const std::shared_ptr<T> loadOrCreate(const std::string_view& name, Args... args)
+        std::shared_ptr<T> loadOrCreate(const std::string_view& name, Args... args)
         {
             auto& resources = ResourceStorage<T>::m_resources;
             if (!resources.empty())
@@ -105,8 +108,7 @@ namespace inari
             const auto& pair = resources.emplace(name, resource);
             if (!pair.second)
             {
-                constexpr std::string_view message = "Resource Load Error [%s]: can not save resource";
-                throw std::runtime_error(strings::format(message, name.data()));
+                return nullptr;
             }
             return pair.first->second;
         }

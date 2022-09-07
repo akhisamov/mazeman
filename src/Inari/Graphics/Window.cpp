@@ -17,31 +17,6 @@ namespace inari
 
         uint64_t startCounter = 0;
 
-        void create(const std::string_view& title, int width, int height)
-        {
-            window = SDL_CreateWindow(title.data(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
-                                      SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
-            if (window == nullptr)
-            {
-                throw std::runtime_error(strings::format("Window Creation Error: %s", SDL_GetError()));
-            }
-
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-            glContext = SDL_GL_CreateContext(window);
-            if (glContext == nullptr)
-            {
-                throw std::runtime_error(strings::format("GL Context Creation Error: %s", SDL_GetError()));
-            }
-
-            if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
-            {
-                throw std::runtime_error("Failed to initialize glad context");
-            }
-        }
-
         void destroy() const
         {
             SDL_GL_DeleteContext(glContext);
@@ -49,11 +24,40 @@ namespace inari
         }
     };
 
-    Window::Window(const std::string_view& title, int width, int height)
-        : m_data(std::make_unique<WindowData>())
+    std::unique_ptr<Window> Window::create(const std::string_view& title, int width, int height)
+    {
+        auto data = std::make_unique<WindowData>();
+        data->window = SDL_CreateWindow(title.data(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width,
+                                              height, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+        if (data->window == nullptr)
+        {
+            return nullptr;
+        }
+
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+
+        SDL_GLContext glContext = SDL_GL_CreateContext(data->window);
+        if (glContext == nullptr)
+        {
+            data->destroy();
+            return nullptr;
+        }
+
+        if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
+        {
+            data->destroy();
+            return nullptr;
+        }
+
+        return std::make_unique<Window>(data);
+    }
+
+    Window::Window(std::unique_ptr<struct WindowData>& data)
+        : m_data(std::move(data))
         , m_frameLimit(nullptr)
     {
-        m_data->create(title, width, height);
     }
 
     Window::~Window()

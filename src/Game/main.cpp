@@ -4,15 +4,7 @@
 
 int main(int argc, char* argv[])
 {
-    try
-    {
-        Game game;
-        game.run();
-    }
-    catch (std::exception& e)
-    {
-        std::cerr << e.what() << std::endl;
-        return -1;
-    }
+    Game game;
+    game.run();
     return 0;
 }

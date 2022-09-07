@@ -11,7 +11,7 @@ namespace inari::strings
         int size = std::snprintf(nullptr, 0, format.data(), args...) + 1;
         if (size <= 0)
         {
-            throw std::runtime_error("Error during formatting");
+            return std::string(format);
         }
         std::string result;
         result.resize(size);

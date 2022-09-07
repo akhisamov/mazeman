@@ -33,8 +33,8 @@ namespace inari
         virtual void update(const inari::GameTime& gameTime) = 0;
         virtual void draw() = 0;
 
-        std::shared_ptr<Window> m_window;
-        std::shared_ptr<SpriteBatch> m_spriteBatch;
+        std::unique_ptr<Window> m_window;
+        std::unique_ptr<SpriteBatch> m_spriteBatch;
         std::shared_ptr<ResourceManager> m_resources;
 
     private:

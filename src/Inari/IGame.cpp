@@ -77,7 +77,7 @@ namespace inari
         }
 
         // Init window
-        m_window = std::make_shared<inari::Window>("Inari", 1280, 720);
+        m_window = Window::create("Inari", 1280, 720);
 
         // Init resources
         m_resources = ResourceManager::create();
@@ -91,7 +91,7 @@ namespace inari
             = m_resources->loadOrCreate<Shader>("sprite", shaders::sprite_vert, shaders::sprite_frag);
         if (spriteShader)
         {
-            m_spriteBatch = std::make_shared<SpriteBatch>(spriteShader);
+            m_spriteBatch = std::make_unique<SpriteBatch>(spriteShader);
         }
         else
         {

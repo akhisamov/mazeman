@@ -82,8 +82,7 @@ namespace inari
 
         if (surface == nullptr)
         {
-            const std::string_view message = "Creation Texture2D from data ERROR: %s";
-            throw std::runtime_error(strings::format(message, IMG_GetError()));
+            return nullptr;
         }
 
         return create(surface);
