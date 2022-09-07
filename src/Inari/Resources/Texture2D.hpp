@@ -32,6 +32,8 @@ namespace inari
         [[nodiscard]] uint32_t getId() const { return m_id; }
         [[nodiscard]] const glm::vec2& getSize() const { return m_size; }
 
+        static uint32_t getId(const std::shared_ptr<Texture2D>& texture);
+
     private:
         uint32_t m_id;
         glm::vec2 m_size;

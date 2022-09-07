@@ -63,6 +63,5 @@ namespace inari
         SpriteSortMode m_sortMode;
 
         std::vector<SpriteData> m_spriteBuffer;
-        std::map<uint32_t, std::vector<size_t>> m_texturesOrder;
     };
 }

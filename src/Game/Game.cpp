@@ -105,9 +105,8 @@ void Game::draw()
     m_window->clear(m_data->bgColor);
 
     m_spriteBatch->begin(m_data->camera->getTransform());
-    m_spriteBatch->draw(m_resources->load<inari::Texture2D>("pacman"), inari::colors::toGL(0x6FEDD6ff),
-                        glm::vec4(0, 0, 32, 32), m_data->sourceRect, inari::math::degreesToRadians(90.0f),
-                        glm::vec2(0, 32));
+    m_spriteBatch->draw(m_resources->load<inari::Texture2D>("pacman"), glm::vec4(1), glm::vec4(0, 0, 32, 32),
+                        m_data->sourceRect, inari::math::degreesToRadians(90.0f), glm::vec2(0, 32));
     m_spriteBatch->end();
 
     m_window->display();

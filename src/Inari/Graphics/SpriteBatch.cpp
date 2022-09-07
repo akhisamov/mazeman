@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <set>
 
 #include "Inari/Resources/Shader.hpp"
 #include "Inari/Resources/Texture2D.hpp"
@@ -119,20 +120,6 @@ namespace inari
         data.origin = origin;
         data.color = color;
 
-        if (m_sortMode == SpriteSortMode::TEXTURE)
-        {
-            const uint32_t textureId = data.texture->getId();
-            auto it = m_texturesOrder.find(textureId);
-            if (it != m_texturesOrder.end())
-            {
-                it->second.push_back(m_spriteBuffer.size());
-            }
-            else
-            {
-                m_texturesOrder.emplace(textureId, std::vector { m_spriteBuffer.size() });
-            }
-        }
-
         m_spriteBuffer.push_back(data);
 
         if (m_sortMode == SpriteSortMode::IMMEDIATE)
@@ -178,6 +165,28 @@ namespace inari
             return;
         }
 
+        std::vector<size_t> texturesOrder;
+        if (m_sortMode == SpriteSortMode::TEXTURE)
+        {
+            std::set<uint32_t> textureIds;
+            for (size_t i = 0; i < m_spriteBuffer.size(); ++i)
+            {
+                const uint32_t masterTextureId = Texture2D::getId(m_spriteBuffer[i].texture);
+                if (masterTextureId != 0 && textureIds.find(masterTextureId) == textureIds.end())
+                {
+                    for (size_t j = 0; j < m_spriteBuffer.size(); ++j)
+                    {
+                        const uint32_t textureId = Texture2D::getId(m_spriteBuffer[j].texture);
+                        if (textureId == masterTextureId)
+                        {
+                            texturesOrder.push_back(j);
+                        }
+                    }
+                    textureIds.insert(masterTextureId);
+                }
+            }
+        }
+
         // AlphaBlend
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -186,21 +195,23 @@ namespace inari
         m_shader->set("transform", m_transformMatrix);
 
         glBindVertexArray(m_vao);
-        if (m_sortMode == SpriteSortMode::TEXTURE)
+        if (m_sortMode == SpriteSortMode::TEXTURE && !texturesOrder.empty())
         {
-            for (const auto& it : m_texturesOrder)
+            for (size_t index : texturesOrder)
             {
-                for (size_t index : it.second)
+                if (m_spriteBuffer.size() > index)
                 {
-                    const SpriteData& data = m_spriteBuffer.at(index);
+                    const SpriteData& data = m_spriteBuffer[index];
                     flushData(data);
                 }
             }
         }
         else
         {
-            std::for_each(m_spriteBuffer.begin(), m_spriteBuffer.end(),
-                          std::bind(&SpriteBatch::flushData, this, std::placeholders::_1));
+            for (const SpriteData& data : m_spriteBuffer)
+            {
+                flushData(data);
+            }
         }
         glBindVertexArray(0);
 
