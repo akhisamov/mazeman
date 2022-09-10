@@ -1,4 +1,4 @@
-add_subdirectory(EntityRegistry)
+add_subdirectory(ECS)
 add_subdirectory(Graphics)
 add_subdirectory(Resources)
 add_subdirectory(Utils)

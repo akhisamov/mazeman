@@ -31,7 +31,7 @@ namespace inari
         virtual void handleWindowResized(const glm::ivec2& size) = 0;
 
         virtual void update(const inari::GameTime& gameTime) = 0;
-        virtual void draw() = 0;
+        virtual void draw(const inari::GameTime& gameTime) = 0;
 
         std::unique_ptr<Window> m_window;
         std::unique_ptr<SpriteBatch> m_spriteBatch;

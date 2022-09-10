@@ -5,6 +5,8 @@
 namespace inari
 {
     class GameTime;
+    class EntityRegistry;
+    class Camera2D;
 }
 
 class Game final : public inari::IGame
@@ -22,7 +24,10 @@ private:
     void handleWindowResized(const glm::ivec2& size) override;
 
     void update(const inari::GameTime& gameTime) override;
-    void draw() override;
+    void draw(const inari::GameTime& gameTime) override;
 
-    std::unique_ptr<struct GameData> m_data;
+    std::unique_ptr<inari::EntityRegistry> m_entityRegistry;
+    std::unique_ptr<inari::Camera2D> m_camera;
+
+    int trackIdx = 0;
 };

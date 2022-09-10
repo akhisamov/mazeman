@@ -6,14 +6,16 @@ namespace inari
 {
     class GameTime
     {
+        friend class IGame;
     public:
         GameTime();
 
         float getTotalMs() const;
         float getElapsedMs() const;
 
-        void beginUpdate();
-        void endUpdate();
+    protected:
+        void begin();
+        void end();
 
     private:
         uint32_t m_startTicks;

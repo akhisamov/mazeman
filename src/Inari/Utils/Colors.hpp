@@ -4,21 +4,32 @@
 
 namespace inari::colors
 {
-    inline glm::vec4 toGL(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255)
+    inline constexpr glm::vec4 toGL(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255)
     {
         return glm::vec4(r / 255, g / 255, b / 255, a / 255);
     };
 
-    inline glm::vec4 toGL(uint32_t hexValue)
+    template<int size>
+    inline constexpr glm::vec<size, float, glm::defaultp> toGL(int hexValue)
     {
-        glm::vec4 result(1.0f);
+        glm::vec<size, float, glm::defaultp> result(1.0f);
 
-        for (int i = 0; i < 4; ++i)
+        const int maxSize = size * 8;
+        for (int i = 0; i < size; ++i)
         {
-            const int shift = 32 - ((i + 1) * 8);
+            const int shift = maxSize - ((i + 1) * 8);
             result[i] = ((hexValue >> shift) & 0xFF) / 255.0f;
         }
 
         return result;
-    };
+    }
+
+    inline constexpr glm::vec4 Black = glm::vec4(0, 0, 0, 1);
+    inline constexpr glm::vec4 White = glm::vec4(1, 1, 1, 1);
+    inline constexpr glm::vec4 Red = glm::vec4(1, 0, 0, 1);
+    inline constexpr glm::vec4 Green = glm::vec4(0, 1, 0, 1);
+    inline constexpr glm::vec4 Blue = glm::vec4(0, 0, 1, 1);
+    inline constexpr glm::vec4 Yellow = glm::vec4(1, 1, 0, 1);
+    inline constexpr glm::vec4 Magenta = glm::vec4(1, 0, 1, 1);
+    inline constexpr glm::vec4 Cyan = glm::vec4(0, 1, 1, 1);
 };

@@ -41,11 +41,12 @@ namespace inari
 
                     handleEvents();
 
-                    gameTime.beginUpdate();
-                    update(gameTime);
-                    gameTime.endUpdate();
+                    gameTime.begin();
 
-                    draw();
+                    update(gameTime);
+                    draw(gameTime);
+
+                    gameTime.end();
 
                     m_window->end();
 
