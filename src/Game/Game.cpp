@@ -82,9 +82,9 @@ void Game::unloadResources() { m_resources->unload<Texture2D>("pacman"); }
 
 void Game::handleWindowResized(const glm::ivec2& size) { m_camera->setWindowSize(m_window->getWindowSize()); }
 
-void Game::update(const GameTime& gameTime)
+void Game::update(float dt)
 {
-    constexpr float cameraSpeed = 1.0f;
+    const float cameraSpeed = 1.0f * dt;
     const uint8_t* currentKeyStates = SDL_GetKeyboardState(nullptr);
     if (currentKeyStates[SDL_SCANCODE_UP])
     {
@@ -120,7 +120,7 @@ void Game::update(const GameTime& gameTime)
     }
 }
 
-void Game::draw(const GameTime& gameTime)
+void Game::draw(float dt)
 {
     m_window->clear(Constants::bgColor);
 

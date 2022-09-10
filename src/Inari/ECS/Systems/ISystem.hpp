@@ -6,8 +6,6 @@
 
 namespace inari
 {
-    class GameTime;
-
     class ISystem
     {
     public:
@@ -16,7 +14,7 @@ namespace inari
         {
         }
 
-        virtual void update(const inari::GameTime& gameTime) = 0;
+        virtual void update(float dt) = 0;
 
     private:
         std::shared_ptr<inari::EntityRegistry> m_registry;
