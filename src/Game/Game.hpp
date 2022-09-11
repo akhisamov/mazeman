@@ -5,6 +5,7 @@
 namespace inari
 {
     class EntityRegistry;
+    class SystemRegistry;
     class Camera2D;
 }
 
@@ -25,7 +26,9 @@ private:
     void update(float dt) override;
     void draw(float dt) override;
 
-    std::unique_ptr<inari::EntityRegistry> m_entityRegistry;
+    std::shared_ptr<inari::EntityRegistry> m_entityRegistry;
+    std::unique_ptr<inari::SystemRegistry> m_systemRegistry;
+
     std::unique_ptr<inari::Camera2D> m_camera;
 
     int trackIdx = 0;

@@ -38,17 +38,21 @@ namespace inari
         bool destroyEntity(const std::string_view& name);
 
         template <class C, class... Args>
-        bool emplaceComponent(const EntityPtr& entity, Args... args)
+        C* emplaceComponent(const EntityPtr& entity, Args... args)
         {
             assert(entity != nullptr && "Entity is empty");
 
-            auto& componentMap = m_collection[entity->uuid];
+            auto& componentMap = m_components[entity->uuid];
             ComponentHash hashCode = typeid(C).hash_code();
             if (componentMap.find(hashCode) == componentMap.end())
             {
-                componentMap.emplace(hashCode, std::any(C { args... }));
+                auto resultPair = componentMap.emplace(hashCode, std::any(C { args... }));
+                if (resultPair.second)
+                {
+                    return std::any_cast<C>(&resultPair.first->second);
+                }
             }
-            return false;
+            return nullptr;
         }
 
         template <class C>
@@ -56,8 +60,8 @@ namespace inari
         {
             assert(entity != nullptr && "Entity is empty");
 
-            auto& entityIt = m_collection.find(entity->uuid);
-            if (entityIt != m_collection.end())
+            auto& entityIt = m_components.find(entity->uuid);
+            if (entityIt != m_components.end())
             {
                 auto& componentIt = entityIt->second.find(typeid(C).hash_code());
                 if (componentIt != entityIt->second.end())
@@ -71,6 +75,6 @@ namespace inari
 
     private:
         std::vector<EntityPtr> m_entities;
-        std::map<std::string, ComponentMap> m_collection;
+        std::map<std::string, ComponentMap> m_components;
     };
 }

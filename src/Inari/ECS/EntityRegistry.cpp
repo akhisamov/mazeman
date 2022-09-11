@@ -44,7 +44,7 @@ namespace inari
     {
         assert(entity != nullptr && "Entity is empty");
 
-        const bool result = m_collection.erase(entity->uuid);
+        const bool result = m_components.erase(entity->uuid);
         auto it = std::find(m_entities.begin(), m_entities.end(), entity);
         if (it != m_entities.end())
         {

@@ -3,6 +3,7 @@ add_subdirectory(Systems)
 
 target_sources(pacman PRIVATE
     EntityRegistry.hpp EntityRegistry.cpp
+    SystemRegistry.hpp
 
     CMakeLists.txt
 )

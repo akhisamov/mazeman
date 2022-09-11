@@ -12,9 +12,12 @@
 #include <Generated/shaders/sprite.hpp>
 
 // inari
+#include "Inari/ECS/Components/AnimationSprite.hpp"
 #include "Inari/ECS/Components/Sprite.hpp"
 #include "Inari/ECS/Components/Transformation.hpp"
 #include "Inari/ECS/EntityRegistry.hpp"
+#include "Inari/ECS/SystemRegistry.hpp"
+#include "Inari/ECS/Systems/AnimationSystem.hpp"
 
 #include "Inari/Graphics/SpriteBatch.hpp"
 #include "Inari/Graphics/Window.hpp"
@@ -42,7 +45,8 @@ namespace Constants
 }
 
 Game::Game()
-    : m_entityRegistry(std::make_unique<EntityRegistry>())
+    : m_entityRegistry(std::make_shared<EntityRegistry>())
+    , m_systemRegistry(std::make_unique<SystemRegistry>())
     , m_camera(nullptr)
 {
 }
@@ -65,6 +69,9 @@ bool Game::init()
         // Init camera
         m_camera = std::make_unique<Camera2D>(Constants::windowSize, 0.5f);
 
+        // Init systems
+        m_systemRegistry->addSystem<AnimationSystem>(m_entityRegistry);
+
         return true;
     }
     return false;
@@ -73,9 +80,17 @@ bool Game::init()
 void Game::loadResources()
 {
     EntityPtr pacman = m_entityRegistry->createEntity("pacman");
-    m_entityRegistry->emplaceComponent<Sprite>(pacman, m_resources->load<Texture2D>("pacman"), colors::White,
-                                               glm::vec2(32), Constants::sourceRects[trackIdx]);
     m_entityRegistry->emplaceComponent<Transformation>(pacman, glm::vec2(0), 0.0f, glm::vec2(0));
+    auto* sprite = m_entityRegistry->emplaceComponent<AnimationSprite>(pacman);
+    if (sprite)
+    {
+        sprite->texture = m_resources->load<Texture2D>("pacman");
+        sprite->size = glm::vec2(32);
+        sprite->tracks = { { "default",
+                             { glm::vec4(0, 0, 32, 32), glm::vec4(32, 0, 64, 32), glm::vec4(64, 0, 96, 32),
+                               glm::vec4(96, 0, 128, 32), glm::vec4(128, 0, 160, 32), glm::vec4(160, 0, 192, 32) } } };
+        sprite->currentTrack = "default";
+    }
 }
 
 void Game::unloadResources() { m_resources->unload<Texture2D>("pacman"); }
@@ -103,20 +118,10 @@ void Game::update(float dt)
         m_camera->moveX(-cameraSpeed);
     }
 
-    // todo make animation system
-    EntityPtr entity = m_entityRegistry->getEntity("pacman");
-    if (entity)
+    auto animation = m_systemRegistry->getSystem<AnimationSystem>();
+    if (animation)
     {
-        auto* sprite = m_entityRegistry->getComponent<Sprite>(entity);
-        if (sprite)
-        {
-            trackIdx++;
-            if (trackIdx == 6)
-            {
-                trackIdx = 0;
-            }
-            sprite->sourceRect = Constants::sourceRects[trackIdx];
-        }
+        animation->update(dt);
     }
 }
 
@@ -127,14 +132,29 @@ void Game::draw(float dt)
     m_spriteBatch->begin(m_camera->getTransform());
     for (const auto& entity : m_entityRegistry->getEntities())
     {
-        if (entity)
+        if (entity == nullptr)
         {
-            const auto* sprite = m_entityRegistry->getComponent<Sprite>(entity);
-            const auto* transformation = m_entityRegistry->getComponent<Transformation>(entity);
-            if (sprite && transformation)
+            continue;
+        }
+
+        auto* sprite = m_entityRegistry->getComponent<Sprite>(entity);
+        if (sprite == nullptr)
+        {
+            sprite = m_entityRegistry->getComponent<AnimationSprite>(entity);
+        }
+
+        const auto* transformation = m_entityRegistry->getComponent<Transformation>(entity);
+        if (sprite && transformation)
+        {
+            if (sprite->size != glm::vec2(0))
             {
                 const glm::vec4 destRect(transformation->position, sprite->size);
                 m_spriteBatch->draw(sprite->texture, sprite->color, destRect, sprite->sourceRect,
+                                    transformation->radian, transformation->origin);
+            }
+            else
+            {
+                m_spriteBatch->draw(sprite->texture, sprite->color, transformation->position, sprite->sourceRect,
                                     transformation->radian, transformation->origin);
             }
         }

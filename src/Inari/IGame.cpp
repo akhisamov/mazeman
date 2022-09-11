@@ -28,33 +28,31 @@ namespace inari
     {
         if (!m_isRunning)
         {
-            if (init())
+            assert(init() && "Init is failed");
+            loadResources();
+
+            uint32_t totalFrames = 0;
+            GameTime gameTime;
+            while (m_isRunning)
             {
-                loadResources();
+                totalFrames++;
+                m_window->begin();
 
-                uint32_t totalFrames = 0;
-                GameTime gameTime;
-                while (m_isRunning)
+                handleEvents();
+
+                update(gameTime.getTotalMs());
+                draw(gameTime.getTotalMs());
+
+                m_window->end();
+
+                const float avgFPS = totalFrames / gameTime.getTotalMs(); // todo
+                if (totalFrames > 20000)
                 {
-                    totalFrames++;
-                    m_window->begin();
-
-                    handleEvents();
-
-                    update(gameTime.getTotalMs());
-                    draw(gameTime.getTotalMs());
-
-                    m_window->end();
-
-                    const float avgFPS = totalFrames / gameTime.getTotalMs(); // todo
-                    if (totalFrames > 20000)
-                    {
-                        totalFrames = 0;
-                    }
+                    totalFrames = 0;
                 }
-
-                unloadResources();
             }
+
+            unloadResources();
         }
     }
 
