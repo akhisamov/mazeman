@@ -9,6 +9,6 @@ namespace inari
     public:
         AnimationSystem(const std::shared_ptr<EntityRegistry>& registry);
 
-        void update(float dt) override;
+        void update(float dt);
     };
 }

@@ -86,7 +86,7 @@ namespace inari
             = m_resources->loadOrCreate<Shader>("sprite", shaders::sprite_vert, shaders::sprite_frag);
         if (spriteShader)
         {
-            m_spriteBatch = std::make_unique<SpriteBatch>(spriteShader);
+            m_spriteBatch = std::make_shared<SpriteBatch>(spriteShader);
         }
         else
         {

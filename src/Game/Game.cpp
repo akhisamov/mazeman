@@ -18,6 +18,7 @@
 #include "Inari/ECS/EntityRegistry.hpp"
 #include "Inari/ECS/SystemRegistry.hpp"
 #include "Inari/ECS/Systems/AnimationSystem.hpp"
+#include "Inari/ECS/Systems/SpriteRenderSystem.hpp"
 
 #include "Inari/Graphics/SpriteBatch.hpp"
 #include "Inari/Graphics/Window.hpp"
@@ -71,6 +72,7 @@ bool Game::init()
 
         // Init systems
         m_systemRegistry->addSystem<AnimationSystem>(m_entityRegistry);
+        m_systemRegistry->addSystem<SpriteRenderSystem>(m_entityRegistry);
 
         return true;
     }
@@ -129,37 +131,11 @@ void Game::draw(float dt)
 {
     m_window->clear(Constants::bgColor);
 
-    m_spriteBatch->begin(m_camera->getTransform());
-    for (const auto& entity : m_entityRegistry->getEntities())
+    auto spriteRenderSystem = m_systemRegistry->getSystem<SpriteRenderSystem>();
+    if (spriteRenderSystem)
     {
-        if (entity == nullptr)
-        {
-            continue;
-        }
-
-        auto* sprite = m_entityRegistry->getComponent<Sprite>(entity);
-        if (sprite == nullptr)
-        {
-            sprite = m_entityRegistry->getComponent<AnimationSprite>(entity);
-        }
-
-        const auto* transformation = m_entityRegistry->getComponent<Transformation>(entity);
-        if (sprite && transformation)
-        {
-            if (sprite->size != glm::vec2(0))
-            {
-                const glm::vec4 destRect(transformation->position, sprite->size);
-                m_spriteBatch->draw(sprite->texture, sprite->color, destRect, sprite->sourceRect,
-                                    transformation->radian, transformation->origin);
-            }
-            else
-            {
-                m_spriteBatch->draw(sprite->texture, sprite->color, transformation->position, sprite->sourceRect,
-                                    transformation->radian, transformation->origin);
-            }
-        }
+        spriteRenderSystem->draw(dt, m_spriteBatch, m_camera->getTransform());
     }
-    m_spriteBatch->end();
 
     m_window->display();
 }

@@ -13,8 +13,7 @@ namespace inari
             : m_registry(registry)
         {
         }
-
-        virtual void update(float dt) = 0;
+        virtual ~ISystem() = default;
 
     protected:
         std::shared_ptr<EntityRegistry> m_registry;
