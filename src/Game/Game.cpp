@@ -9,6 +9,8 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
+#include <algorithm>
+
 #include <Generated/shaders/sprite.hpp>
 
 // inari
@@ -40,10 +42,21 @@ namespace Constants
     constexpr int screenFps = 30;
     constexpr glm::ivec2 windowSize(1280, 720);
     constexpr glm::vec4 bgColor = colors::Black;
-    constexpr glm::vec4 sourceRects[]
-        = { glm::vec4(0, 0, 32, 32),   glm::vec4(32, 0, 64, 32),   glm::vec4(64, 0, 96, 32),
-            glm::vec4(96, 0, 128, 32), glm::vec4(128, 0, 160, 32), glm::vec4(160, 0, 192, 32) };
 }
+
+struct TracksGenerator
+{
+    glm::vec4 operator()()
+    {
+        auto result = glm::vec4(0, 0, 32, 32);
+        result.x = i++ * 32.0f;
+        result.z = i * 32.0f;
+        return result;
+    }
+
+private:
+    int i = 0;
+};
 
 Game::Game()
     : m_entityRegistry(std::make_shared<EntityRegistry>())
@@ -83,15 +96,15 @@ void Game::loadResources()
 {
     EntityPtr pacman = m_entityRegistry->createEntity("pacman");
     m_entityRegistry->emplaceComponent<Transformation>(pacman, glm::vec2(0), 0.0f, glm::vec2(0));
-    auto* sprite = m_entityRegistry->emplaceComponent<AnimationSprite>(pacman);
-    if (sprite)
+    m_entityRegistry->emplaceComponent<Sprite>(pacman, m_resources->load<Texture2D>("pacman"), glm::vec2(32));
+    if (auto* animSprite = m_entityRegistry->emplaceComponent<AnimationSprite>(pacman, "default"))
     {
-        sprite->texture = m_resources->load<Texture2D>("pacman");
-        sprite->size = glm::vec2(32);
-        sprite->tracks = { { "default",
-                             { glm::vec4(0, 0, 32, 32), glm::vec4(32, 0, 64, 32), glm::vec4(64, 0, 96, 32),
-                               glm::vec4(96, 0, 128, 32), glm::vec4(128, 0, 160, 32), glm::vec4(160, 0, 192, 32) } } };
-        sprite->currentTrack = "default";
+        auto& defaultTracks = animSprite->tracks["default"];
+        defaultTracks.resize(6);
+        std::generate(defaultTracks.begin(), defaultTracks.end(), TracksGenerator());
+
+        animSprite->isFramesLimited = true;
+        animSprite->framesLimit = 24.0f;
     }
 }
 

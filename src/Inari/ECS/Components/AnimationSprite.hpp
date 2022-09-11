@@ -6,16 +6,20 @@
 #include <string>
 #include <vector>
 
-#include "Sprite.hpp"
-
 namespace inari
 {
-    struct AnimationSprite : public Sprite
+    struct AnimationSprite
     {
+        std::string currentTrack;
+        size_t currentFrame = 0;
+
+        bool isFramesLimited = false;
+        float framesLimit = 0.0f;
+
         using FrameRect = glm::vec4;
         using TrackFrames = std::vector<FrameRect>;
         std::map<std::string, TrackFrames> tracks;
-        std::string currentTrack;
-        size_t currentFrame = 0;
+
+        float lastUpdate = 0.0f;
     };
 }

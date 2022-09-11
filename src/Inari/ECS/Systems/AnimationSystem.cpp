@@ -1,6 +1,9 @@
 ﻿#include "AnimationSystem.hpp"
 
+#include <SDL_timer.h>
+
 #include "Inari/ECS/Components/AnimationSprite.hpp"
+#include "Inari/ECS/Components/Sprite.hpp"
 
 namespace inari
 {
@@ -18,8 +21,9 @@ namespace inari
                 continue;
             }
 
+            auto* sprite = m_registry->getComponent<Sprite>(entity);
             auto* animSprite = m_registry->getComponent<AnimationSprite>(entity);
-            if (animSprite == nullptr)
+            if (sprite == nullptr || animSprite == nullptr)
             {
                 continue;
             }
@@ -27,24 +31,24 @@ namespace inari
             auto it = animSprite->tracks.find(animSprite->currentTrack);
             if (it != animSprite->tracks.end())
             {
-                // todo set fps limit
-                //int framesToUpdate = static_cast<int>(floor(dt / (1.0f / 24)));
-                //if (framesToUpdate > 0)
-                //{
-                //    animSprite->currentFrame += framesToUpdate;
-                //    if (animSprite->currentFrame >= it->second.size())
-                //    {
-                //        animSprite->currentFrame = 0;
-                //    }
-                //}
-
-                animSprite->currentFrame++;
-                if (animSprite->currentFrame >= it->second.size())
+                int framesToUpdate = 1;
+                if (animSprite->isFramesLimited)
                 {
-                    animSprite->currentFrame = 0;
+                    const float deltaTime = dt - animSprite->lastUpdate;
+                    framesToUpdate = static_cast<int>(floor(deltaTime / (1.0f / animSprite->framesLimit)));
                 }
 
-                animSprite->sourceRect = it->second[animSprite->currentFrame];
+                if (framesToUpdate > 0)
+                {
+                    animSprite->currentFrame += framesToUpdate;
+                    if (animSprite->currentFrame >= it->second.size())
+                    {
+                        animSprite->currentFrame = 0;
+                    }
+                    animSprite->lastUpdate = dt;
+                }
+
+                sprite->sourceRect = it->second[animSprite->currentFrame];
             }
         }
     }
