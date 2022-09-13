@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <memory>
+#include <utility>
 
 #include "Inari/ECS/EntityRegistry.hpp"
 
@@ -9,8 +10,8 @@ namespace inari
     class ISystem
     {
     public:
-        ISystem(const std::shared_ptr<EntityRegistry>& registry)
-            : m_registry(registry)
+        explicit ISystem(std::shared_ptr<EntityRegistry> registry)
+            : m_registry(std::move(registry))
         {
         }
         virtual ~ISystem() = default;

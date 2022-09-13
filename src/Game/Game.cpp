@@ -49,8 +49,8 @@ struct TracksGenerator
     glm::vec4 operator()()
     {
         auto result = glm::vec4(0, 0, 32, 32);
-        result.x = i++ * 32.0f;
-        result.z = i * 32.0f;
+        result.x = static_cast<float>(i++) * 32.0f;
+        result.z = static_cast<float>(i) * 32.0f;
         return result;
     }
 

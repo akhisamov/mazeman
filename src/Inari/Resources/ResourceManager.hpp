@@ -134,7 +134,7 @@ namespace inari
     private:
         static std::string readFileData(const std::string_view& filename);
 
-        std::map<std::string, std::string> getData(std::vector<std::string_view> filenames)
+        std::map<std::string, std::string> getData(const std::vector<std::string_view>& filenames)
         {
             std::map<std::string, std::string> result;
 

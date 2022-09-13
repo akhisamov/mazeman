@@ -20,7 +20,6 @@ namespace inari
 
         if (PHYSFS_init(nullptr) == 0)
         {
-            constexpr std::string_view message = "ResourceManager Init Error: %s";
             std::cerr << "ResourceManager Init Error: " << PHYSFS_getLastError();
             return nullptr;
         }
@@ -46,7 +45,7 @@ namespace inari
     std::string ResourceManager::readFileData(const std::string_view& filename)
     {
         std::string buffer;
-        if(PHYSFS_exists(filename.data()) != 0)
+        if (PHYSFS_exists(filename.data()) != 0)
         {
             PHYSFS_File* file = PHYSFS_openRead(filename.data());
             if (file)
@@ -60,5 +59,5 @@ namespace inari
         return buffer;
     }
 
-    ResourceManager::ResourceManager(Token) { }
+    ResourceManager::ResourceManager(Token /*unused*/) { }
 }

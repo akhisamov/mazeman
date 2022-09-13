@@ -24,7 +24,7 @@ namespace inari
     class SpriteBatch
     {
     public:
-        SpriteBatch(const std::shared_ptr<Shader>& spriteShader);
+        explicit SpriteBatch(std::shared_ptr<Shader> spriteShader);
         ~SpriteBatch();
 
         SpriteBatch() = delete;

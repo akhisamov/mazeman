@@ -7,7 +7,7 @@ namespace inari
     class AnimationSystem final : public ISystem
     {
     public:
-        AnimationSystem(const std::shared_ptr<EntityRegistry>& registry);
+        explicit AnimationSystem(std::shared_ptr<EntityRegistry> registry);
 
         void update(float dt);
     };

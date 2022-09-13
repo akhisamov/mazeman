@@ -2,13 +2,16 @@
 
 #include <SDL_timer.h>
 
+#include <cmath>
+#include <utility>
+
 #include "Inari/ECS/Components/AnimationSprite.hpp"
 #include "Inari/ECS/Components/Sprite.hpp"
 
 namespace inari
 {
-    AnimationSystem::AnimationSystem(const std::shared_ptr<EntityRegistry>& registry)
-        : ISystem(registry)
+    AnimationSystem::AnimationSystem(std::shared_ptr<EntityRegistry> registry)
+        : ISystem(std::move(registry))
     {
     }
 
@@ -35,7 +38,7 @@ namespace inari
                 if (animSprite->isFramesLimited)
                 {
                     const float deltaTime = dt - animSprite->lastUpdate;
-                    framesToUpdate = static_cast<int>(floor(deltaTime / (1.0f / animSprite->framesLimit)));
+                    framesToUpdate = static_cast<int>(std::floor(deltaTime / (1.0f / animSprite->framesLimit)));
                 }
 
                 if (framesToUpdate > 0)

@@ -1,6 +1,7 @@
 ﻿#include "SpriteRenderSystem.hpp"
 
 #include <cassert>
+#include <utility>
 
 #include "Inari/ECS/Components/Sprite.hpp"
 #include "Inari/ECS/Components/Transformation.hpp"
@@ -9,8 +10,8 @@
 
 namespace inari
 {
-    SpriteRenderSystem::SpriteRenderSystem(const std::shared_ptr<EntityRegistry>& registry)
-        : ISystem(registry)
+    SpriteRenderSystem::SpriteRenderSystem(std::shared_ptr<EntityRegistry> registry)
+        : ISystem(std::move(registry))
     {
     }
 

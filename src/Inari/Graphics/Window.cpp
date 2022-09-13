@@ -27,8 +27,8 @@ namespace inari
     std::unique_ptr<Window> Window::create(const std::string_view& title, int width, int height)
     {
         auto data = std::make_unique<WindowData>();
-        data->window = SDL_CreateWindow(title.data(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width,
-                                              height, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+        data->window = SDL_CreateWindow(title.data(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
+                                        SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
         if (data->window == nullptr)
         {
             return nullptr;
@@ -108,9 +108,9 @@ namespace inari
         const uint64_t endCounter = SDL_GetPerformanceCounter();
         if (m_frameLimit)
         {
-            const float screenTicksPerFrame = 1000.0f / (*m_frameLimit);
-            const float elapsedMs
-                = (endCounter - m_data->startCounter) / static_cast<float>(SDL_GetPerformanceFrequency()) * 1000.0f;
+            const float screenTicksPerFrame = 1000.0f / static_cast<float>(*m_frameLimit);
+            const float elapsedMs = static_cast<float>(endCounter - m_data->startCounter)
+                / static_cast<float>(SDL_GetPerformanceFrequency()) * 1000.0f;
             if (screenTicksPerFrame > elapsedMs)
             {
                 SDL_Delay(static_cast<uint32_t>(screenTicksPerFrame - elapsedMs));

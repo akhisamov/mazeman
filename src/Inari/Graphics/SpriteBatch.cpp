@@ -5,8 +5,10 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include <algorithm>
+#include <cstdint>
 #include <functional>
 #include <set>
+#include <utility>
 
 #include "Inari/Resources/Shader.hpp"
 #include "Inari/Resources/Texture2D.hpp"
@@ -15,7 +17,7 @@ namespace inari
 {
     struct SpriteData
     {
-        const std::shared_ptr<Texture2D>& texture;
+        std::shared_ptr<Texture2D> texture;
 
         struct VertexData
         {
@@ -40,15 +42,15 @@ namespace inari
         {
         }
 
-        SpriteData(const std::shared_ptr<Texture2D>& texture)
-            : texture(texture)
+        explicit SpriteData(std::shared_ptr<Texture2D> texture)
+            : texture(std::move(texture))
         {
         }
     };
 
-    SpriteBatch::SpriteBatch(const std::shared_ptr<Shader>& spriteShader)
+    SpriteBatch::SpriteBatch(std::shared_ptr<Shader> spriteShader)
         : m_isBegan(false)
-        , m_shader(spriteShader)
+        , m_shader(std::move(spriteShader))
         , m_vao(0)
         , m_vbo(0)
         , m_ebo(0)
@@ -63,7 +65,7 @@ namespace inari
         glBindVertexArray(m_vao);
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(SpriteData::VertexData), (void*)0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(SpriteData::VertexData), nullptr);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(SpriteData::VertexData), (void*)sizeof(glm::vec2));
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -231,17 +233,17 @@ namespace inari
         m_shader->set("origin", data.origin);
         m_shader->set("color", data.color);
 
+        const auto verticesSize = static_cast<GLsizeiptr>(sizeof(SpriteData::VertexData) * data.vertices.size());
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(data.vertices) * data.vertices.size(), data.vertices.data(),
-                     GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, verticesSize, data.vertices.data(), GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
 
+        const auto indicesSize = static_cast<GLsizeiptr>(sizeof(uint32_t) * data.indices.size());
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(data.indices) * data.indices.size(), data.indices.data(),
-                     GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, data.indices.data(), GL_STATIC_DRAW);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 

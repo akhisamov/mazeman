@@ -9,5 +9,5 @@ namespace inari
     {
     }
 
-    float GameTime::getTotalMs() const { return (SDL_GetTicks() - m_startTicks) / 1000.0f; }
+    float GameTime::getTotalMs() const { return static_cast<float>(SDL_GetTicks() - m_startTicks) / 1000.0f; }
 }

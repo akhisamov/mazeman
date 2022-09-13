@@ -17,10 +17,10 @@
 namespace inari
 {
     IGame::IGame()
-        : m_isRunning(false)
-        , m_window(nullptr)
+        : m_window(nullptr)
         , m_spriteBatch(nullptr)
         , m_resources(nullptr)
+        , m_isRunning(false)
     {
     }
 
@@ -45,7 +45,7 @@ namespace inari
 
                 m_window->end();
 
-                const float avgFPS = totalFrames / gameTime.getTotalMs(); // todo
+                // const float avgFPS = totalFrames / gameTime.getTotalMs(); // todo
                 if (totalFrames > 20000)
                 {
                     totalFrames = 0;

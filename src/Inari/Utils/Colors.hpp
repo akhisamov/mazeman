@@ -6,10 +6,10 @@ namespace inari::colors
 {
     inline constexpr glm::vec4 toGL(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255)
     {
-        return glm::vec4(r / 255, g / 255, b / 255, a / 255);
+        return { r / 255, g / 255, b / 255, a / 255 };
     };
 
-    template<int size>
+    template <int size>
     inline constexpr glm::vec<size, float, glm::defaultp> toGL(int hexValue)
     {
         glm::vec<size, float, glm::defaultp> result(1.0f);

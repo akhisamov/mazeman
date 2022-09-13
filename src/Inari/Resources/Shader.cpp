@@ -99,11 +99,11 @@ namespace inari
         for (const auto& it : data)
         {
             const std::string_view& filename = it.first;
-            if (it.first.rfind(vertexExt) == it.first.size() - vertexExt.size())
+            if (filename.rfind(vertexExt) == filename.size() - vertexExt.size())
             {
                 vertexCode = it.second;
             }
-            else if (it.first.rfind(fragmentExt) == it.first.size() - fragmentExt.size())
+            else if (filename.rfind(fragmentExt) == filename.size() - fragmentExt.size())
             {
                 fragmentCode = it.second;
             }

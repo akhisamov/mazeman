@@ -26,9 +26,6 @@ namespace inari
         EntityRegistry() = default;
         ~EntityRegistry() = default;
 
-        EntityRegistry(EntityRegistry&&) = delete;
-        EntityRegistry(const EntityRegistry&) = delete;
-
         EntityPtr createEntity(const std::string_view& name = "");
 
         EntityPtr getEntity(const std::string_view& name);
@@ -60,10 +57,10 @@ namespace inari
         {
             assert(entity != nullptr && "Entity is empty");
 
-            auto& entityIt = m_components.find(entity->uuid);
+            const auto& entityIt = m_components.find(entity->uuid);
             if (entityIt != m_components.end())
             {
-                auto& componentIt = entityIt->second.find(typeid(C).hash_code());
+                const auto& componentIt = entityIt->second.find(typeid(C).hash_code());
                 if (componentIt != entityIt->second.end())
                 {
                     return std::any_cast<C>(&componentIt->second);

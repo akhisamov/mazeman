@@ -5,7 +5,7 @@
 struct NameComparator
 {
 public:
-    NameComparator(const std::string_view& name)
+    explicit NameComparator(const std::string_view& name)
         : m_name(name)
     {
     }
@@ -49,7 +49,7 @@ namespace inari
         if (it != m_entities.end())
         {
             m_entities.erase(it);
-            return true && result;
+            return result;
         }
         return result;
     }
