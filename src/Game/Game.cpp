@@ -103,8 +103,9 @@ void Game::loadResources()
         defaultTracks.resize(6);
         std::generate(defaultTracks.begin(), defaultTracks.end(), TracksGenerator());
 
-        animSprite->isFramesLimited = true;
-        animSprite->framesLimit = 24.0f;
+        // Uncomment it to limit animation fps
+        // animSprite->isFramesLimited = true;
+        // animSprite->framesLimit = 24.0f;
     }
 }
 
