@@ -36,41 +36,34 @@
 
 using namespace inari;
 
-namespace Constants
-{
-    constexpr std::string_view title = "PacMan";
-    constexpr int screenFps = 30;
-    constexpr glm::ivec2 windowSize(1280, 720);
-    constexpr glm::vec4 bgColor = colors::Black;
-}
+namespace Constants {
+constexpr std::string_view title = "PacMan";
+constexpr int screenFps = 30;
+constexpr glm::ivec2 windowSize(1280, 720);
+constexpr glm::vec4 bgColor = colors::Black;
+}  // namespace Constants
 
-struct TracksGenerator
-{
-    glm::vec4 operator()()
-    {
+struct TracksGenerator {
+    glm::vec4 operator()() {
         auto result = glm::vec4(0, 0, 32, 32);
         result.x = static_cast<float>(i++) * 32.0f;
         result.z = static_cast<float>(i) * 32.0f;
         return result;
     }
 
-private:
+   private:
     int i = 0;
 };
 
 Game::Game()
-    : m_entityRegistry(std::make_shared<EntityRegistry>())
-    , m_systemRegistry(std::make_unique<SystemRegistry>())
-    , m_camera(nullptr)
-{
-}
+    : m_entityRegistry(std::make_shared<EntityRegistry>()),
+      m_systemRegistry(std::make_unique<SystemRegistry>()),
+      m_camera(nullptr) {}
 
 Game::~Game() = default;
 
-bool Game::init()
-{
-    if (IGame::init())
-    {
+bool Game::init() {
+    if (IGame::init()) {
         // Init window
         m_window->setWindowSize(Constants::windowSize);
         m_window->setTitle(Constants::title);
@@ -92,16 +85,18 @@ bool Game::init()
     return false;
 }
 
-void Game::loadResources()
-{
+void Game::loadResources() {
     EntityPtr pacman = m_entityRegistry->createEntity("pacman");
-    m_entityRegistry->emplaceComponent<Transformation>(pacman, glm::vec2(0), 0.0f, glm::vec2(0));
-    m_entityRegistry->emplaceComponent<Sprite>(pacman, m_resources->load<Texture2D>("pacman"), glm::vec2(32));
-    if (auto* animSprite = m_entityRegistry->emplaceComponent<AnimationSprite>(pacman, "default"))
-    {
+    m_entityRegistry->emplaceComponent<Transformation>(pacman, glm::vec2(0),
+                                                       0.0f, glm::vec2(0));
+    m_entityRegistry->emplaceComponent<Sprite>(
+        pacman, m_resources->load<Texture2D>("pacman"), glm::vec2(32));
+    if (auto* animSprite = m_entityRegistry->emplaceComponent<AnimationSprite>(
+            pacman, "default")) {
         auto& defaultTracks = animSprite->tracks["default"];
         defaultTracks.resize(6);
-        std::generate(defaultTracks.begin(), defaultTracks.end(), TracksGenerator());
+        std::generate(defaultTracks.begin(), defaultTracks.end(),
+                      TracksGenerator());
 
         // Uncomment it to limit animation fps
         // animSprite->isFramesLimited = true;
@@ -109,45 +104,41 @@ void Game::loadResources()
     }
 }
 
-void Game::unloadResources() { m_resources->unload<Texture2D>("pacman"); }
+void Game::unloadResources() {
+    m_resources->unload<Texture2D>("pacman");
+}
 
-void Game::handleWindowResized(const glm::ivec2& size) { m_camera->setWindowSize(m_window->getWindowSize()); }
+void Game::handleWindowResized(const glm::ivec2& size) {
+    m_camera->setWindowSize(m_window->getWindowSize());
+}
 
-void Game::update(float dt)
-{
+void Game::update(float dt) {
     const float cameraSpeed = 1.0f * dt;
     const uint8_t* currentKeyStates = SDL_GetKeyboardState(nullptr);
-    if (currentKeyStates[SDL_SCANCODE_UP])
-    {
+    if (currentKeyStates[SDL_SCANCODE_UP]) {
         m_camera->moveY(cameraSpeed);
     }
-    if (currentKeyStates[SDL_SCANCODE_DOWN])
-    {
+    if (currentKeyStates[SDL_SCANCODE_DOWN]) {
         m_camera->moveY(-cameraSpeed);
     }
-    if (currentKeyStates[SDL_SCANCODE_RIGHT])
-    {
+    if (currentKeyStates[SDL_SCANCODE_RIGHT]) {
         m_camera->moveX(cameraSpeed);
     }
-    if (currentKeyStates[SDL_SCANCODE_LEFT])
-    {
+    if (currentKeyStates[SDL_SCANCODE_LEFT]) {
         m_camera->moveX(-cameraSpeed);
     }
 
     auto animation = m_systemRegistry->getSystem<AnimationSystem>();
-    if (animation)
-    {
+    if (animation) {
         animation->update(dt);
     }
 }
 
-void Game::draw(float dt)
-{
+void Game::draw(float dt) {
     m_window->clear(Constants::bgColor);
 
     auto spriteRenderSystem = m_systemRegistry->getSystem<SpriteRenderSystem>();
-    if (spriteRenderSystem)
-    {
+    if (spriteRenderSystem) {
         spriteRenderSystem->draw(dt, m_spriteBatch, m_camera->getTransform());
     }
 

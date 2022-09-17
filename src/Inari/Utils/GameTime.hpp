@@ -2,16 +2,14 @@
 
 #include <cstdint>
 
-namespace inari
-{
-    class GameTime
-    {
-    public:
-        GameTime();
+namespace inari {
+class GameTime {
+   public:
+    GameTime();
 
-        float getTotalMs() const;
+    float getTotalMs() const;
 
-    private:
-        uint32_t m_startTicks;
-    };
-}
+   private:
+    uint32_t m_startTicks;
+};
+}  // namespace inari

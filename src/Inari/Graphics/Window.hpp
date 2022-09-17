@@ -6,34 +6,35 @@
 #include <memory>
 #include <string_view>
 
-namespace inari
-{
-    class Window
-    {
-        friend class IGame;
-    public:
-        static std::unique_ptr<Window> create(const std::string_view& title, int width, int height);
+namespace inari {
+class Window {
+    friend class IGame;
 
-        explicit Window(std::unique_ptr<struct WindowData>& data);
-        ~Window();
+   public:
+    static std::unique_ptr<Window> create(const std::string_view& title,
+                                          int width,
+                                          int height);
 
-        void clear(const glm::vec4& color);
-        void display();
+    explicit Window(std::unique_ptr<struct WindowData>& data);
+    ~Window();
 
-        void setWindowSize(const glm::ivec2& size);
-        glm::ivec2 getWindowSize() const;
+    void clear(const glm::vec4& color);
+    void display();
 
-        void setTitle(const std::string_view& title);
+    void setWindowSize(const glm::ivec2& size);
+    glm::ivec2 getWindowSize() const;
 
-        void setFrameLimit(int screenFps);
+    void setTitle(const std::string_view& title);
 
-    protected:
-        void begin();
-        void end();
+    void setFrameLimit(int screenFps);
 
-    private:
-        std::unique_ptr<struct WindowData> m_data;
+   protected:
+    void begin();
+    void end();
 
-        std::unique_ptr<int> m_frameLimit;
-    };
-}
+   private:
+    std::unique_ptr<struct WindowData> m_data;
+
+    std::unique_ptr<int> m_frameLimit;
+};
+}  // namespace inari
