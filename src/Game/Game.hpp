@@ -30,6 +30,4 @@ private:
     std::unique_ptr<inari::SystemRegistry> m_systemRegistry;
 
     std::unique_ptr<inari::Camera2D> m_camera;
-
-    int trackIdx = 0;
 };
