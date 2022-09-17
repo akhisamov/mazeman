@@ -1,12 +1,12 @@
 # CMake
+build/
 cmake-build-*/
 Debug/
 
-.idea/*
-.vim/*
-.vscode/*
+.cache/
+.idea/
+.vim/
+.vscode/
 
 .exrc
 tags*
-
-src/Generated/*

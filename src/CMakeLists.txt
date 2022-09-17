@@ -1,10 +1,4 @@
-add_subdirectory(Graphics)
-add_subdirectory(Resources)
-add_subdirectory(Utils)
+add_subdirectory(Game)
+add_subdirectory(Inari)
 
-target_sources(pacman PRIVATE
-    Game.hpp Game.cpp
-    main.cpp
-
-    CMakeLists.txt
-)
+target_sources(pacman PRIVATE CMakeLists.txt)
