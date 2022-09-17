@@ -2,20 +2,18 @@
 
 #include "Inari/IGame.hpp"
 
-namespace inari
-{
-    class EntityRegistry;
-    class SystemRegistry;
-    class Camera2D;
-}
+namespace inari {
+class EntityRegistry;
+class SystemRegistry;
+class Camera2D;
+}  // namespace inari
 
-class Game final : public inari::IGame
-{
-public:
+class Game final : public inari::IGame {
+   public:
     Game();
     ~Game();
 
-private:
+   private:
     bool init() override;
 
     void loadResources() override;

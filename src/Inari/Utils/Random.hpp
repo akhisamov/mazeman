@@ -2,7 +2,6 @@
 
 #include <string>
 
-namespace inari::random
-{
-    std::string generateUUID();
+namespace inari::random {
+std::string generateUUID();
 }
