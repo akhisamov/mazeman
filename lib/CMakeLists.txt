@@ -1,6 +1,4 @@
 target_sources(pacman PRIVATE CMakeLists.txt)
-target_sources(pacman PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/glad/src/glad.c)
-target_include_directories(pacman PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/glad/include)
 
 set(SDL_STATIC FALSE)
 add_subdirectory(SDL)
@@ -20,6 +18,21 @@ if (BUILD_SHARED_LIBS)
 else()
     set_target_properties(SDL2_image-static PROPERTIES FOLDER "ThirdParty")
     target_link_libraries(pacman PRIVATE SDL2_image::SDL2_image-static)
+endif()
+
+# CPM
+CPMAddPackage(
+    name glad
+    VERSION 0.1.36
+    GITHUB_REPOSITORY Dav1dde/glad
+    OPTIONS
+        "GLAD_API \"gl=3.3\""
+        "GLAD_PROFILE core"
+        "GLAD_SPEC gl"
+        "GLAD_GENERATOR c"
+)
+if (glad_ADDED)
+    target_link_libraries(pacman PRIVATE glad)
 endif()
 
 CPMAddPackage("gh:g-truc/glm#0.9.9.8")

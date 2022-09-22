@@ -33,7 +33,7 @@ foreach(VERT ${GLSL_VERT_FILES})
     set(GLSL_HEADER "${GLSL_PATH}/${FILE_NAME}.hpp")
     add_custom_command(
         OUTPUT ${GLSL_HEADER}
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/include/Generated/shaders"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${GLSL_PATH}"
         COMMAND lua "${CMAKE_CURRENT_SOURCE_DIR}/tools/embedshader.lua" ${GLSL_HEADER} -- ${VERT} ${FRAG}
         DEPENDS ${VERT} ${FRAG})
     list(APPEND GLSL_HEADERS ${GLSL_HEADER})
