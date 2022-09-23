@@ -1,5 +1,3 @@
-target_sources(pacman PRIVATE CMakeLists.txt)
-
 set(SDL_STATIC FALSE)
 add_subdirectory(SDL)
 set_target_properties(SDL2 PROPERTIES FOLDER "ThirdParty")

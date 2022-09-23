@@ -15,45 +15,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 include(cmake/CPM.cmake)
 
-file(GLOB_RECURSE GLSL_VERT_FILES
-    "shaders/*.vert"
-)
-
-file(GLOB_RECURSE GLSL_FRAG_FILES
-    "shaders/*.frag"
-)
-
-foreach(VERT ${GLSL_VERT_FILES})
-    get_filename_component(FILE_NAME ${VERT} NAME_WE)
-    get_filename_component(FRAG_FILE ${VERT} DIRECTORY)
-    string(APPEND FRAG_FILE "/${FILE_NAME}.frag")
-    list(FIND GLSL_FRAG_FILES ${FRAG_FILE} FRAG_INDEX)
-    list(GET GLSL_FRAG_FILES ${FRAG_INDEX} FRAG)
-    set(GLSL_PATH "${CMAKE_BINARY_DIR}/include/Generated/shaders")
-    set(GLSL_HEADER "${GLSL_PATH}/${FILE_NAME}.hpp")
-    add_custom_command(
-        OUTPUT ${GLSL_HEADER}
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${GLSL_PATH}"
-        COMMAND lua "${CMAKE_CURRENT_SOURCE_DIR}/tools/embedshader.lua" ${GLSL_HEADER} -- ${VERT} ${FRAG}
-        DEPENDS ${VERT} ${FRAG})
-    list(APPEND GLSL_HEADERS ${GLSL_HEADER})
-endforeach(VERT)
-
-add_custom_target(
-    Shaders
-    DEPENDS ${GLSL_HEADERS}
-    SOURCES ${GLSL_VERT_FILES} ${GLSL_FRAG_FILES}
-)
-source_group("Vertex Shaders" FILES ${GLSL_VERT_FILES})
-source_group("Fragment Shaders" FILES ${GLSL_FRAG_FILES})
-
 add_executable(pacman)
 target_include_directories(pacman PRIVATE src "${CMAKE_BINARY_DIR}/include")
 
-add_dependencies(pacman Shaders)
-
+add_subdirectory(shaders)
 add_subdirectory(lib)
-
 add_subdirectory(src)
 
 get_target_property(PACMAN_FILES pacman SOURCES)
