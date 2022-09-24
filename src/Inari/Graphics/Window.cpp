@@ -21,7 +21,7 @@ struct WindowData {
     }
 };
 
-std::unique_ptr<Window> Window::create(const std::string_view& title,
+std::shared_ptr<Window> Window::create(const std::string_view& title,
                                        int width,
                                        int height) {
     auto data = std::make_unique<WindowData>();
@@ -48,10 +48,10 @@ std::unique_ptr<Window> Window::create(const std::string_view& title,
         return nullptr;
     }
 
-    return std::make_unique<Window>(data);
+    return std::make_shared<Window>(std::move(data));
 }
 
-Window::Window(std::unique_ptr<struct WindowData>& data)
+Window::Window(std::unique_ptr<struct WindowData>&& data)
     : m_data(std::move(data)), m_frameLimit(nullptr) {}
 
 Window::~Window() {

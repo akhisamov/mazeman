@@ -25,6 +25,7 @@
 #include "Inari/Graphics/SpriteBatch.hpp"
 #include "Inari/Graphics/Window.hpp"
 
+#include "Inari/InputManager.hpp"
 #include "Inari/Resources/ResourceManager.hpp"
 #include "Inari/Resources/Shader.hpp"
 
@@ -65,13 +66,15 @@ Game::~Game() = default;
 bool Game::init() {
     if (IGame::init()) {
         // Init window
-        m_window->setWindowSize(Constants::windowSize);
-        m_window->setTitle(Constants::title);
-        m_window->setFrameLimit(Constants::screenFps);
+        const auto& window = getWindow();
+        window->setWindowSize(Constants::windowSize);
+        window->setTitle(Constants::title);
+        window->setFrameLimit(Constants::screenFps);
 
         // Init resources
-        m_resources->addSearchPath("sprites.bundle", "sprites");
-        m_resources->addFile<Texture2D>("pacman", "sprites/pacman.png");
+        const auto& resources = getResourceManager();
+        resources->addSearchPath("sprites.bundle", "sprites");
+        resources->addFile<Texture2D>("pacman", "sprites/pacman.png");
 
         // Init camera
         m_camera = std::make_unique<Camera2D>(Constants::windowSize, 0.5f);
@@ -89,8 +92,12 @@ void Game::loadResources() {
     EntityPtr pacman = m_entityRegistry->createEntity("pacman");
     m_entityRegistry->emplaceComponent<Transformation>(pacman, glm::vec2(0),
                                                        0.0f, glm::vec2(0));
-    m_entityRegistry->emplaceComponent<Sprite>(
-        pacman, m_resources->load<Texture2D>("pacman"), glm::vec2(32));
+
+    if (auto texture = getResourceManager()->load<Texture2D>("pacman")) {
+        m_entityRegistry->emplaceComponent<Sprite>(pacman, texture,
+                                                   glm::vec2(32));
+    }
+
     if (auto* animSprite = m_entityRegistry->emplaceComponent<AnimationSprite>(
             pacman, "default")) {
         auto& defaultTracks = animSprite->tracks["default"];
@@ -105,26 +112,27 @@ void Game::loadResources() {
 }
 
 void Game::unloadResources() {
-    m_resources->unload<Texture2D>("pacman");
+    getResourceManager()->unload<Texture2D>("pacman");
 }
 
 void Game::handleWindowResized(const glm::ivec2& size) {
-    m_camera->setWindowSize(m_window->getWindowSize());
+    m_camera->setWindowSize(size);
 }
 
 void Game::update(float dt) {
     const float cameraSpeed = 1.0f * dt;
-    const uint8_t* currentKeyStates = SDL_GetKeyboardState(nullptr);
-    if (currentKeyStates[SDL_SCANCODE_UP]) {
+
+    const auto& inputManager = getInputManager();
+    if (inputManager->isKeyDown(SDLK_UP)) {
         m_camera->moveY(cameraSpeed);
     }
-    if (currentKeyStates[SDL_SCANCODE_DOWN]) {
+    if (inputManager->isKeyDown(SDLK_DOWN)) {
         m_camera->moveY(-cameraSpeed);
     }
-    if (currentKeyStates[SDL_SCANCODE_RIGHT]) {
+    if (inputManager->isKeyDown(SDLK_RIGHT)) {
         m_camera->moveX(cameraSpeed);
     }
-    if (currentKeyStates[SDL_SCANCODE_LEFT]) {
+    if (inputManager->isKeyDown(SDLK_LEFT)) {
         m_camera->moveX(-cameraSpeed);
     }
 
@@ -135,12 +143,13 @@ void Game::update(float dt) {
 }
 
 void Game::draw(float dt) {
-    m_window->clear(Constants::bgColor);
+    getWindow()->clear(Constants::bgColor);
 
     auto spriteRenderSystem = m_systemRegistry->getSystem<SpriteRenderSystem>();
     if (spriteRenderSystem) {
-        spriteRenderSystem->draw(dt, m_spriteBatch, m_camera->getTransform());
+        spriteRenderSystem->draw(dt, getSpriteBatch(),
+                                 m_camera->getTransform());
     }
 
-    m_window->display();
+    getWindow()->display();
 }
