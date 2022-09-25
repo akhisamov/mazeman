@@ -3,9 +3,9 @@
 #include <glm/vec2.hpp>
 
 namespace inari {
-struct Transformation {
+struct Transform {
     glm::vec2 position;
-    float radian;
+    float radian = 0.0f;
     glm::vec2 origin;
 };
 }  // namespace inari

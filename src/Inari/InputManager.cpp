@@ -43,7 +43,12 @@ void InputManager::prepareHandling() {
 }
 
 void InputManager::handleEvent(const SDL_KeyboardEvent& event) {
-    const auto state = static_cast<KeyState>(event.state);
+    auto state = KeyState::UP;
+    if (event.state == SDL_RELEASED) {
+        state = KeyState::RELEASED;
+    } else if (event.state == SDL_PRESSED) {
+        state = KeyState::PRESSED;
+    }
     const SDL_Keycode code = event.keysym.sym;
 
     m_states[code] = state;

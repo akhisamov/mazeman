@@ -15,11 +15,13 @@
 
 // inari
 #include "Inari/ECS/Components/AnimationSprite.hpp"
+#include "Inari/ECS/Components/RigidBody.hpp"
 #include "Inari/ECS/Components/Sprite.hpp"
-#include "Inari/ECS/Components/Transformation.hpp"
+#include "Inari/ECS/Components/Transform.hpp"
 #include "Inari/ECS/EntityRegistry.hpp"
 #include "Inari/ECS/SystemRegistry.hpp"
 #include "Inari/ECS/Systems/AnimationSystem.hpp"
+#include "Inari/ECS/Systems/PhysicsSystem.hpp"
 #include "Inari/ECS/Systems/SpriteRenderSystem.hpp"
 
 #include "Inari/Graphics/SpriteBatch.hpp"
@@ -47,8 +49,8 @@ constexpr glm::vec4 bgColor = colors::Black;
 struct TracksGenerator {
     glm::vec4 operator()() {
         auto result = glm::vec4(0, 0, 32, 32);
-        result.x = static_cast<float>(i++) * 32.0f;
-        result.z = static_cast<float>(i) * 32.0f;
+        result.x = static_cast<float>(i) * 32.0f;
+        result.z = static_cast<float>(++i) * 32.0f;
         return result;
     }
 
@@ -82,6 +84,7 @@ bool Game::init() {
         // Init systems
         m_systemRegistry->addSystem<AnimationSystem>(m_entityRegistry);
         m_systemRegistry->addSystem<SpriteRenderSystem>(m_entityRegistry);
+        m_systemRegistry->addSystem<PhysicsSystem>(m_entityRegistry);
 
         return true;
     }
@@ -89,26 +92,27 @@ bool Game::init() {
 }
 
 void Game::loadResources() {
-    EntityPtr pacman = m_entityRegistry->createEntity("pacman");
-    m_entityRegistry->emplaceComponent<Transformation>(pacman, glm::vec2(0),
-                                                       0.0f, glm::vec2(0));
+    const EntityPtr pacman = m_entityRegistry->createEntity("pacman");
+    m_entityRegistry->emplaceComponent<Transform>(pacman);
 
     if (auto texture = getResourceManager()->load<Texture2D>("pacman")) {
-        m_entityRegistry->emplaceComponent<Sprite>(pacman, texture,
-                                                   glm::vec2(32));
+        m_entityRegistry->emplaceComponent(pacman,
+                                           Sprite{texture, glm::vec2(32)});
     }
 
-    if (auto* animSprite = m_entityRegistry->emplaceComponent<AnimationSprite>(
-            pacman, "default")) {
-        auto& defaultTracks = animSprite->tracks["default"];
+    {
+        AnimationSprite animSprite;
+        animSprite.currentTrack = "default";
+        animSprite.isFramesLimited = true;
+        animSprite.framesLimit = 24.0f;
+        auto& defaultTracks = animSprite.tracks[animSprite.currentTrack];
         defaultTracks.resize(6);
         std::generate(defaultTracks.begin(), defaultTracks.end(),
                       TracksGenerator());
-
-        // Uncomment it to limit animation fps
-        // animSprite->isFramesLimited = true;
-        // animSprite->framesLimit = 24.0f;
+        m_entityRegistry->emplaceComponent(pacman, animSprite);
     }
+
+    m_entityRegistry->emplaceComponent<RigidBody>(pacman);
 }
 
 void Game::unloadResources() {
@@ -120,20 +124,30 @@ void Game::handleWindowResized(const glm::ivec2& size) {
 }
 
 void Game::update(float dt) {
-    const float cameraSpeed = 1.0f * dt;
+    auto* rigidBody = m_entityRegistry->getComponent<RigidBody>(
+        m_entityRegistry->getEntity("pacman"));
+    if (rigidBody) {
+        rigidBody->velocity = glm::vec2(0.0f);
 
-    const auto& inputManager = getInputManager();
-    if (inputManager->isKeyDown(SDLK_UP)) {
-        m_camera->moveY(cameraSpeed);
+        constexpr float pacmanSpeed = 1.0f;
+        const auto& inputManager = getInputManager();
+        if (inputManager->isKeyDown(SDLK_UP)) {
+            rigidBody->velocity.y = pacmanSpeed;
+        }
+        if (inputManager->isKeyDown(SDLK_DOWN)) {
+            rigidBody->velocity.y = -pacmanSpeed;
+        }
+        if (inputManager->isKeyDown(SDLK_RIGHT)) {
+            rigidBody->velocity.x = pacmanSpeed;
+        }
+        if (inputManager->isKeyDown(SDLK_LEFT)) {
+            rigidBody->velocity.x = -pacmanSpeed;
+        }
     }
-    if (inputManager->isKeyDown(SDLK_DOWN)) {
-        m_camera->moveY(-cameraSpeed);
-    }
-    if (inputManager->isKeyDown(SDLK_RIGHT)) {
-        m_camera->moveX(cameraSpeed);
-    }
-    if (inputManager->isKeyDown(SDLK_LEFT)) {
-        m_camera->moveX(-cameraSpeed);
+
+    auto physics = m_systemRegistry->getSystem<PhysicsSystem>();
+    if (physics) {
+        physics->update(dt);
     }
 
     auto animation = m_systemRegistry->getSystem<AnimationSystem>();
