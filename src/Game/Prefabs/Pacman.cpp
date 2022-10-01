@@ -10,7 +10,7 @@
 
 #include "Game/Components/Player.hpp"
 
-namespace {
+namespace prefabs {
 struct TracksGenerator {
     glm::vec4 operator()() {
         auto result = glm::vec4(0, 0, 32, 32);
@@ -34,9 +34,7 @@ inari::AnimationSprite createAnimationSprite() {
                   TracksGenerator());
     return animSprite;
 }
-}  // namespace
 
-namespace prefabs {
 void createPacman(const std::shared_ptr<inari::EntityRegistry>& entityRegistry,
                   const std::shared_ptr<inari::Texture2D>& texture) {
     constexpr std::string_view name = "pacman";
