@@ -12,6 +12,8 @@ class ISystem {
         : m_registry(std::move(registry)) {}
     virtual ~ISystem() = default;
 
+    virtual void update(float dt) = 0;
+
    protected:
     std::shared_ptr<EntityRegistry> m_registry;
 };

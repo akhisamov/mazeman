@@ -11,11 +11,11 @@ class Window {
     friend class IGame;
 
    public:
-    static std::unique_ptr<Window> create(const std::string_view& title,
+    static std::shared_ptr<Window> create(const std::string_view& title,
                                           int width,
                                           int height);
 
-    explicit Window(std::unique_ptr<struct WindowData>& data);
+    explicit Window(std::unique_ptr<struct WindowData>&& data);
     ~Window();
 
     void clear(const glm::vec4& color);

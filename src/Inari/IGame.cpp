@@ -10,16 +10,18 @@
 
 #include "Inari/Graphics/SpriteBatch.hpp"
 #include "Inari/Graphics/Window.hpp"
+#include "Inari/InputManager.hpp"
 #include "Inari/Resources/ResourceManager.hpp"
 #include "Inari/Utils/GameTime.hpp"
 #include "Inari/Utils/Strings.hpp"
 
 namespace inari {
 IGame::IGame()
-    : m_window(nullptr),
+    : m_isRunning(false),
+      m_window(nullptr),
       m_spriteBatch(nullptr),
       m_resources(nullptr),
-      m_isRunning(false) {}
+      m_inputManager(std::make_shared<InputManager>()) {}
 
 void IGame::run() {
     if (!m_isRunning) {
@@ -84,13 +86,33 @@ bool IGame::init() {
     return true;
 }
 
+const std::shared_ptr<ResourceManager>& IGame::getResourceManager() const {
+    return m_resources;
+}
+
+const std::shared_ptr<SpriteBatch>& IGame::getSpriteBatch() const {
+    return m_spriteBatch;
+}
+
+const std::shared_ptr<Window>& IGame::getWindow() const {
+    return m_window;
+}
+
+const std::shared_ptr<InputManager>& IGame::getInputManager() const {
+    return m_inputManager;
+}
+
 void IGame::handleEvents() {
+    m_inputManager->prepareHandling();
     SDL_Event e;
     while (SDL_PollEvent(&e) != 0) {
         if (e.type == SDL_QUIT) {
             m_isRunning = false;
-        } else if (e.type == SDL_WINDOWEVENT_RESIZED) {
+        } else if (e.type == SDL_WINDOWEVENT &&
+                   e.window.event == SDL_WINDOWEVENT_RESIZED) {
             handleWindowResized(m_window->getWindowSize());
+        } else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
+            m_inputManager->handleEvent(e.key);
         }
     }
 }

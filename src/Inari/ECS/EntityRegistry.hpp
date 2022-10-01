@@ -31,20 +31,21 @@ class EntityRegistry {
     bool destroyEntity(const EntityPtr& entity);
     bool destroyEntity(const std::string_view& name);
 
-    template <class C, class... Args>
-    C* emplaceComponent(const EntityPtr& entity, Args... args) {
+    template <class C>
+    void emplaceComponent(const EntityPtr& entity) {
+        emplaceComponent(entity, C{});
+    }
+
+    template <class C>
+    void emplaceComponent(const EntityPtr& entity, C component) {
         assert(entity != nullptr && "Entity is empty");
 
         auto& componentMap = m_components[entity->uuid];
         ComponentHash hashCode = typeid(C).hash_code();
         if (componentMap.find(hashCode) == componentMap.end()) {
             auto resultPair =
-                componentMap.emplace(hashCode, std::any(C{args...}));
-            if (resultPair.second) {
-                return std::any_cast<C>(&resultPair.first->second);
-            }
+                componentMap.emplace(hashCode, std::any(component));
         }
-        return nullptr;
     }
 
     template <class C>
@@ -61,6 +62,20 @@ class EntityRegistry {
         }
 
         return nullptr;
+    }
+
+    template <class C>
+    bool hasComponent(const EntityPtr& entity) {
+        assert(entity != nullptr && "Entity is empty");
+
+        const auto& entityIt = m_components.find(entity->uuid);
+        if (entityIt != m_components.end()) {
+            const auto& componentIt =
+                entityIt->second.find(typeid(C).hash_code());
+            return componentIt != entityIt->second.end();
+        }
+
+        return false;
     }
 
    private:
