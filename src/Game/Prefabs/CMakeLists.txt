@@ -1,5 +1,5 @@
 target_sources(pacman PRIVATE
-    InputSystem.hpp InputSystem.cpp
+    Pacman.hpp Pacman.cpp
 
     CMakeLists.txt
 )

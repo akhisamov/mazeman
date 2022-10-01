@@ -1,12 +1,6 @@
 #include "Game.hpp"
 
-#include <algorithm>
-
 // inari
-#include "Inari/ECS/Components/AnimationSprite.hpp"
-#include "Inari/ECS/Components/RigidBody.hpp"
-#include "Inari/ECS/Components/Sprite.hpp"
-#include "Inari/ECS/Components/Transform.hpp"
 #include "Inari/ECS/EntityRegistry.hpp"
 #include "Inari/ECS/SystemRegistry.hpp"
 #include "Inari/ECS/Systems/AnimationSystem.hpp"
@@ -16,18 +10,15 @@
 #include "Inari/Graphics/SpriteBatch.hpp"
 #include "Inari/Graphics/Window.hpp"
 
-#include "Inari/InputManager.hpp"
 #include "Inari/Resources/ResourceManager.hpp"
-#include "Inari/Resources/Shader.hpp"
 
 #include "Inari/Utils/Camera2D.hpp"
 #include "Inari/Utils/Colors.hpp"
-#include "Inari/Utils/Math.hpp"
-#include "Inari/Utils/Strings.hpp"
 // inari
 
 // game
 #include "Game/Components/Player.hpp"
+#include "Game/Prefabs/Pacman.hpp"
 #include "Game/Systems/InputSystem.hpp"
 // game
 
@@ -37,18 +28,6 @@ constexpr int screenFps = 30;
 constexpr glm::ivec2 windowSize(1280, 720);
 constexpr glm::vec4 bgColor = inari::colors::Black;
 }  // namespace Constants
-
-struct TracksGenerator {
-    glm::vec4 operator()() {
-        auto result = glm::vec4(0, 0, 32, 32);
-        result.x = static_cast<float>(i) * 32.0f;
-        result.z = static_cast<float>(++i) * 32.0f;
-        return result;
-    }
-
-   private:
-    int i = 0;
-};
 
 Game::Game()
     : m_entityRegistry(std::make_shared<inari::EntityRegistry>()),
@@ -88,29 +67,9 @@ bool Game::init() {
 }
 
 void Game::loadResources() {
-    const auto pacman = m_entityRegistry->createEntity("pacman");
-    m_entityRegistry->emplaceComponent<inari::Transform>(pacman);
-
-    if (auto texture = getResourceManager()->load<inari::Texture2D>("pacman")) {
-        m_entityRegistry->emplaceComponent(
-            pacman, inari::Sprite{texture, glm::vec2(32)});
-    }
-
-    {
-        inari::AnimationSprite animSprite;
-        animSprite.currentTrack = "default";
-        animSprite.isFramesLimited = true;
-        animSprite.framesLimit = 24.0f;
-        auto& defaultTracks = animSprite.tracks[animSprite.currentTrack];
-        defaultTracks.resize(6);
-        std::generate(defaultTracks.begin(), defaultTracks.end(),
-                      TracksGenerator());
-        m_entityRegistry->emplaceComponent(pacman, animSprite);
-    }
-
-    m_entityRegistry->emplaceComponent<inari::RigidBody>(pacman);
-
-    m_entityRegistry->emplaceComponent<Player>(pacman);
+    prefabs::createPacman(
+        m_entityRegistry,
+        getResourceManager()->load<inari::Texture2D>("pacman"));
 }
 
 void Game::unloadResources() {
