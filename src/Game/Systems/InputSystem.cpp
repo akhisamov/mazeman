@@ -23,7 +23,7 @@ void InputSystem::update(float dt) {
 
         auto* rigidBody = m_registry->getComponent<inari::RigidBody>(entity);
         if (rigidBody == nullptr || !m_registry->hasComponent<Player>(entity)) {
-            return;
+            continue;
         }
 
         rigidBody->velocity = glm::vec2(0.0f);
