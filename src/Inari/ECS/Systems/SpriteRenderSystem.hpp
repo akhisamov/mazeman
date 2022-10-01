@@ -20,5 +20,8 @@ class SpriteRenderSystem : public ISystem {
               const std::shared_ptr<SpriteBatch>& spriteBatch,
               const glm::mat4& transform,
               SpriteSortMode sortMode);
+
+   private:
+    void update(float dt) override {}
 };
 }  // namespace inari

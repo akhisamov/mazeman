@@ -64,6 +64,20 @@ class EntityRegistry {
         return nullptr;
     }
 
+    template <class C>
+    bool hasComponent(const EntityPtr& entity) {
+        assert(entity != nullptr && "Entity is empty");
+
+        const auto& entityIt = m_components.find(entity->uuid);
+        if (entityIt != m_components.end()) {
+            const auto& componentIt =
+                entityIt->second.find(typeid(C).hash_code());
+            return componentIt != entityIt->second.end();
+        }
+
+        return false;
+    }
+
    private:
     std::vector<EntityPtr> m_entities;
     std::map<std::string, ComponentMap> m_components;

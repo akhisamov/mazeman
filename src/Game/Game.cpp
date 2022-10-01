@@ -1,17 +1,6 @@
 #include "Game.hpp"
 
-#include <glad/glad.h>
-
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_timer.h>
-
-#include <glm/ext/matrix_clip_space.hpp>
-#include <glm/ext/matrix_transform.hpp>
-
 #include <algorithm>
-
-#include <Generated/shaders/sprite.hpp>
 
 // inari
 #include "Inari/ECS/Components/AnimationSprite.hpp"
@@ -37,13 +26,16 @@
 #include "Inari/Utils/Strings.hpp"
 // inari
 
-using namespace inari;
+// game
+#include "Game/Components/Player.hpp"
+#include "Game/Systems/InputSystem.hpp"
+// game
 
 namespace Constants {
 constexpr std::string_view title = "PacMan";
 constexpr int screenFps = 30;
 constexpr glm::ivec2 windowSize(1280, 720);
-constexpr glm::vec4 bgColor = colors::Black;
+constexpr glm::vec4 bgColor = inari::colors::Black;
 }  // namespace Constants
 
 struct TracksGenerator {
@@ -59,8 +51,8 @@ struct TracksGenerator {
 };
 
 Game::Game()
-    : m_entityRegistry(std::make_shared<EntityRegistry>()),
-      m_systemRegistry(std::make_unique<SystemRegistry>()),
+    : m_entityRegistry(std::make_shared<inari::EntityRegistry>()),
+      m_systemRegistry(std::make_unique<inari::SystemRegistry>()),
       m_camera(nullptr) {}
 
 Game::~Game() = default;
@@ -76,15 +68,19 @@ bool Game::init() {
         // Init resources
         const auto& resources = getResourceManager();
         resources->addSearchPath("sprites.bundle", "sprites");
-        resources->addFile<Texture2D>("pacman", "sprites/pacman.png");
+        resources->addFile<inari::Texture2D>("pacman", "sprites/pacman.png");
 
         // Init camera
-        m_camera = std::make_unique<Camera2D>(Constants::windowSize, 0.5f);
+        m_camera =
+            std::make_unique<inari::Camera2D>(Constants::windowSize, 0.5f);
 
         // Init systems
-        m_systemRegistry->addSystem<AnimationSystem>(m_entityRegistry);
-        m_systemRegistry->addSystem<SpriteRenderSystem>(m_entityRegistry);
-        m_systemRegistry->addSystem<PhysicsSystem>(m_entityRegistry);
+        m_systemRegistry->addSystem<inari::AnimationSystem>(m_entityRegistry);
+        m_systemRegistry->addSystem<inari::SpriteRenderSystem>(
+            m_entityRegistry);
+        m_systemRegistry->addSystem<inari::PhysicsSystem>(m_entityRegistry);
+        m_systemRegistry->addSystem<InputSystem>(m_entityRegistry,
+                                                 getInputManager());
 
         return true;
     }
@@ -92,16 +88,16 @@ bool Game::init() {
 }
 
 void Game::loadResources() {
-    const EntityPtr pacman = m_entityRegistry->createEntity("pacman");
-    m_entityRegistry->emplaceComponent<Transform>(pacman);
+    const auto pacman = m_entityRegistry->createEntity("pacman");
+    m_entityRegistry->emplaceComponent<inari::Transform>(pacman);
 
-    if (auto texture = getResourceManager()->load<Texture2D>("pacman")) {
-        m_entityRegistry->emplaceComponent(pacman,
-                                           Sprite{texture, glm::vec2(32)});
+    if (auto texture = getResourceManager()->load<inari::Texture2D>("pacman")) {
+        m_entityRegistry->emplaceComponent(
+            pacman, inari::Sprite{texture, glm::vec2(32)});
     }
 
     {
-        AnimationSprite animSprite;
+        inari::AnimationSprite animSprite;
         animSprite.currentTrack = "default";
         animSprite.isFramesLimited = true;
         animSprite.framesLimit = 24.0f;
@@ -112,11 +108,13 @@ void Game::loadResources() {
         m_entityRegistry->emplaceComponent(pacman, animSprite);
     }
 
-    m_entityRegistry->emplaceComponent<RigidBody>(pacman);
+    m_entityRegistry->emplaceComponent<inari::RigidBody>(pacman);
+
+    m_entityRegistry->emplaceComponent<Player>(pacman);
 }
 
 void Game::unloadResources() {
-    getResourceManager()->unload<Texture2D>("pacman");
+    getResourceManager()->unload<inari::Texture2D>("pacman");
 }
 
 void Game::handleWindowResized(const glm::ivec2& size) {
@@ -124,42 +122,16 @@ void Game::handleWindowResized(const glm::ivec2& size) {
 }
 
 void Game::update(float dt) {
-    auto* rigidBody = m_entityRegistry->getComponent<RigidBody>(
-        m_entityRegistry->getEntity("pacman"));
-    if (rigidBody) {
-        rigidBody->velocity = glm::vec2(0.0f);
-
-        constexpr float pacmanSpeed = 1.0f;
-        const auto& inputManager = getInputManager();
-        if (inputManager->isKeyDown(SDLK_UP)) {
-            rigidBody->velocity.y = pacmanSpeed;
-        }
-        if (inputManager->isKeyDown(SDLK_DOWN)) {
-            rigidBody->velocity.y = -pacmanSpeed;
-        }
-        if (inputManager->isKeyDown(SDLK_RIGHT)) {
-            rigidBody->velocity.x = pacmanSpeed;
-        }
-        if (inputManager->isKeyDown(SDLK_LEFT)) {
-            rigidBody->velocity.x = -pacmanSpeed;
-        }
-    }
-
-    auto physics = m_systemRegistry->getSystem<PhysicsSystem>();
-    if (physics) {
-        physics->update(dt);
-    }
-
-    auto animation = m_systemRegistry->getSystem<AnimationSystem>();
-    if (animation) {
-        animation->update(dt);
-    }
+    m_systemRegistry->updateSystem<InputSystem>(dt);
+    m_systemRegistry->updateSystem<inari::PhysicsSystem>(dt);
+    m_systemRegistry->updateSystem<inari::AnimationSystem>(dt);
 }
 
 void Game::draw(float dt) {
     getWindow()->clear(Constants::bgColor);
 
-    auto spriteRenderSystem = m_systemRegistry->getSystem<SpriteRenderSystem>();
+    auto spriteRenderSystem =
+        m_systemRegistry->getSystem<inari::SpriteRenderSystem>();
     if (spriteRenderSystem) {
         spriteRenderSystem->draw(dt, getSpriteBatch(),
                                  m_camera->getTransform());
