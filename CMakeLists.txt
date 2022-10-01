@@ -18,8 +18,8 @@ include(cmake/CPM.cmake)
 add_executable(pacman)
 target_include_directories(pacman PRIVATE src "${CMAKE_BINARY_DIR}/include")
 
+add_subdirectory(third-party)
 add_subdirectory(shaders)
-add_subdirectory(lib)
 add_subdirectory(src)
 
 get_target_property(PACMAN_FILES pacman SOURCES)
