@@ -1,3 +1,7 @@
+target_include_directories(pacman PRIVATE cute)
+
+# CPM
+
 CPMAddPackage(
     name SDL2
     VERSION 2.24.0

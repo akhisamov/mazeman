@@ -6,7 +6,6 @@
 #include <physfs.h>
 
 #include <cassert>
-#include <filesystem>
 #include <iostream>
 
 namespace inari {
@@ -25,9 +24,9 @@ std::shared_ptr<ResourceManager> ResourceManager::create() {
 
 void ResourceManager::addSearchPath(const std::string_view& searchPath,
                                     const std::string_view& mountPoint) {
-    std::filesystem::path absolutePath = SDL_GetBasePath();
-    absolutePath /= searchPath.data();
-    PHYSFS_mount(absolutePath.string().c_str(), mountPoint.data(), 1);
+    std::string absolutePath = SDL_GetBasePath();
+    absolutePath += searchPath.data();
+    PHYSFS_mount(absolutePath.c_str(), mountPoint.data(), 1);
 }
 
 void ResourceManager::addSearchPaths(
