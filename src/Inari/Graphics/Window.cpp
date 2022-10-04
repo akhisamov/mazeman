@@ -64,6 +64,11 @@ void Window::clear(const glm::vec4& color) {
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
+void Window::clear(const glm::vec3& color) {
+    glClearColor(color.r, color.g, color.b, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
 void Window::display() {
     SDL_GL_SwapWindow(m_data->window);
 }

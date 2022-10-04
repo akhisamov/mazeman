@@ -72,6 +72,7 @@ bool IGame::init() {
     if (m_resources == nullptr) {
         return false;
     }
+    m_resources->addSearchPath(".");
 
     // Init renderer
     const auto& spriteShader = m_resources->loadOrCreate<Shader>(

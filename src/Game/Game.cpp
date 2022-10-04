@@ -71,6 +71,8 @@ void Game::loadResources() {
     prefabs::createPacman(
         m_entityRegistry,
         getResourceManager()->load<inari::Texture2D>("sprites/pacman.png"));
+
+    getResourceManager()->load<inari::LevelMap>("res/level1.tmj");
 }
 
 void Game::unloadResources() {
@@ -88,7 +90,12 @@ void Game::update(float dt) {
 }
 
 void Game::draw(float dt) {
-    getWindow()->clear(constants::bgColor);
+    auto level = getResourceManager()->load<inari::LevelMap>("res/level1.tmj");
+    if (level == nullptr) {
+        return;
+    }
+
+    getWindow()->clear(inari::colors::toGL<3>(level->getBackgroundColor()));
 
     auto spriteRenderSystem =
         m_systemRegistry->getSystem<inari::SpriteRenderSystem>();
@@ -96,6 +103,12 @@ void Game::draw(float dt) {
         spriteRenderSystem->draw(dt, getSpriteBatch(),
                                  m_camera->getTransform());
     }
+
+    getSpriteBatch()->begin(m_camera->getTransform());
+
+    level->forEachLayer();
+
+    getSpriteBatch()->end();
 
     getWindow()->display();
 }
