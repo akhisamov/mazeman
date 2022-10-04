@@ -10,8 +10,10 @@
 #include "Inari/Graphics/SpriteBatch.hpp"
 #include "Inari/Graphics/Window.hpp"
 
+#include "Inari/Resources/LevelMap.hpp"
 #include "Inari/Resources/ResourceManager.hpp"
 
+#include "Inari/Resources/Texture2D.hpp"
 #include "Inari/Utils/Camera2D.hpp"
 #include "Inari/Utils/Colors.hpp"
 // inari
@@ -22,12 +24,12 @@
 #include "Game/Systems/InputSystem.hpp"
 // game
 
-namespace Constants {
+namespace constants {
 constexpr std::string_view title = "PacMan";
 constexpr int screenFps = 30;
 constexpr glm::ivec2 windowSize(1280, 720);
 constexpr glm::vec4 bgColor = inari::colors::Black;
-}  // namespace Constants
+}  // namespace constants
 
 Game::Game()
     : m_entityRegistry(std::make_shared<inari::EntityRegistry>()),
@@ -40,18 +42,17 @@ bool Game::init() {
     if (IGame::init()) {
         // Init window
         const auto& window = getWindow();
-        window->setWindowSize(Constants::windowSize);
-        window->setTitle(Constants::title);
-        window->setFrameLimit(Constants::screenFps);
+        window->setWindowSize(constants::windowSize);
+        window->setTitle(constants::title);
+        window->setFrameLimit(constants::screenFps);
 
         // Init resources
         const auto& resources = getResourceManager();
         resources->addSearchPath("sprites.bundle", "sprites");
-        resources->addFile<inari::Texture2D>("pacman", "sprites/pacman.png");
 
         // Init camera
         m_camera =
-            std::make_unique<inari::Camera2D>(Constants::windowSize, 0.5f);
+            std::make_unique<inari::Camera2D>(constants::windowSize, 0.5f);
 
         // Init systems
         m_systemRegistry->addSystem<inari::AnimationSystem>(m_entityRegistry);
@@ -69,11 +70,11 @@ bool Game::init() {
 void Game::loadResources() {
     prefabs::createPacman(
         m_entityRegistry,
-        getResourceManager()->load<inari::Texture2D>("pacman"));
+        getResourceManager()->load<inari::Texture2D>("sprites/pacman.png"));
 }
 
 void Game::unloadResources() {
-    getResourceManager()->unload<inari::Texture2D>("pacman");
+    getResourceManager()->unload<inari::Texture2D>("sprites/pacman.png");
 }
 
 void Game::handleWindowResized(const glm::ivec2& size) {
@@ -87,7 +88,7 @@ void Game::update(float dt) {
 }
 
 void Game::draw(float dt) {
-    getWindow()->clear(Constants::bgColor);
+    getWindow()->clear(constants::bgColor);
 
     auto spriteRenderSystem =
         m_systemRegistry->getSystem<inari::SpriteRenderSystem>();

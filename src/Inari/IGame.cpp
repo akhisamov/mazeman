@@ -12,6 +12,7 @@
 #include "Inari/Graphics/Window.hpp"
 #include "Inari/InputManager.hpp"
 #include "Inari/Resources/ResourceManager.hpp"
+#include "Inari/Resources/Shader.hpp"
 #include "Inari/Utils/GameTime.hpp"
 #include "Inari/Utils/Strings.hpp"
 
@@ -29,7 +30,7 @@ void IGame::run() {
         loadResources();
 
         uint32_t totalFrames = 0;
-        GameTime gameTime;
+        const GameTime gameTime;
         while (m_isRunning) {
             totalFrames++;
             m_window->begin();

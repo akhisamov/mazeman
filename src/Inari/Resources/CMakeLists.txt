@@ -1,5 +1,6 @@
 target_sources(pacman PRIVATE
     LevelMap.hpp LevelMap.cpp
+    IResource.hpp IResource.cpp
     ResourceManager.hpp ResourceManager.cpp
     ResourceStorage.hpp
     Shader.hpp Shader.cpp
