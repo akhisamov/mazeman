@@ -1,6 +1,8 @@
 #include "Game.hpp"
 
 // inari
+#include "Inari/ECS/Components/Sprite.hpp"
+#include "Inari/ECS/Components/Transform.hpp"
 #include "Inari/ECS/EntityRegistry.hpp"
 #include "Inari/ECS/SystemRegistry.hpp"
 #include "Inari/ECS/Systems/AnimationSystem.hpp"
@@ -74,24 +76,37 @@ void Game::loadResources() {
     auto levelMap =
         getResourceManager()->load<inari::LevelMap>("res/level1.tmj");
     if (levelMap) {
-        for (const auto& tileset : levelMap->getTilesets()) {
-            auto texture =
-                getResourceManager()->load<inari::Texture2D>(tileset.image);
-
-            std::map<int32_t, glm::vec4> sourceRects;
-            int32_t column = 0;
-            int32_t row = 1;
-            for (int32_t gid = tileset.firstgid;
-                 gid < tileset.firstgid + tileset.count; ++gid) {
-                glm::vec2 pos;
-                pos.x = tileset.size.x * static_cast<float>(column++);
-                pos.y = texture->getSize().y -
-                        (tileset.size.y * static_cast<float>(row));
-                sourceRects[gid] = glm::vec4(pos, tileset.size);
-                if (column == tileset.columns) {
-                    column = 0;
-                    ++row;
+        for (const auto& layer : levelMap->getLayers()) {
+            for (const int32_t& gid : layer.tiles) {
+                const std::unique_ptr<inari::LevelTileset> tileset =
+                    levelMap->getTilesetByGID(gid);
+                if (tileset == nullptr) {
+                    continue;
                 }
+
+                auto texture = getResourceManager()->load<inari::Texture2D>(
+                    tileset->image);
+                if (texture == nullptr) {
+                    continue;
+                }
+
+                const auto column =
+                    static_cast<float>((gid - 1) % tileset->columns);
+                const float row =
+                    std::ceil(static_cast<float>(gid) /
+                              static_cast<float>(tileset->columns));
+
+                inari::Sprite sprite;
+                sprite.texture = texture;
+                sprite.size = tileset->size;
+                sprite.sourceRect = {
+                    tileset->size.x * column,
+                    texture->getSize().y - (tileset->size.y * row),
+                    tileset->size};
+
+                // TODO
+                inari::Transform transform;
+                transform.position = layer.position + ;
             }
         }
     }

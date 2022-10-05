@@ -42,7 +42,7 @@ void IGame::run() {
 
             m_window->end();
 
-            // const float avgFPS = totalFrames / gameTime.getTotalMs(); // todo
+            // const float avgFPS = totalFrames / gameTime.getTotalMs(); // TODO
             if (totalFrames > 20000) {
                 totalFrames = 0;
             }

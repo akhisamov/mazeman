@@ -74,7 +74,7 @@ std::shared_ptr<Shader> Shader::create(const std::string_view& vertexCode,
 }
 
 std::shared_ptr<Shader> Shader::createFromData(const std::string_view& data) {
-    // todo get vertex and fragment code from one file data
+    // TODO get vertex and fragment code from one file data
 
     return nullptr;
 }

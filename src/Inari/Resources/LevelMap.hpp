@@ -10,13 +10,21 @@
 #include "Inari/Resources/IResource.hpp"
 
 namespace inari {
-struct Tileset {
+
+struct LevelTileset {
     int32_t columns;
     int32_t firstgid;
     std::string image;
     int32_t margin;
     int32_t spacing;
     uint32_t count;
+    glm::vec2 size;
+};
+
+struct LevelLayer {
+    std::vector<int32_t> tiles;
+    bool visible;
+    glm::vec2 position;
     glm::vec2 size;
 };
 
@@ -33,10 +41,16 @@ class LevelMap final : public IResource {
     ~LevelMap() override;
 
     const glm::vec3& getBackgroundColor() const;
-    const std::vector<Tileset>& getTilesets() const;
+
+    const std::vector<LevelLayer>& getLayers() const;
+    const std::vector<LevelTileset>& getTilesets() const;
+
+    std::unique_ptr<LevelTileset> getTilesetByGID(int32_t gid) const;
 
    private:
     glm::vec3 m_backgroundColor;
-    std::vector<Tileset> m_tilesets;
+
+    std::vector<LevelLayer> m_layers;
+    std::vector<LevelTileset> m_tilesets;
 };
 }  // namespace inari
