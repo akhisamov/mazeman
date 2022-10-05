@@ -37,7 +37,7 @@ class EntityRegistry {
     }
 
     template <class C>
-    void emplaceComponent(const EntityPtr& entity, C component) {
+    void emplaceComponent(const EntityPtr& entity, const C& component) {
         assert(entity != nullptr && "Entity is empty");
 
         auto& componentMap = m_components[entity->uuid];

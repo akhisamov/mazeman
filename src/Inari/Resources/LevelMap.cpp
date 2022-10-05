@@ -86,7 +86,7 @@ const std::vector<LevelTileset>& LevelMap::getTilesets() const {
 
 std::unique_ptr<LevelTileset> LevelMap::getTilesetByGID(int32_t gid) const {
     for (const auto& tileset : m_tilesets) {
-        if (tileset.firstgid >= gid &&
+        if (tileset.firstgid <= gid &&
             gid < tileset.firstgid + static_cast<int>(tileset.count)) {
             return std::make_unique<LevelTileset>(tileset);
         }

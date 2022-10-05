@@ -77,7 +77,15 @@ void Game::loadResources() {
         getResourceManager()->load<inari::LevelMap>("res/level1.tmj");
     if (levelMap) {
         for (const auto& layer : levelMap->getLayers()) {
+            float heightId = layer.size.y - 1;
+            float widthId = -1.0f;
             for (const int32_t& gid : layer.tiles) {
+                ++widthId;
+                if (widthId >= layer.size.x) {
+                    widthId = 0;
+                    --heightId;
+                }
+
                 const std::unique_ptr<inari::LevelTileset> tileset =
                     levelMap->getTilesetByGID(gid);
                 if (tileset == nullptr) {
@@ -104,9 +112,13 @@ void Game::loadResources() {
                     texture->getSize().y - (tileset->size.y * row),
                     tileset->size};
 
-                // TODO
                 inari::Transform transform;
-                transform.position = layer.position + ;
+                transform.position.x = widthId * tileset->size.x;
+                transform.position.y = heightId * tileset->size.y;
+
+                auto tile = m_entityRegistry->createEntity();
+                m_entityRegistry->emplaceComponent(tile, sprite);
+                m_entityRegistry->emplaceComponent(tile, transform);
             }
         }
     }
