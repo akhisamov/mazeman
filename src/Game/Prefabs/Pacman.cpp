@@ -13,10 +13,7 @@
 namespace prefabs {
 struct TracksGenerator {
     glm::vec4 operator()() {
-        auto result = glm::vec4(0, 0, 32, 32);
-        result.x = static_cast<float>(i) * 32.0f;
-        result.z = static_cast<float>(++i) * 32.0f;
-        return result;
+        return {static_cast<float>(i++) * 32.0f, 0, 32, 32};
     }
 
    private:

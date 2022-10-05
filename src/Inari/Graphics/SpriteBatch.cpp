@@ -104,13 +104,16 @@ void SpriteBatch::draw(const std::shared_ptr<Texture2D>& texture,
     SpriteData data(texture);
     data.vertices.emplace_back(glm::vec2(destRect.x, destRect.y),
                                glm::vec2(sourceRect.x, sourceRect.y));  // 0
-    data.vertices.emplace_back(glm::vec2(destRect.x + destRect.z, destRect.y),
-                               glm::vec2(sourceRect.z, sourceRect.y));  // 1
-    data.vertices.emplace_back(glm::vec2(destRect.x, destRect.y + destRect.w),
-                               glm::vec2(sourceRect.x, sourceRect.w));  // 2
+    data.vertices.emplace_back(
+        glm::vec2(destRect.x + destRect.z, destRect.y),
+        glm::vec2(sourceRect.x + sourceRect.z, sourceRect.y));  // 1
+    data.vertices.emplace_back(
+        glm::vec2(destRect.x, destRect.y + destRect.w),
+        glm::vec2(sourceRect.x, sourceRect.y + sourceRect.w));  // 2
     data.vertices.emplace_back(
         glm::vec2(destRect.x + destRect.z, destRect.y + destRect.w),
-        glm::vec2(sourceRect.z, sourceRect.w));  // 3
+        glm::vec2(sourceRect.x + sourceRect.z,
+                  sourceRect.y + sourceRect.w));  // 3
     data.indices = {0, 1, 2, 1, 2, 3};
 
     data.radian = rotationInRadian;
@@ -193,7 +196,7 @@ void SpriteBatch::flush() {
 
     glBindVertexArray(m_vao);
     if (m_sortMode == SpriteSortMode::TEXTURE && !texturesOrder.empty()) {
-        for (size_t index : texturesOrder) {
+        for (const size_t index : texturesOrder) {
             if (m_spriteBuffer.size() > index) {
                 const SpriteData& data = m_spriteBuffer[index];
                 flushData(data);

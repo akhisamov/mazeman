@@ -28,7 +28,6 @@ namespace constants {
 constexpr std::string_view title = "PacMan";
 constexpr int screenFps = 30;
 constexpr glm::ivec2 windowSize(1280, 720);
-constexpr glm::vec4 bgColor = inari::colors::Black;
 }  // namespace constants
 
 Game::Game()
@@ -72,7 +71,30 @@ void Game::loadResources() {
         m_entityRegistry,
         getResourceManager()->load<inari::Texture2D>("sprites/pacman.png"));
 
-    getResourceManager()->load<inari::LevelMap>("res/level1.tmj");
+    auto levelMap =
+        getResourceManager()->load<inari::LevelMap>("res/level1.tmj");
+    if (levelMap) {
+        for (const auto& tileset : levelMap->getTilesets()) {
+            auto texture =
+                getResourceManager()->load<inari::Texture2D>(tileset.image);
+
+            std::map<int32_t, glm::vec4> sourceRects;
+            int32_t column = 0;
+            int32_t row = 1;
+            for (int32_t gid = tileset.firstgid;
+                 gid < tileset.firstgid + tileset.count; ++gid) {
+                glm::vec2 pos;
+                pos.x = tileset.size.x * static_cast<float>(column++);
+                pos.y = texture->getSize().y -
+                        (tileset.size.y * static_cast<float>(row));
+                sourceRects[gid] = glm::vec4(pos, tileset.size);
+                if (column == tileset.columns) {
+                    column = 0;
+                    ++row;
+                }
+            }
+        }
+    }
 }
 
 void Game::unloadResources() {
@@ -95,7 +117,7 @@ void Game::draw(float dt) {
         return;
     }
 
-    getWindow()->clear(inari::colors::toGL<3>(level->getBackgroundColor()));
+    getWindow()->clear(level->getBackgroundColor());
 
     auto spriteRenderSystem =
         m_systemRegistry->getSystem<inari::SpriteRenderSystem>();
@@ -103,12 +125,6 @@ void Game::draw(float dt) {
         spriteRenderSystem->draw(dt, getSpriteBatch(),
                                  m_camera->getTransform());
     }
-
-    getSpriteBatch()->begin(m_camera->getTransform());
-
-    level->forEachLayer();
-
-    getSpriteBatch()->end();
 
     getWindow()->display();
 }
