@@ -1,6 +1,4 @@
 #include "LevelMap.hpp"
-#include <memory>
-#include "Inari/Resources/LevelMap.hpp"
 
 #define CUTE_TILED_IMPLEMENTATION
 #include <cute_tiled.h>
@@ -32,6 +30,13 @@ inari::LevelLayer createLayer(const cute_tiled_layer_t& cuteLayer) {
 }
 
 }  // namespace
+
+namespace LayerType {
+constexpr std::string_view tilelayer = "tilelayer";
+constexpr std::string_view objectgroup = "objectgroup";
+constexpr std::string_view imagelayer = "imagelayer";
+constexpr std::string_view group = "group";
+}  // namespace LayerType
 
 namespace inari {
 
@@ -66,7 +71,9 @@ LevelMap::LevelMap(const std::unique_ptr<Token>& token)
 
     cute_tiled_layer_t* layer = token->map->layers;
     while (layer) {
-        m_layers.push_back(createLayer(*layer));
+        if (layer->type.ptr == LayerType::tilelayer) {
+            m_layers.push_back(createLayer(*layer));
+        }
         layer = layer->next;
     }
 }

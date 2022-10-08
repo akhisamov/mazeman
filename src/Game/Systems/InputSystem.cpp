@@ -1,6 +1,9 @@
 #include "InputSystem.hpp"
 
+#include <cmath>
+
 #include "Inari/ECS/Components/RigidBody.hpp"
+#include "Inari/ECS/Components/Transform.hpp"
 #include "Inari/InputManager.hpp"
 
 #include "Game/Components/Player.hpp"
@@ -21,8 +24,10 @@ void InputSystem::update(float dt) {
             continue;
         }
 
+        auto* transform = m_registry->getComponent<inari::Transform>(entity);
         auto* rigidBody = m_registry->getComponent<inari::RigidBody>(entity);
-        if (rigidBody == nullptr || !m_registry->hasComponent<Player>(entity)) {
+        if (rigidBody == nullptr || transform == nullptr ||
+            !m_registry->hasComponent<Player>(entity)) {
             continue;
         }
 
@@ -40,6 +45,11 @@ void InputSystem::update(float dt) {
         }
         if (inputManager->isKeyDown(SDLK_LEFT)) {
             rigidBody->velocity.x = -playerSpeed;
+        }
+
+        if (rigidBody->velocity != glm::vec2(0.0f)) {
+            transform->radian =
+                std::atan2(-rigidBody->velocity.y, -rigidBody->velocity.x);
         }
     }
 }

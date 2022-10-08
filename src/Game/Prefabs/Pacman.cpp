@@ -1,6 +1,7 @@
 #include "Pacman.hpp"
 
 #include <algorithm>
+#include <cmath>
 
 #include "Inari/ECS/Components/AnimationSprite.hpp"
 #include "Inari/ECS/Components/RigidBody.hpp"
@@ -42,7 +43,13 @@ void createPacman(const std::shared_ptr<inari::EntityRegistry>& entityRegistry,
                                          inari::Sprite{texture, glm::vec2(32)});
     }
 
-    entityRegistry->emplaceComponent<inari::Transform>(pacman);
+    {
+        inari::Transform transform;
+        transform.origin = glm::vec2(0.5f, 0.5f);
+        transform.position = glm::vec2(200, 200);
+        transform.radian = std::atan2(-1, 0);
+        entityRegistry->emplaceComponent(pacman, transform);
+    }
     entityRegistry->emplaceComponent(pacman, createAnimationSprite());
     entityRegistry->emplaceComponent<inari::RigidBody>(pacman);
     entityRegistry->emplaceComponent<Player>(pacman);
