@@ -30,6 +30,7 @@ struct SpriteData {
     float radian = 0.0f;
     glm::vec2 origin = glm::vec2(0.0f);
     glm::vec4 color = glm::vec4(1.0f);
+    glm::vec4 rect = glm::vec4(0.0f);
 
     SpriteData() : texture(nullptr) {}
 
@@ -118,6 +119,7 @@ void SpriteBatch::draw(const std::shared_ptr<Texture2D>& texture,
 
     data.radian = rotationInRadian;
     data.origin = origin;
+    data.rect = destRect;
     data.color = color;
 
     m_spriteBuffer.push_back(data);
@@ -222,6 +224,7 @@ void SpriteBatch::flushData(const SpriteData& data) {
     m_shader->set("radian", data.radian);
     m_shader->set("origin", data.origin);
     m_shader->set("color", data.color);
+    m_shader->set("rect", data.rect);
 
     const auto verticesSize = static_cast<GLsizeiptr>(
         sizeof(SpriteData::VertexData) * data.vertices.size());
