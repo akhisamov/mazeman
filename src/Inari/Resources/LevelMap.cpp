@@ -1,7 +1,5 @@
 #include "LevelMap.hpp"
 
-#include <iostream>
-#include <map>
 #include "Inari/Resources/LevelMap.hpp"
 
 #include <nlohmann/json.hpp>
@@ -87,9 +85,10 @@ std::shared_ptr<LevelMap> LevelMap::createFromData(
     const std::string_view& data) {
     auto jsonData = nlohmann::json::parse(data);
 
-    auto it = jsonData.find("backgroundcolor");
-    if (it != jsonData.end()) {
-        auto a = it->get<std::string>();
+    for (auto& [key, value] : jsonData.items()) {
+        if (key == "backgroundcolor") {
+            // toGL(value);
+        }
     }
 
     return std::make_shared<LevelMap>(LevelMap::Token{});
