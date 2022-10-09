@@ -22,10 +22,16 @@ struct LevelTileset {
 };
 
 struct LevelLayer {
-    std::vector<int32_t> tiles;
+    virtual ~LevelLayer() = default;
+
     bool visible;
     glm::vec2 position;
     glm::vec2 size;
+};
+using LevelLayerPtr = std::shared_ptr<LevelLayer>;
+
+struct LevelTileLayer final : public LevelLayer {
+    std::vector<int32_t> tiles;
 };
 
 class LevelMap final : public IResource {
@@ -36,13 +42,13 @@ class LevelMap final : public IResource {
     static std::shared_ptr<LevelMap> createFromData(
         const std::string_view& data);
 
-    explicit LevelMap(const std::unique_ptr<Token>& token);
+    explicit LevelMap(Token);
     LevelMap() = delete;
     ~LevelMap() override;
 
     const glm::vec3& getBackgroundColor() const;
 
-    const std::vector<LevelLayer>& getLayers() const;
+    const std::vector<LevelLayerPtr>& getLayers() const;
     const std::vector<LevelTileset>& getTilesets() const;
 
     std::unique_ptr<LevelTileset> getTilesetByGID(int32_t gid) const;
@@ -50,7 +56,7 @@ class LevelMap final : public IResource {
    private:
     glm::vec3 m_backgroundColor;
 
-    std::vector<LevelLayer> m_layers;
+    std::vector<LevelLayerPtr> m_layers;
     std::vector<LevelTileset> m_tilesets;
 };
 }  // namespace inari
