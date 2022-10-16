@@ -9,34 +9,6 @@
 
 #include "Inari/Utils/Strings.hpp"
 
-namespace {
-void flipSurface(SDL_Surface* surface) {
-    if (surface == nullptr) {
-        return;
-    }
-
-    SDL_LockSurface(surface);
-
-    const int pitch = surface->pitch;
-    char* pixels = static_cast<char*>(surface->pixels);
-    std::vector<char> temp(pitch);
-
-    for (int i = 0; i < surface->h / 2; ++i) {
-        const int idx1 = i * pitch;
-        const int idx2 = (surface->h - i - 1) * pitch;
-        char* row1 = pixels + idx1;
-        char* row2 = pixels + idx2;
-
-        // swap rows
-        SDL_memcpy(temp.data(), row1, pitch);
-        SDL_memcpy(row1, row2, pitch);
-        SDL_memcpy(row2, temp.data(), pitch);
-    }
-
-    SDL_UnlockSurface(surface);
-}
-}  // namespace
-
 namespace inari {
 std::shared_ptr<Texture2D> Texture2D::create(SDL_Surface* surface) {
     Texture2D::Data data;
@@ -50,7 +22,6 @@ std::shared_ptr<Texture2D> Texture2D::create(SDL_Surface* surface) {
                   << std::endl;
         success = false;
     } else {
-        flipSurface(surface);
         GLenum mode = GL_RGB;
         const uint8_t nOfColors = surface->format->BytesPerPixel;
         switch (nOfColors) {
