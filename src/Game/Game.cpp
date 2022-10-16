@@ -12,10 +12,10 @@
 #include "Inari/Graphics/SpriteBatch.hpp"
 #include "Inari/Graphics/Window.hpp"
 
-#include "Inari/Resources/LevelMap.hpp"
 #include "Inari/Resources/ResourceManager.hpp"
-
 #include "Inari/Resources/Texture2D.hpp"
+#include "Inari/Resources/World.hpp"
+
 #include "Inari/Utils/Camera2D.hpp"
 #include "Inari/Utils/Colors.hpp"
 // inari
@@ -53,7 +53,7 @@ bool Game::init() {
 
         // Init camera
         m_camera =
-            std::make_unique<inari::Camera2D>(constants::windowSize, 0.5f);
+            std::make_unique<inari::Camera2D>(constants::windowSize, 1.1f);
 
         // Init systems
         m_systemRegistry->addSystem<inari::AnimationSystem>(m_entityRegistry);
@@ -73,53 +73,25 @@ void Game::loadResources() {
         m_entityRegistry,
         getResourceManager()->load<inari::Texture2D>("sprites/pacman.png"));
 
-    auto levelMap =
-        getResourceManager()->load<inari::LevelMap>("res/level1.tmj");
-    if (levelMap) {
-        for (const auto& layer : levelMap->getLayers()) {
-            float heightId = layer.size.y - 1;
-            float widthId = -1.0f;
-            for (const int32_t& gid : layer.tiles) {
-                ++widthId;
-                if (widthId >= layer.size.x) {
-                    widthId = 0;
-                    --heightId;
-                }
+    auto world = getResourceManager()->load<inari::World>("res/pacman.ldtk");
+    if (world) {
+        const inari::WorldLevel& level = world->getLevel(0);
+        auto it = level.layers.find("Walls");
+        assert(it != level.layers.end());
 
-                const std::unique_ptr<inari::LevelTileset> tileset =
-                    levelMap->getTilesetByGID(gid);
-                if (tileset == nullptr) {
-                    continue;
-                }
+        for (const auto& tile : it->second.gridTiles) {
+            inari::Sprite sprite;
+            sprite.texture =
+                getResourceManager()->load<inari::Texture2D>("res/tiles.png");
+            sprite.size = glm::vec2(32, 32);
+            sprite.sourceRect = tile.sourceRect;
 
-                auto texture = getResourceManager()->load<inari::Texture2D>(
-                    tileset->image);
-                if (texture == nullptr) {
-                    continue;
-                }
+            inari::Transform transform;
+            transform.position = tile.position;
 
-                const auto column =
-                    static_cast<float>((gid - 1) % tileset->columns);
-                const float row =
-                    std::ceil(static_cast<float>(gid) /
-                              static_cast<float>(tileset->columns));
-
-                inari::Sprite sprite;
-                sprite.texture = texture;
-                sprite.size = tileset->size;
-                sprite.sourceRect = {
-                    tileset->size.x * column,
-                    texture->getSize().y - (tileset->size.y * row),
-                    tileset->size};
-
-                inari::Transform transform;
-                transform.position.x = widthId * tileset->size.x;
-                transform.position.y = heightId * tileset->size.y;
-
-                auto tile = m_entityRegistry->createEntity();
-                m_entityRegistry->emplaceComponent(tile, sprite);
-                m_entityRegistry->emplaceComponent(tile, transform);
-            }
+            auto tileEntity = m_entityRegistry->createEntity();
+            m_entityRegistry->emplaceComponent(tileEntity, sprite);
+            m_entityRegistry->emplaceComponent(tileEntity, transform);
         }
     }
 }
@@ -139,12 +111,13 @@ void Game::update(float dt) {
 }
 
 void Game::draw(float dt) {
-    auto level = getResourceManager()->load<inari::LevelMap>("res/level1.tmj");
-    if (level == nullptr) {
-        return;
+    glm::vec3 bgColor(0.0f);
+    auto world = getResourceManager()->load<inari::World>("res/pacman.ldtk");
+    if (world) {
+        const inari::WorldLevel& level = world->getLevel(0);
+        bgColor = level.backgroundColor;
     }
-
-    getWindow()->clear(level->getBackgroundColor());
+    getWindow()->clear(bgColor);
 
     auto spriteRenderSystem =
         m_systemRegistry->getSystem<inari::SpriteRenderSystem>();
