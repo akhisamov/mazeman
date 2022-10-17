@@ -51,10 +51,6 @@ bool Game::init() {
         window->setTitle(constants::title);
         window->setFrameLimit(constants::screenFps);
 
-        // Init resources
-        const auto& resources = getResourceManager();
-        resources->addSearchPath("sprites.bundle", "sprites");
-
         // Init camera
         m_camera =
             std::make_unique<inari::Camera2D>(constants::windowSize, 1.1f);
@@ -99,17 +95,16 @@ void Game::loadResources() {
             auto it = level.layers.find("Spawns")->second.entityInstances.find(
                 "Pacman");
             const inari::LevelEntityInstance entityInstance = it->second;
-            prefabs::createPacman(m_entityRegistry,
-                                  getResourceManager()->load<inari::Texture2D>(
-                                      "sprites/pacman.png"),
-                                  entityInstance.position,
-                                  entityInstance.get<float>("angle"));
+            prefabs::createPacman(
+                m_entityRegistry,
+                getResourceManager()->load<inari::Texture2D>("res/pacman.png"),
+                entityInstance.position, entityInstance.get<float>("angle"));
         }
     }
 }
 
 void Game::unloadResources() {
-    getResourceManager()->unload<inari::Texture2D>("sprites/pacman.png");
+    getResourceManager()->unload<inari::Texture2D>("res/pacman.png");
 }
 
 void Game::handleWindowResized(const glm::ivec2& size) {
