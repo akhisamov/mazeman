@@ -65,8 +65,7 @@ void Window::clear(const glm::vec4& color) {
 }
 
 void Window::clear(const glm::vec3& color) {
-    glClearColor(color.r, color.g, color.b, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    clear(glm::vec4(color, 1.0f));
 }
 
 void Window::display() {

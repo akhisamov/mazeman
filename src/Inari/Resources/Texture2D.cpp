@@ -5,7 +5,6 @@
 #include <SDL_image.h>
 
 #include <iostream>
-#include <vector>
 
 #include "Inari/Utils/Strings.hpp"
 

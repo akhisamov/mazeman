@@ -5,6 +5,7 @@
 #include <map>
 #include <memory>
 #include <string>
+
 #include "Inari/Resources/IResource.hpp"
 
 namespace inari {
