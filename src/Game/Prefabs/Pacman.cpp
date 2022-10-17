@@ -51,7 +51,7 @@ void createPacman(const std::shared_ptr<inari::EntityRegistry>& entityRegistry,
         inari::Transform transform;
         transform.origin = glm::vec2(0.5f, 0.5f);
         transform.position = position;
-        transform.radian = inari::math::degreesToRadians(90);
+        transform.radian = inari::math::degreesToRadians(angle);
         entityRegistry->emplaceComponent(pacman, transform);
     }
     entityRegistry->emplaceComponent(pacman, createAnimationSprite());
