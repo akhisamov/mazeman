@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/ext/vector_int2.hpp>
+#include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
 #include <memory>
@@ -19,6 +20,7 @@ class Window {
     ~Window();
 
     void clear(const glm::vec4& color);
+    void clear(const glm::vec3& color);
     void display();
 
     void setWindowSize(const glm::ivec2& size);

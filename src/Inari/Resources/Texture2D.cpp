@@ -62,17 +62,10 @@ std::shared_ptr<Texture2D> Texture2D::create(SDL_Surface* surface) {
 }
 
 std::shared_ptr<Texture2D> Texture2D::createFromData(
-    const std::map<std::string, std::string>& data) {
-    SDL_Surface* surface = nullptr;
-    for (const auto& it : data) {
-        SDL_RWops* rw = SDL_RWFromConstMem(it.second.data(),
-                                           static_cast<int>(it.second.size()));
-        surface = IMG_Load_RW(rw, 1);
-        if (surface) {
-            break;
-        }
-    }
-
+    const std::string_view& data) {
+    SDL_RWops* rw =
+        SDL_RWFromConstMem(data.data(), static_cast<int>(data.size()));
+    SDL_Surface* surface = IMG_Load_RW(rw, 1);
     if (surface == nullptr) {
         return nullptr;
     }

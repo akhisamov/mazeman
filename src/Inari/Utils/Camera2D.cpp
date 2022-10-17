@@ -21,8 +21,8 @@ void Camera2D::setWindowSize(int width, int height) {
     setWindowSize(glm::ivec2(width, height));
 }
 void Camera2D::setWindowSize(const glm::ivec2& windowSize) {
-    m_transformMatrix = glm::ortho(0.0f, static_cast<float>(windowSize.x), 0.0f,
-                                   static_cast<float>(windowSize.y));
+    m_transformMatrix = glm::ortho(0.0f, static_cast<float>(windowSize.x),
+                                   static_cast<float>(windowSize.y), 0.0f);
     m_isDirty = true;
 }
 
@@ -70,7 +70,7 @@ const glm::mat4& Camera2D::getTransform() {
     if (m_isDirty) {
         m_transformMatrix = glm::ortho(
             m_position.x, (m_windowSize.x * m_scale.x) + m_position.x,
-            m_position.y, (m_windowSize.y * m_scale.y) + m_position.y);
+            (m_windowSize.y * m_scale.y) + m_position.y, m_position.y);
     }
 
     return m_transformMatrix;

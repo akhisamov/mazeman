@@ -73,26 +73,10 @@ std::shared_ptr<Shader> Shader::create(const std::string_view& vertexCode,
     return nullptr;
 }
 
-std::shared_ptr<Shader> Shader::createFromData(
-    const std::map<std::string, std::string>& data) {
-    std::string vertexCode;
-    std::string fragmentCode;
+std::shared_ptr<Shader> Shader::createFromData(const std::string_view& data) {
+    // TODO get vertex and fragment code from one file data
 
-    for (const auto& it : data) {
-        const std::string_view& filename = it.first;
-        if (filename.rfind(vertexExt) == filename.size() - vertexExt.size()) {
-            vertexCode = it.second;
-        } else if (filename.rfind(fragmentExt) ==
-                   filename.size() - fragmentExt.size()) {
-            fragmentCode = it.second;
-        }
-    }
-
-    if (vertexCode.empty() || fragmentCode.empty()) {
-        return nullptr;
-    }
-
-    return create(vertexCode, fragmentCode);
+    return nullptr;
 }
 
 Shader::Shader(const Data& data) : m_id(data.id) {}

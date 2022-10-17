@@ -8,8 +8,10 @@
 #include <memory>
 #include <string>
 
+#include "IResource.hpp"
+
 namespace inari {
-class Texture2D {
+class Texture2D final : public IResource {
    protected:
     struct Data {
         uint32_t id = 0;
@@ -19,11 +21,11 @@ class Texture2D {
    public:
     static std::shared_ptr<Texture2D> create(SDL_Surface* surface);
     static std::shared_ptr<Texture2D> createFromData(
-        const std::map<std::string, std::string>& data);
+        const std::string_view& data);
 
     explicit Texture2D(const Data& data);
     Texture2D() = delete;
-    ~Texture2D();
+    ~Texture2D() override;
 
     void bind() const;
 

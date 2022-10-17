@@ -60,3 +60,16 @@ if(physfs_ADDED)
     target_link_libraries(pacman PRIVATE physfs-static)
     target_include_directories(pacman PRIVATE ${physfs_SOURCE_DIR}/src)
 endif()
+
+CPMAddPackage(
+    NAME json
+    VERSION 3.11.2
+    GITHUB_REPOSITORY nlohmann/json
+    OPTIONS
+        "JSON_BuildTests OFF"
+        "JSON_Install OFF"
+)
+if (json_ADDED)
+    set_target_properties(nlohmann_json PROPERTIES FOLDER "ThirdParty")
+    target_link_libraries(pacman PRIVATE nlohmann_json::nlohmann_json)
+endif()

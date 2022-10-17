@@ -12,6 +12,7 @@
 #include "Inari/Graphics/Window.hpp"
 #include "Inari/InputManager.hpp"
 #include "Inari/Resources/ResourceManager.hpp"
+#include "Inari/Resources/Shader.hpp"
 #include "Inari/Utils/GameTime.hpp"
 #include "Inari/Utils/Strings.hpp"
 
@@ -29,7 +30,7 @@ void IGame::run() {
         loadResources();
 
         uint32_t totalFrames = 0;
-        GameTime gameTime;
+        const GameTime gameTime;
         while (m_isRunning) {
             totalFrames++;
             m_window->begin();
@@ -41,7 +42,7 @@ void IGame::run() {
 
             m_window->end();
 
-            // const float avgFPS = totalFrames / gameTime.getTotalMs(); // todo
+            // const float avgFPS = totalFrames / gameTime.getTotalMs(); // TODO
             if (totalFrames > 20000) {
                 totalFrames = 0;
             }
@@ -71,6 +72,7 @@ bool IGame::init() {
     if (m_resources == nullptr) {
         return false;
     }
+    m_resources->addSearchPath(".");
 
     // Init renderer
     const auto& spriteShader = m_resources->loadOrCreate<Shader>(
