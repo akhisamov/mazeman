@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/vec2.hpp>
+
 #include <memory>
 
 namespace inari {
@@ -9,5 +11,7 @@ class Texture2D;
 
 namespace prefabs {
 void createPacman(const std::shared_ptr<inari::EntityRegistry>& entityRegistry,
-                  const std::shared_ptr<inari::Texture2D>& texture);
+                  const std::shared_ptr<inari::Texture2D>& texture,
+                  const glm::vec2& position,
+                  float angle);
 }  // namespace prefabs

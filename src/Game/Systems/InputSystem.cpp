@@ -35,10 +35,10 @@ void InputSystem::update(float dt) {
 
         constexpr float playerSpeed = 1.0f;
         if (inputManager->isKeyDown(SDLK_UP)) {
-            rigidBody->velocity.y = playerSpeed;
+            rigidBody->velocity.y = -playerSpeed;
         }
         if (inputManager->isKeyDown(SDLK_DOWN)) {
-            rigidBody->velocity.y = -playerSpeed;
+            rigidBody->velocity.y = playerSpeed;
         }
         if (inputManager->isKeyDown(SDLK_RIGHT)) {
             rigidBody->velocity.x = playerSpeed;

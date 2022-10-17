@@ -4,6 +4,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
+#include <any>
 #include <map>
 #include <memory>
 #include <vector>
@@ -17,9 +18,22 @@ struct LevelTile {
     glm::vec4 sourceRect;
 };
 
+struct LevelEntityInstance {
+    glm::vec2 position;
+    std::map<std::string, std::any> fields;
+
+    template <typename T>
+    T get(const std::string_view& field) const {
+        const auto it = fields.find(field.data());
+        assert(it != fields.end());
+        return std::any_cast<T>(it->second);
+    }
+};
+
 struct LevelLayer {
     std::string identifier;
     std::vector<LevelTile> gridTiles;
+    std::map<std::string, LevelEntityInstance> entityInstances;
 };
 
 struct WorldLevel {

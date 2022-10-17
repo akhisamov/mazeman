@@ -1,5 +1,7 @@
 #include "Game.hpp"
 
+#include <SDL_keycode.h>
+
 // inari
 #include "Inari/ECS/Components/Sprite.hpp"
 #include "Inari/ECS/Components/Transform.hpp"
@@ -18,6 +20,8 @@
 
 #include "Inari/Utils/Camera2D.hpp"
 #include "Inari/Utils/Colors.hpp"
+
+#include "Inari/InputManager.hpp"
 // inari
 
 // game
@@ -69,29 +73,37 @@ bool Game::init() {
 }
 
 void Game::loadResources() {
-    prefabs::createPacman(
-        m_entityRegistry,
-        getResourceManager()->load<inari::Texture2D>("sprites/pacman.png"));
-
     auto world = getResourceManager()->load<inari::World>("res/pacman.ldtk");
     if (world) {
         const inari::WorldLevel& level = world->getLevel(0);
-        auto it = level.layers.find("Walls");
-        assert(it != level.layers.end());
 
-        for (const auto& tile : it->second.gridTiles) {
-            inari::Sprite sprite;
-            sprite.texture =
-                getResourceManager()->load<inari::Texture2D>("res/tiles.png");
-            sprite.size = glm::vec2(32, 32);
-            sprite.sourceRect = tile.sourceRect;
+        {
+            auto it = level.layers.find("Walls");
+            for (const auto& tile : it->second.gridTiles) {
+                inari::Sprite sprite;
+                sprite.texture = getResourceManager()->load<inari::Texture2D>(
+                    "res/walls.png");
+                sprite.size = glm::vec2(tile.sourceRect.w, tile.sourceRect.z);
+                sprite.sourceRect = tile.sourceRect;
 
-            inari::Transform transform;
-            transform.position = tile.position;
+                inari::Transform transform;
+                transform.position = tile.position;
 
-            auto tileEntity = m_entityRegistry->createEntity();
-            m_entityRegistry->emplaceComponent(tileEntity, sprite);
-            m_entityRegistry->emplaceComponent(tileEntity, transform);
+                auto tileEntity = m_entityRegistry->createEntity();
+                m_entityRegistry->emplaceComponent(tileEntity, sprite);
+                m_entityRegistry->emplaceComponent(tileEntity, transform);
+            }
+        }
+
+        {
+            auto it = level.layers.find("Spawns")->second.entityInstances.find(
+                "Pacman");
+            const inari::LevelEntityInstance entityInstance = it->second;
+            prefabs::createPacman(m_entityRegistry,
+                                  getResourceManager()->load<inari::Texture2D>(
+                                      "sprites/pacman.png"),
+                                  entityInstance.position,
+                                  entityInstance.get<float>("angle"));
         }
     }
 }
@@ -108,6 +120,10 @@ void Game::update(float dt) {
     m_systemRegistry->updateSystem<InputSystem>(dt);
     m_systemRegistry->updateSystem<inari::PhysicsSystem>(dt);
     m_systemRegistry->updateSystem<inari::AnimationSystem>(dt);
+
+    if (getInputManager()->isKeyPressed(SDLK_F1)) {
+        getSpriteBatch()->toggleWireframeMode();
+    }
 }
 
 void Game::draw(float dt) {

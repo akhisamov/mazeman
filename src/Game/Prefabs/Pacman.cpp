@@ -9,6 +9,8 @@
 #include "Inari/ECS/Components/Transform.hpp"
 #include "Inari/ECS/EntityRegistry.hpp"
 
+#include "Inari/Utils/Math.hpp"
+
 #include "Game/Components/Player.hpp"
 
 namespace prefabs {
@@ -34,7 +36,9 @@ inari::AnimationSprite createAnimationSprite() {
 }
 
 void createPacman(const std::shared_ptr<inari::EntityRegistry>& entityRegistry,
-                  const std::shared_ptr<inari::Texture2D>& texture) {
+                  const std::shared_ptr<inari::Texture2D>& texture,
+                  const glm::vec2& position,
+                  float angle) {
     constexpr std::string_view name = "pacman";
     const auto pacman = entityRegistry->createEntity(name);
 
@@ -46,8 +50,8 @@ void createPacman(const std::shared_ptr<inari::EntityRegistry>& entityRegistry,
     {
         inari::Transform transform;
         transform.origin = glm::vec2(0.5f, 0.5f);
-        transform.position = glm::vec2(200, 200);
-        transform.radian = std::atan2(-1, 0);
+        transform.position = position;
+        transform.radian = inari::math::degreesToRadians(90);
         entityRegistry->emplaceComponent(pacman, transform);
     }
     entityRegistry->emplaceComponent(pacman, createAnimationSprite());

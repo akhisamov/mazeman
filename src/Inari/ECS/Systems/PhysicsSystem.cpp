@@ -12,13 +12,13 @@ PhysicsSystem::PhysicsSystem(std::shared_ptr<EntityRegistry> registry)
 void PhysicsSystem::update(float dt) {
     for (const auto& entity : m_registry->getEntities()) {
         if (entity == nullptr) {
-            return;
+            continue;
         }
 
         auto* transform = m_registry->getComponent<Transform>(entity);
         auto* rigidBody = m_registry->getComponent<RigidBody>(entity);
         if (transform == nullptr || rigidBody == nullptr) {
-            return;
+            continue;
         }
 
         transform->position += rigidBody->velocity * dt;

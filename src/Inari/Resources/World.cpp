@@ -6,7 +6,27 @@
 
 namespace {
 constexpr std::string_view levelPrefix = "Level_";
+
+std::any createAny(const std::string& type, const nlohmann::json& value) {
+    if (type == "Int") {
+        return value.get<int>();
+    }
+    if (type == "Float") {
+        return value.get<float>();
+    }
+    if (type == "Bool") {
+        return value.get<bool>();
+    }
+    if (type == "Color") {
+        return inari::colors::toGL<3>(value.get<std::string>());
+    }
+    if (type == "Point") {
+        return glm::vec2(value.at("cx").get<int>(), value.at("cy").get<int>());
+    }
+
+    return value.get<std::string>();
 }
+}  // namespace
 
 namespace inari {
 
@@ -15,6 +35,11 @@ void from_json(const nlohmann::json& j, LevelTile& tile) {
     j.at("px").at(1).get_to(tile.position.y);
     j.at("src").at(0).get_to(tile.sourceRect.x);
     j.at("src").at(1).get_to(tile.sourceRect.y);
+}
+
+void from_json(const nlohmann::json& j, LevelEntityInstance& entity) {
+    j.at("px").at(0).get_to(entity.position.x);
+    j.at("px").at(1).get_to(entity.position.y);
 }
 
 void from_json(const nlohmann::json& j, LevelLayer& layer) {
@@ -29,6 +54,21 @@ void from_json(const nlohmann::json& j, LevelLayer& layer) {
         tile.sourceRect.z = static_cast<float>(gridSize);
         tile.sourceRect.w = static_cast<float>(gridSize);
         layer.gridTiles.push_back(tile);
+    }
+
+    for (auto& entity : j.at("entityInstances")) {
+        auto levelEntity = entity.get<LevelEntityInstance>();
+
+        if (entity.contains("fieldInstances")) {
+            for (auto& field : entity.at("fieldInstances")) {
+                levelEntity
+                    .fields[field.at("__identifier").get<std::string>()] =
+                    createAny(field.at("__type").get<std::string>(),
+                              field.at("__value"));
+            }
+        }
+        layer.entityInstances[entity.at("__identifier").get<std::string>()] =
+            levelEntity;
     }
 }
 

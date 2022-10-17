@@ -40,6 +40,7 @@ struct SpriteData {
 
 SpriteBatch::SpriteBatch(std::shared_ptr<Shader> spriteShader)
     : m_isBegan(false),
+      m_isWireframeMode(false),
       m_shader(std::move(spriteShader)),
       m_vao(0),
       m_vbo(0),
@@ -161,6 +162,11 @@ void SpriteBatch::end() {
     m_isBegan = false;
 
     flush();
+}
+
+void SpriteBatch::toggleWireframeMode() {
+    m_isWireframeMode = !m_isWireframeMode;
+    glPolygonMode(GL_FRONT_AND_BACK, m_isWireframeMode ? GL_LINE : GL_FILL);
 }
 
 void SpriteBatch::flush() {

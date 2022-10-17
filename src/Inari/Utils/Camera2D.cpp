@@ -70,7 +70,7 @@ const glm::mat4& Camera2D::getTransform() {
     if (m_isDirty) {
         m_transformMatrix = glm::ortho(
             m_position.x, (m_windowSize.x * m_scale.x) + m_position.x,
-            m_position.y, (m_windowSize.y * m_scale.y) + m_position.y);
+            (m_windowSize.y * m_scale.y) + m_position.y, m_position.y);
     }
 
     return m_transformMatrix;

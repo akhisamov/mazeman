@@ -57,11 +57,14 @@ class SpriteBatch {
 
     void end();
 
+    void toggleWireframeMode();
+
    private:
     void flush();
     void flushData(const SpriteData& data);
 
     bool m_isBegan;
+    bool m_isWireframeMode;
 
     std::shared_ptr<Shader> m_shader;
     uint32_t m_vao;
