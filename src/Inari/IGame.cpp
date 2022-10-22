@@ -30,15 +30,16 @@ void IGame::run() {
         loadResources();
 
         uint32_t totalFrames = 0;
-        const GameTime gameTime;
+        GameTime gameTime;
         while (m_isRunning) {
             totalFrames++;
             m_window->begin();
 
             handleEvents();
 
-            update(gameTime.getTotalMs());
-            draw(gameTime.getTotalMs());
+            const float dt = gameTime.getElapsedGameTime();
+            update(dt);
+            draw(dt);
 
             m_window->end();
 
@@ -46,6 +47,8 @@ void IGame::run() {
             if (totalFrames > 20000) {
                 totalFrames = 0;
             }
+
+            gameTime.reset();
         }
 
         unloadResources();

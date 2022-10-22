@@ -54,8 +54,12 @@ void createPacman(const std::shared_ptr<inari::EntityRegistry>& entityRegistry,
         transform.radian = inari::math::degreesToRadians(angle);
         entityRegistry->emplaceComponent(pacman, transform);
     }
+    {
+        inari::RigidBody rigidBody;
+        rigidBody.speed = 100.0f;
+        entityRegistry->emplaceComponent(pacman, rigidBody);
+    }
     entityRegistry->emplaceComponent(pacman, createAnimationSprite());
-    entityRegistry->emplaceComponent<inari::RigidBody>(pacman);
     entityRegistry->emplaceComponent<Player>(pacman);
 }
 }  // namespace prefabs
