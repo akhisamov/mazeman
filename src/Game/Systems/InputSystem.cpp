@@ -33,18 +33,17 @@ void InputSystem::update(float dt) {
 
         rigidBody->velocity = glm::vec2(0.0f);
 
-        constexpr float playerSpeed = 1.0f;
         if (inputManager->isKeyDown(SDLK_UP)) {
-            rigidBody->velocity.y = -playerSpeed;
+            rigidBody->velocity.y = -rigidBody->speed;
         }
         if (inputManager->isKeyDown(SDLK_DOWN)) {
-            rigidBody->velocity.y = playerSpeed;
+            rigidBody->velocity.y = rigidBody->speed;
         }
         if (inputManager->isKeyDown(SDLK_RIGHT)) {
-            rigidBody->velocity.x = playerSpeed;
+            rigidBody->velocity.x = rigidBody->speed;
         }
         if (inputManager->isKeyDown(SDLK_LEFT)) {
-            rigidBody->velocity.x = -playerSpeed;
+            rigidBody->velocity.x = -rigidBody->speed;
         }
 
         if (rigidBody->velocity != glm::vec2(0.0f)) {
