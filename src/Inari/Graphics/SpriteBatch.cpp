@@ -13,24 +13,53 @@
 #include "Inari/Resources/Shader.hpp"
 #include "Inari/Resources/Texture2D.hpp"
 
+namespace {
+glm::mat2 getAngleMatrix(float angle) {
+    const float s = std::sin(angle);
+    const float c = std::cos(angle);
+    return {c, s, -s, c};
+}
+}  // namespace
+
 namespace inari {
 struct SpriteData {
     std::shared_ptr<Texture2D> texture;
 
     struct VertexData {
+        struct PositionGenerator {
+            glm::vec2 origin;
+            glm::vec2 rectSize;
+            glm::vec2 rectPosition;
+            glm::mat2 angleMatrix;
+
+            PositionGenerator(const glm::vec2& origin,
+                              const glm::vec4& rect,
+                              float angle)
+                : origin(origin),
+                  rectSize(rect.w, rect.z),
+                  rectPosition(rect.x, rect.y),
+                  angleMatrix(getAngleMatrix(angle)) {}
+
+            glm::vec2 make(const glm::vec2& position) const {
+                glm::vec2 result = position;
+                result = result - (origin * rectSize);
+                result = result - rectPosition;
+                return (angleMatrix * result) + rectPosition;
+            }
+        };
+
         glm::vec2 position;
         glm::vec2 uv;
 
-        VertexData(const glm::vec2& position, const glm::vec2& uv)
-            : position(position), uv(uv) {}
+        VertexData(const glm::vec2& position,
+                   const glm::vec2& uv,
+                   const PositionGenerator& generator)
+            : position(generator.make(position)), uv(uv) {}
     };
     std::vector<VertexData> vertices;
     std::vector<uint32_t> indices;
 
-    float radian = 0.0f;
-    glm::vec2 origin = glm::vec2(0.0f);
     glm::vec4 color = glm::vec4(1.0f);
-    glm::vec4 rect = glm::vec4(0.0f);
 
     SpriteData() : texture(nullptr) {}
 
@@ -103,24 +132,25 @@ void SpriteBatch::draw(const std::shared_ptr<Texture2D>& texture,
         return;
     }
 
+    const SpriteData::VertexData::PositionGenerator generator(origin, destRect,
+                                                              rotationInRadian);
+
     SpriteData data(texture);
     data.vertices.emplace_back(glm::vec2(destRect.x, destRect.y),
-                               glm::vec2(sourceRect.x, sourceRect.y));  // 0
+                               glm::vec2(sourceRect.x, sourceRect.y),
+                               generator);  // 0
     data.vertices.emplace_back(
         glm::vec2(destRect.x + destRect.z, destRect.y),
-        glm::vec2(sourceRect.x + sourceRect.z, sourceRect.y));  // 1
+        glm::vec2(sourceRect.x + sourceRect.z, sourceRect.y), generator);  // 1
     data.vertices.emplace_back(
         glm::vec2(destRect.x, destRect.y + destRect.w),
-        glm::vec2(sourceRect.x, sourceRect.y + sourceRect.w));  // 2
+        glm::vec2(sourceRect.x, sourceRect.y + sourceRect.w), generator);  // 2
     data.vertices.emplace_back(
         glm::vec2(destRect.x + destRect.z, destRect.y + destRect.w),
-        glm::vec2(sourceRect.x + sourceRect.z,
-                  sourceRect.y + sourceRect.w));  // 3
+        glm::vec2(sourceRect.x + sourceRect.z, sourceRect.y + sourceRect.w),
+        generator);  // 3
     data.indices = {0, 1, 2, 1, 2, 3};
 
-    data.radian = rotationInRadian;
-    data.origin = origin;
-    data.rect = destRect;
     data.color = color;
 
     m_spriteBuffer.push_back(data);
@@ -227,10 +257,7 @@ void SpriteBatch::flushData(const SpriteData& data) {
         m_shader->set("image", 0);
     }
 
-    m_shader->set("radian", data.radian);
-    m_shader->set("origin", data.origin);
     m_shader->set("color", data.color);
-    m_shader->set("rect", data.rect);
 
     const auto verticesSize = static_cast<GLsizeiptr>(
         sizeof(SpriteData::VertexData) * data.vertices.size());

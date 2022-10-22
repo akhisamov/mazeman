@@ -6,6 +6,8 @@
 
 #include <iostream>
 
+#include "Inari/Utils/Strings.hpp"
+
 namespace {
 bool checkShaderStatus(uint32_t id, GLenum type) {
     int success = 0;
@@ -27,8 +29,7 @@ bool checkShaderStatus(uint32_t id, GLenum type) {
     return true;
 }
 
-constexpr std::string_view vertexExt = ".vert";
-constexpr std::string_view fragmentExt = ".frag";
+constexpr std::string_view shaderFormat = "#version 330 core\n%s\n%s";
 }  // namespace
 
 namespace inari {
@@ -74,9 +75,12 @@ std::shared_ptr<Shader> Shader::create(const std::string_view& vertexCode,
 }
 
 std::shared_ptr<Shader> Shader::createFromData(const std::string_view& data) {
-    // TODO get vertex and fragment code from one file data
+    const std::string vertexShader =
+        strings::format(shaderFormat, "#define VERTEX_SHADER", data.data());
+    const std::string fragmentShader =
+        strings::format(shaderFormat, "#define FRAGMENT_SHADER", data.data());
 
-    return nullptr;
+    return create(vertexShader, fragmentShader);
 }
 
 Shader::Shader(const Data& data) : m_id(data.id) {}
