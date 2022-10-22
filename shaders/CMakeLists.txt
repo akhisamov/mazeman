@@ -1,39 +1,27 @@
 set(SHADERS
-    "sprite.hpp sprite.frag sprite.vert"
+    sprite.glsl
 )
+
 set(OUT_PATH "${CMAKE_BINARY_DIR}/include/Generated/shaders")
-foreach(SHADER_STR_LIST ${SHADERS})
+foreach(SHADER ${SHADERS})
+    get_filename_component(SHADER_NAME ${SHADER} NAME_WE)
+    set(OUT_FILE "${OUT_PATH}/${SHADER_NAME}.hpp")
 
-    # transform string to list
-    string(REPLACE " " ";" SHADER_LIST ${SHADER_STR_LIST})
+    set(FULL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${SHADER}")
 
-    # pop out file
-    list(GET SHADER_LIST 0 OUT_FILE)
-    set(OUT_FILE "${OUT_PATH}/${OUT_FILE}")
-    list(REMOVE_AT SHADER_LIST 0)
-
-    # set full path to shader files
-    foreach(SHADER ${SHADER_LIST})
-        list(APPEND NEW_LIST "${CMAKE_CURRENT_SOURCE_DIR}/${SHADER}")
-    endforeach(SHADER)
-    set(SHADER_LIST ${NEW_LIST})
-
-    # command
     add_custom_command(
         OUTPUT ${OUT_FILE}
         COMMAND ${CMAKE_COMMAND} -E make_directory "${OUT_PATH}"
-        COMMAND lua "${CMAKE_SOURCE_DIR}/tools/embedshader.lua" ${OUT_FILE} -- ${SHADER_LIST}
-        DEPENDS ${SHADER_LIST})
+        COMMAND lua "${CMAKE_SOURCE_DIR}/tools/embed.lua" ${FULL_PATH} ${OUT_FILE}
+        DEPENDS ${FULL_PATH})
 
-    # store all files
     list(APPEND OUT_FILES ${OUT_FILE})
-    list(APPEND SHADER_FILES ${SHADER_LIST})
-
-endforeach(SHADER_STR_LIST)
+    list(APPEND SHADER_FILES ${FULL_PATH})
+endforeach(SHADER)
 
 add_custom_target(
     Shaders
-    DEPENDS ${OUT_FILE}
+    DEPENDS ${OUT_FILES}
     SOURCES ${SHADER_FILES}
 )
 

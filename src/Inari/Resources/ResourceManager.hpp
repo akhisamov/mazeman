@@ -52,8 +52,7 @@ class ResourceManager final {
     }
 
     template <class T, class... Args>
-    std::shared_ptr<T> loadOrCreate(const std::string_view& name,
-                                    Args... args) {
+    std::shared_ptr<T> create(const std::string_view& name, Args... args) {
         static_assert(std::is_base_of_v<IResource, T>, "Is not resource");
 
         ResourceFindResult result = getResourceByName<T>(name);
@@ -62,6 +61,29 @@ class ResourceManager final {
         }
 
         std::shared_ptr<T> resource = T::create(args...);
+        if (resource == nullptr) {
+            return nullptr;
+        }
+
+        const ResourceHashCode hashCode = typeid(T).hash_code();
+        const ResourceUUID& uuid = resource->getUUID();
+        m_names[hashCode].emplace(name, uuid);
+        m_resources.emplace(uuid, resource);
+
+        return resource;
+    }
+
+    template <class T>
+    std::shared_ptr<T> createFromData(const std::string_view& name,
+                                      const std::string_view& data) {
+        static_assert(std::is_base_of_v<IResource, T>, "Is not resource");
+
+        ResourceFindResult result = getResourceByName<T>(name);
+        if (result.first) {
+            return std::dynamic_pointer_cast<T>(result.second);
+        }
+
+        std::shared_ptr<T> resource = T::createFromData(data);
         if (resource == nullptr) {
             return nullptr;
         }
