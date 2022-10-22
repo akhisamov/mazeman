@@ -9,7 +9,7 @@ CPMAddPackage(
 if (SDL_ADDED)
     set_target_properties(SDL2 PROPERTIES FOLDER "ThirdParty")
     set_target_properties(SDL2main PROPERTIES FOLDER "ThirdParty")
-    target_link_libraries(pacman PRIVATE SDL2::SDL2main SDL2::SDL2)
+    target_link_libraries(mazeman PRIVATE SDL2::SDL2main SDL2::SDL2)
 endif()
 
 CPMAddPackage(
@@ -19,10 +19,11 @@ CPMAddPackage(
     GIT_TAG release-2.6.2
     OPTIONS
         "SDL2IMAGE_SAMPLES FALSE"
+        "SDL2IMAGE_INSTALL FALSE"
 )
 if (SDL_image_ADDED)
     set_target_properties(SDL2_image PROPERTIES FOLDER "ThirdParty")
-    target_link_libraries(pacman PRIVATE SDL2_image::SDL2_image)
+    target_link_libraries(mazeman PRIVATE SDL2_image::SDL2_image)
 endif()
 
 CPMAddPackage(
@@ -37,13 +38,13 @@ CPMAddPackage(
 )
 if (glad_ADDED)
     set_target_properties(glad PROPERTIES FOLDER "ThirdParty")
-    target_link_libraries(pacman PRIVATE glad)
+    target_link_libraries(mazeman PRIVATE glad)
 endif()
 
 CPMAddPackage("gh:g-truc/glm#0.9.9.8")
 if(glm_ADDED)
     set_target_properties(glm PROPERTIES FOLDER "ThirdParty")
-    target_link_libraries(pacman PRIVATE glm::glm)
+    target_link_libraries(mazeman PRIVATE glm::glm)
 endif()
 
 CPMAddPackage(
@@ -57,8 +58,8 @@ CPMAddPackage(
 )
 if(physfs_ADDED)
     set_target_properties(physfs-static PROPERTIES FOLDER "ThirdParty")
-    target_link_libraries(pacman PRIVATE physfs-static)
-    target_include_directories(pacman PRIVATE ${physfs_SOURCE_DIR}/src)
+    target_link_libraries(mazeman PRIVATE physfs-static)
+    target_include_directories(mazeman PRIVATE ${physfs_SOURCE_DIR}/src)
 endif()
 
 CPMAddPackage(
@@ -71,5 +72,5 @@ CPMAddPackage(
 )
 if (json_ADDED)
     set_target_properties(nlohmann_json PROPERTIES FOLDER "ThirdParty")
-    target_link_libraries(pacman PRIVATE nlohmann_json::nlohmann_json)
+    target_link_libraries(mazeman PRIVATE nlohmann_json::nlohmann_json)
 endif()

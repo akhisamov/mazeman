@@ -1,4 +1,4 @@
-#include "Pacman.hpp"
+#include "Mazeman.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -35,15 +35,15 @@ inari::AnimationSprite createAnimationSprite() {
     return animSprite;
 }
 
-void createPacman(const std::shared_ptr<inari::EntityRegistry>& entityRegistry,
-                  const std::shared_ptr<inari::Texture2D>& texture,
-                  const glm::vec2& position,
-                  float angle) {
-    constexpr std::string_view name = "pacman";
-    const auto pacman = entityRegistry->createEntity(name);
+void createMazeman(const std::shared_ptr<inari::EntityRegistry>& entityRegistry,
+                   const std::shared_ptr<inari::Texture2D>& texture,
+                   const glm::vec2& position,
+                   float angle) {
+    constexpr std::string_view name = "mazeman";
+    const auto mazeman = entityRegistry->createEntity(name);
 
     if (texture) {
-        entityRegistry->emplaceComponent(pacman,
+        entityRegistry->emplaceComponent(mazeman,
                                          inari::Sprite{texture, glm::vec2(32)});
     }
 
@@ -52,14 +52,14 @@ void createPacman(const std::shared_ptr<inari::EntityRegistry>& entityRegistry,
         transform.origin = glm::vec2(0.5f, 0.5f);
         transform.position = position;
         transform.radian = inari::math::degreesToRadians(angle);
-        entityRegistry->emplaceComponent(pacman, transform);
+        entityRegistry->emplaceComponent(mazeman, transform);
     }
     {
         inari::RigidBody rigidBody;
         rigidBody.speed = 100.0f;
-        entityRegistry->emplaceComponent(pacman, rigidBody);
+        entityRegistry->emplaceComponent(mazeman, rigidBody);
     }
-    entityRegistry->emplaceComponent(pacman, createAnimationSprite());
-    entityRegistry->emplaceComponent<Player>(pacman);
+    entityRegistry->emplaceComponent(mazeman, createAnimationSprite());
+    entityRegistry->emplaceComponent<Player>(mazeman);
 }
 }  // namespace prefabs

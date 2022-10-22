@@ -25,4 +25,4 @@ add_custom_target(
     SOURCES ${SHADER_FILES}
 )
 
-add_dependencies(pacman Shaders)
+add_dependencies(mazeman Shaders)

@@ -1,4 +1,4 @@
-target_sources(pacman PRIVATE
+target_sources(mazeman PRIVATE
     IResource.hpp IResource.cpp
     ResourceManager.hpp ResourceManager.cpp
     ResourceStorage.hpp

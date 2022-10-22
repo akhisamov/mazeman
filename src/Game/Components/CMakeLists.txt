@@ -1,4 +1,4 @@
-target_sources(pacman PRIVATE
+target_sources(mazeman PRIVATE
     Player.hpp
 
     CMakeLists.txt
