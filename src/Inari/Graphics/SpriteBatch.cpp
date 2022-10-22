@@ -13,6 +13,14 @@
 #include "Inari/Resources/Shader.hpp"
 #include "Inari/Resources/Texture2D.hpp"
 
+namespace {
+glm::mat2 getAngleMatrix(float angle) {
+    const float s = std::sin(angle);
+    const float c = std::cos(angle);
+    return {c, s, -s, c};
+}
+}  // namespace
+
 namespace inari {
 struct SpriteData {
     std::shared_ptr<Texture2D> texture;
@@ -27,10 +35,7 @@ struct SpriteData {
     std::vector<VertexData> vertices;
     std::vector<uint32_t> indices;
 
-    float radian = 0.0f;
-    glm::vec2 origin = glm::vec2(0.0f);
     glm::vec4 color = glm::vec4(1.0f);
-    glm::vec4 rect = glm::vec4(0.0f);
 
     SpriteData() : texture(nullptr) {}
 
@@ -103,24 +108,32 @@ void SpriteBatch::draw(const std::shared_ptr<Texture2D>& texture,
         return;
     }
 
+    const glm::vec2 rectPosition(destRect.x, destRect.y);
+    const glm::vec2 rectSize(destRect.z, destRect.w);
+    const glm::mat2 angleMatrix = getAngleMatrix(rotationInRadian);
+    auto makePosition = [origin, rectPosition, rectSize, angleMatrix](float x,
+                                                                      float y) {
+        glm::vec2 result(x, y);
+        result = result - (origin * rectSize);
+        result = result - rectPosition;
+        return (angleMatrix * result) + rectPosition;
+    };
+
     SpriteData data(texture);
-    data.vertices.emplace_back(glm::vec2(destRect.x, destRect.y),
+    data.vertices.emplace_back(makePosition(destRect.x, destRect.y),
                                glm::vec2(sourceRect.x, sourceRect.y));  // 0
     data.vertices.emplace_back(
-        glm::vec2(destRect.x + destRect.z, destRect.y),
+        makePosition(destRect.x + destRect.z, destRect.y),
         glm::vec2(sourceRect.x + sourceRect.z, sourceRect.y));  // 1
     data.vertices.emplace_back(
-        glm::vec2(destRect.x, destRect.y + destRect.w),
+        makePosition(destRect.x, destRect.y + destRect.w),
         glm::vec2(sourceRect.x, sourceRect.y + sourceRect.w));  // 2
     data.vertices.emplace_back(
-        glm::vec2(destRect.x + destRect.z, destRect.y + destRect.w),
+        makePosition(destRect.x + destRect.z, destRect.y + destRect.w),
         glm::vec2(sourceRect.x + sourceRect.z,
                   sourceRect.y + sourceRect.w));  // 3
     data.indices = {0, 1, 2, 1, 2, 3};
 
-    data.radian = rotationInRadian;
-    data.origin = origin;
-    data.rect = destRect;
     data.color = color;
 
     m_spriteBuffer.push_back(data);
@@ -227,10 +240,7 @@ void SpriteBatch::flushData(const SpriteData& data) {
         m_shader->set("image", 0);
     }
 
-    m_shader->set("radian", data.radian);
-    m_shader->set("origin", data.origin);
     m_shader->set("color", data.color);
-    m_shader->set("rect", data.rect);
 
     const auto verticesSize = static_cast<GLsizeiptr>(
         sizeof(SpriteData::VertexData) * data.vertices.size());
