@@ -26,11 +26,35 @@ struct SpriteData {
     std::shared_ptr<Texture2D> texture;
 
     struct VertexData {
+        struct PositionGenerator {
+            glm::vec2 origin;
+            glm::vec2 rectSize;
+            glm::vec2 rectPosition;
+            glm::mat2 angleMatrix;
+
+            PositionGenerator(const glm::vec2& origin,
+                              const glm::vec4& rect,
+                              float angle)
+                : origin(origin),
+                  rectSize(rect.w, rect.z),
+                  rectPosition(rect.x, rect.y),
+                  angleMatrix(getAngleMatrix(angle)) {}
+
+            glm::vec2 make(const glm::vec2& position) const {
+                glm::vec2 result = position;
+                result = result - (origin * rectSize);
+                result = result - rectPosition;
+                return (angleMatrix * result) + rectPosition;
+            }
+        };
+
         glm::vec2 position;
         glm::vec2 uv;
 
-        VertexData(const glm::vec2& position, const glm::vec2& uv)
-            : position(position), uv(uv) {}
+        VertexData(const glm::vec2& position,
+                   const glm::vec2& uv,
+                   const PositionGenerator& generator)
+            : position(generator.make(position)), uv(uv) {}
     };
     std::vector<VertexData> vertices;
     std::vector<uint32_t> indices;
@@ -108,30 +132,23 @@ void SpriteBatch::draw(const std::shared_ptr<Texture2D>& texture,
         return;
     }
 
-    const glm::vec2 rectPosition(destRect.x, destRect.y);
-    const glm::vec2 rectSize(destRect.z, destRect.w);
-    const glm::mat2 angleMatrix = getAngleMatrix(rotationInRadian);
-    auto makePosition = [origin, rectPosition, rectSize, angleMatrix](float x,
-                                                                      float y) {
-        glm::vec2 result(x, y);
-        result = result - (origin * rectSize);
-        result = result - rectPosition;
-        return (angleMatrix * result) + rectPosition;
-    };
+    const SpriteData::VertexData::PositionGenerator generator(origin, destRect,
+                                                              rotationInRadian);
 
     SpriteData data(texture);
-    data.vertices.emplace_back(makePosition(destRect.x, destRect.y),
-                               glm::vec2(sourceRect.x, sourceRect.y));  // 0
+    data.vertices.emplace_back(glm::vec2(destRect.x, destRect.y),
+                               glm::vec2(sourceRect.x, sourceRect.y),
+                               generator);  // 0
     data.vertices.emplace_back(
-        makePosition(destRect.x + destRect.z, destRect.y),
-        glm::vec2(sourceRect.x + sourceRect.z, sourceRect.y));  // 1
+        glm::vec2(destRect.x + destRect.z, destRect.y),
+        glm::vec2(sourceRect.x + sourceRect.z, sourceRect.y), generator);  // 1
     data.vertices.emplace_back(
-        makePosition(destRect.x, destRect.y + destRect.w),
-        glm::vec2(sourceRect.x, sourceRect.y + sourceRect.w));  // 2
+        glm::vec2(destRect.x, destRect.y + destRect.w),
+        glm::vec2(sourceRect.x, sourceRect.y + sourceRect.w), generator);  // 2
     data.vertices.emplace_back(
-        makePosition(destRect.x + destRect.z, destRect.y + destRect.w),
-        glm::vec2(sourceRect.x + sourceRect.z,
-                  sourceRect.y + sourceRect.w));  // 3
+        glm::vec2(destRect.x + destRect.z, destRect.y + destRect.w),
+        glm::vec2(sourceRect.x + sourceRect.z, sourceRect.y + sourceRect.w),
+        generator);  // 3
     data.indices = {0, 1, 2, 1, 2, 3};
 
     data.color = color;
