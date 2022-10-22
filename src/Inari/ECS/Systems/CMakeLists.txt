@@ -1,4 +1,4 @@
-target_sources(pacman PRIVATE
+target_sources(mazeman PRIVATE
     AnimationSystem.hpp AnimationSystem.cpp
     ISystem.hpp
     PhysicsSystem.hpp PhysicsSystem.cpp

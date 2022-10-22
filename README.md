@@ -1,1 +1,3 @@
-# Pac-Man SDL2
+# MazeMan 🟢
+
+| PacMan meet SDL2 with OpenGL

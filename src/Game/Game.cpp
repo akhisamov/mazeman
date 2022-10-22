@@ -26,12 +26,12 @@
 
 // game
 #include "Game/Components/Player.hpp"
-#include "Game/Prefabs/Pacman.hpp"
+#include "Game/Prefabs/Mazeman.hpp"
 #include "Game/Systems/InputSystem.hpp"
 // game
 
 namespace constants {
-constexpr std::string_view title = "PacMan";
+constexpr std::string_view title = "MazeMan";
 constexpr int screenFps = 30;
 constexpr glm::ivec2 windowSize(1280, 720);
 }  // namespace constants
@@ -69,7 +69,7 @@ bool Game::init() {
 }
 
 void Game::loadResources() {
-    auto world = getResourceManager()->load<inari::World>("res/pacman.ldtk");
+    auto world = getResourceManager()->load<inari::World>("res/mazeman.ldtk");
     if (world) {
         const inari::WorldLevel& level = world->getLevel(0);
 
@@ -93,18 +93,18 @@ void Game::loadResources() {
 
         {
             auto it = level.layers.find("Spawns")->second.entityInstances.find(
-                "Pacman");
+                "MazeMan");
             const inari::LevelEntityInstance entityInstance = it->second;
-            prefabs::createPacman(
+            prefabs::createMazeman(
                 m_entityRegistry,
-                getResourceManager()->load<inari::Texture2D>("res/pacman.png"),
+                getResourceManager()->load<inari::Texture2D>("res/mazeman.png"),
                 entityInstance.position, entityInstance.get<float>("angle"));
         }
     }
 }
 
 void Game::unloadResources() {
-    getResourceManager()->unload<inari::Texture2D>("res/pacman.png");
+    getResourceManager()->unload<inari::Texture2D>("res/mazeman.png");
 }
 
 void Game::handleWindowResized(const glm::ivec2& size) {
@@ -123,7 +123,7 @@ void Game::update(float dt) {
 
 void Game::draw(float dt) {
     glm::vec3 bgColor(0.0f);
-    auto world = getResourceManager()->load<inari::World>("res/pacman.ldtk");
+    auto world = getResourceManager()->load<inari::World>("res/mazeman.ldtk");
     if (world) {
         const inari::WorldLevel& level = world->getLevel(0);
         bgColor = level.backgroundColor;

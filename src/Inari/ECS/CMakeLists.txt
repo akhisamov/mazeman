@@ -1,7 +1,7 @@
 add_subdirectory(Components)
 add_subdirectory(Systems)
 
-target_sources(pacman PRIVATE
+target_sources(mazeman PRIVATE
     EntityRegistry.hpp EntityRegistry.cpp
     SystemRegistry.hpp
 

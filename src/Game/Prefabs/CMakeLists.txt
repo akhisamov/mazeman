@@ -1,5 +1,5 @@
-target_sources(pacman PRIVATE
-    Pacman.hpp Pacman.cpp
+target_sources(mazeman PRIVATE
+    Mazeman.hpp Mazeman.cpp
 
     CMakeLists.txt
 )
