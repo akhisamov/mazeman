@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(MazeMan C CXX)
+project(MazeMan CXX)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
