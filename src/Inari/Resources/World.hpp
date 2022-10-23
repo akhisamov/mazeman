@@ -32,7 +32,7 @@ struct LevelEntityInstance {
 
 struct LevelLayer {
     std::string identifier;
-    std::vector<LevelTile> gridTiles;
+    std::vector<LevelTile> tiles;
     std::map<std::string, LevelEntityInstance> entityInstances;
 };
 

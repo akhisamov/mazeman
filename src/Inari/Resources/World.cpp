@@ -48,12 +48,21 @@ void from_json(const nlohmann::json& j, LevelLayer& layer) {
     int gridSize = 0;
     j.at("__gridSize").get_to(gridSize);
 
-    for (auto& element : j.at("gridTiles")) {
-        LevelTile tile{};
-        element.get_to(tile);
-        tile.sourceRect.z = static_cast<float>(gridSize);
-        tile.sourceRect.w = static_cast<float>(gridSize);
-        layer.gridTiles.push_back(tile);
+    std::string tilesKey;
+    if (j.contains("autoLayerTiles")) {
+        tilesKey = "autoLayerTiles";
+    } else if (j.contains("gridTiles")) {
+        tilesKey = "gridTiles";
+    }
+
+    if (!tilesKey.empty()) {
+        for (auto& element : j.at(tilesKey)) {
+            LevelTile tile{};
+            element.get_to(tile);
+            tile.sourceRect.z = static_cast<float>(gridSize);
+            tile.sourceRect.w = static_cast<float>(gridSize);
+            layer.tiles.push_back(tile);
+        }
     }
 
     for (auto& entity : j.at("entityInstances")) {

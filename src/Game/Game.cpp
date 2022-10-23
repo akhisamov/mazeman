@@ -34,6 +34,7 @@ namespace constants {
 constexpr std::string_view title = "MazeMan";
 constexpr int screenFps = 30;
 constexpr glm::ivec2 windowSize(1280, 720);
+constexpr std::string_view worldFilename = "res/world.ldtk";
 }  // namespace constants
 
 Game::Game()
@@ -69,13 +70,14 @@ bool Game::init() {
 }
 
 void Game::loadResources() {
-    auto world = getResourceManager()->load<inari::World>("res/mazeman.ldtk");
+    auto world =
+        getResourceManager()->load<inari::World>(constants::worldFilename);
     if (world) {
         const inari::WorldLevel& level = world->getLevel(0);
 
         {
-            auto it = level.layers.find("Walls");
-            for (const auto& tile : it->second.gridTiles) {
+            auto it = level.layers.find("Collisions");
+            for (const auto& tile : it->second.tiles) {
                 inari::Sprite sprite;
                 sprite.texture = getResourceManager()->load<inari::Texture2D>(
                     "res/walls.png");
@@ -123,7 +125,8 @@ void Game::update(float dt) {
 
 void Game::draw(float dt) {
     glm::vec3 bgColor(0.0f);
-    auto world = getResourceManager()->load<inari::World>("res/mazeman.ldtk");
+    auto world =
+        getResourceManager()->load<inari::World>(constants::worldFilename);
     if (world) {
         const inari::WorldLevel& level = world->getLevel(0);
         bgColor = level.backgroundColor;
