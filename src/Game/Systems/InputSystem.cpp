@@ -13,42 +13,36 @@ InputSystem::InputSystem(
     const std::shared_ptr<inari::InputManager>& inputManager)
     : ISystem(std::move(registry)), m_inputPtr(inputManager) {}
 
-void InputSystem::update(float dt) {
+void InputSystem::update(float dt, const inari::EntityPtr& entity) {
     auto inputManager = m_inputPtr.lock();
-    if (inputManager == nullptr || m_registry == nullptr) {
+    if (inputManager == nullptr) {
         return;
     }
 
-    for (const auto& entity : m_registry->getEntities()) {
-        if (entity == nullptr) {
-            continue;
-        }
+    auto* transform = m_registry->getComponent<inari::Transform>(entity);
+    auto* rigidBody = m_registry->getComponent<inari::RigidBody>(entity);
+    if (rigidBody == nullptr || transform == nullptr ||
+        !m_registry->hasComponent<Player>(entity)) {
+        return;
+    }
 
-        auto* transform = m_registry->getComponent<inari::Transform>(entity);
-        auto* rigidBody = m_registry->getComponent<inari::RigidBody>(entity);
-        if (rigidBody == nullptr || transform == nullptr ||
-            !m_registry->hasComponent<Player>(entity)) {
-            continue;
-        }
+    rigidBody->velocity = glm::vec2(0.0f);
 
-        rigidBody->velocity = glm::vec2(0.0f);
+    if (inputManager->isKeyDown(SDLK_UP)) {
+        rigidBody->velocity.y = -rigidBody->speed;
+    }
+    if (inputManager->isKeyDown(SDLK_DOWN)) {
+        rigidBody->velocity.y = rigidBody->speed;
+    }
+    if (inputManager->isKeyDown(SDLK_RIGHT)) {
+        rigidBody->velocity.x = rigidBody->speed;
+    }
+    if (inputManager->isKeyDown(SDLK_LEFT)) {
+        rigidBody->velocity.x = -rigidBody->speed;
+    }
 
-        if (inputManager->isKeyDown(SDLK_UP)) {
-            rigidBody->velocity.y = -rigidBody->speed;
-        }
-        if (inputManager->isKeyDown(SDLK_DOWN)) {
-            rigidBody->velocity.y = rigidBody->speed;
-        }
-        if (inputManager->isKeyDown(SDLK_RIGHT)) {
-            rigidBody->velocity.x = rigidBody->speed;
-        }
-        if (inputManager->isKeyDown(SDLK_LEFT)) {
-            rigidBody->velocity.x = -rigidBody->speed;
-        }
-
-        if (rigidBody->velocity != glm::vec2(0.0f)) {
-            transform->radian =
-                std::atan2(-rigidBody->velocity.y, -rigidBody->velocity.x);
-        }
+    if (rigidBody->velocity != glm::vec2(0.0f)) {
+        transform->radian =
+            std::atan2(-rigidBody->velocity.y, -rigidBody->velocity.x);
     }
 }

@@ -15,6 +15,8 @@ struct Entity {
 using EntityPtr = std::shared_ptr<Entity>;
 
 class EntityRegistry {
+    friend class ISystem;
+
     using ComponentHash = size_t;
     using AnyComponent = std::any;
     using ComponentMap = std::map<ComponentHash, AnyComponent>;
@@ -26,7 +28,6 @@ class EntityRegistry {
     EntityPtr createEntity(const std::string_view& name = "");
 
     EntityPtr getEntity(const std::string_view& name);
-    const std::vector<EntityPtr>& getEntities() const { return m_entities; }
 
     bool destroyEntity(const EntityPtr& entity);
     bool destroyEntity(const std::string_view& name);
@@ -77,6 +78,9 @@ class EntityRegistry {
 
         return false;
     }
+
+   protected:
+    const std::vector<EntityPtr>& getEntities() const { return m_entities; }
 
    private:
     std::vector<EntityPtr> m_entities;

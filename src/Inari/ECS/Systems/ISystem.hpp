@@ -12,9 +12,22 @@ class ISystem {
         : m_registry(std::move(registry)) {}
     virtual ~ISystem() = default;
 
-    virtual void update(float dt) = 0;
+    void updateSystem(float dt) {
+        if (m_registry == nullptr) {
+            return;
+        }
+
+        for (const auto& entity : m_registry->getEntities()) {
+            if (entity == nullptr) {
+                continue;
+            }
+            update(dt, entity);
+        }
+    }
 
    protected:
+    virtual void update(float dt, const EntityPtr& entity) {}
+
     std::shared_ptr<EntityRegistry> m_registry;
 };
 }  // namespace inari

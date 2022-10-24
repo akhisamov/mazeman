@@ -58,9 +58,9 @@ bool Game::init() {
 
         // Init systems
         m_systemRegistry->addSystem<inari::AnimationSystem>(m_entityRegistry);
-        m_systemRegistry->addSystem<inari::SpriteRenderSystem>(
-            m_entityRegistry);
         m_systemRegistry->addSystem<inari::PhysicsSystem>(m_entityRegistry);
+        m_systemRegistry->addSystem<inari::SpriteRenderSystem>(
+            m_entityRegistry, getSpriteBatch());
         m_systemRegistry->addSystem<InputSystem>(m_entityRegistry,
                                                  getInputManager());
 
@@ -136,8 +136,7 @@ void Game::draw(float dt) {
     auto spriteRenderSystem =
         m_systemRegistry->getSystem<inari::SpriteRenderSystem>();
     if (spriteRenderSystem) {
-        spriteRenderSystem->draw(dt, getSpriteBatch(),
-                                 m_camera->getTransform());
+        spriteRenderSystem->draw(dt, m_camera->getTransform());
     }
 
     getWindow()->display();
