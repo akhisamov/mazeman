@@ -4,12 +4,13 @@ CPMAddPackage(
     GITHUB_REPOSITORY libsdl-org/SDL
     GIT_TAG release-2.24.0
     OPTIONS
-        "SDL_STATIC FALSE"
+      "SDL_SHARED OFF"
+      "SDL_TEST OFF"
 )
 if (SDL_ADDED)
-    set_target_properties(SDL2 PROPERTIES FOLDER "ThirdParty")
+    set_target_properties(SDL2-static PROPERTIES FOLDER "ThirdParty")
     set_target_properties(SDL2main PROPERTIES FOLDER "ThirdParty")
-    target_link_libraries(mazeman PRIVATE SDL2::SDL2main SDL2::SDL2)
+    target_link_libraries(mazeman PRIVATE SDL2::SDL2main SDL2::SDL2-static)
 endif()
 
 CPMAddPackage(
@@ -20,28 +21,31 @@ CPMAddPackage(
     OPTIONS
         "SDL2IMAGE_SAMPLES FALSE"
         "SDL2IMAGE_INSTALL FALSE"
+        "BUILD_SHARED_LIBS OFF"
 )
 if (SDL_image_ADDED)
     set_target_properties(SDL2_image PROPERTIES FOLDER "ThirdParty")
-    target_link_libraries(mazeman PRIVATE SDL2_image::SDL2_image)
+    target_link_libraries(mazeman PRIVATE SDL2_image::SDL2_image-static)
 endif()
 
 CPMAddPackage(
     name glad
-    VERSION 0.1.36
+    VERSION 2.0.1
     GITHUB_REPOSITORY Dav1dde/glad
-    OPTIONS
-        "GLAD_API \"gl=3.3\""
-        "GLAD_PROFILE core"
-        "GLAD_SPEC gl"
-        "GLAD_GENERATOR c"
 )
 if (glad_ADDED)
-    set_target_properties(glad PROPERTIES FOLDER "ThirdParty")
-    target_link_libraries(mazeman PRIVATE glad)
+    add_subdirectory("${glad_SOURCE_DIR}/cmake" glad_cmake)
+    glad_add_library(glad_gl_core_33 STATIC API gl:core=3.3)
+    target_link_libraries(mazeman PRIVATE glad_gl_core_33)
 endif()
 
-CPMAddPackage("gh:g-truc/glm#0.9.9.8")
+CPMAddPackage(
+    name glm
+    VERSION 0.9.9.8
+    GITHUB_REPOSITORY g-truc/glm
+    OPTIONS
+      "BUILD_SHARED_LIBS FALSE"
+)
 if(glm_ADDED)
     set_target_properties(glm PROPERTIES FOLDER "ThirdParty")
     target_link_libraries(mazeman PRIVATE glm::glm)
@@ -55,6 +59,7 @@ CPMAddPackage(
   OPTIONS
     "PHYSFS_BUILD_SHARED OFF"
     "PHYSFS_BUILD_TEST OFF"
+    "PHYSFS_TARGETNAME_UNINSTALL physfs_uninstall"
 )
 if(physfs_ADDED)
     set_target_properties(physfs-static PROPERTIES FOLDER "ThirdParty")

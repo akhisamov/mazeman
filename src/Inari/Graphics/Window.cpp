@@ -1,6 +1,6 @@
 #include "Window.hpp"
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 #include <SDL.h>
 
@@ -43,7 +43,7 @@ std::shared_ptr<Window> Window::create(const std::string_view& title,
         return nullptr;
     }
 
-    if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
+    if (!gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress)) {
         data->destroy();
         return nullptr;
     }

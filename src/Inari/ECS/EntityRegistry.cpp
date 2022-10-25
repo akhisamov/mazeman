@@ -1,5 +1,7 @@
 #include "EntityRegistry.hpp"
 
+#include <algorithm>
+
 #include "Inari/Utils/Random.hpp"
 
 struct NameComparator {
