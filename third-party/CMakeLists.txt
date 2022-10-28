@@ -1,31 +1,36 @@
-CPMAddPackage(
-    name SDL2
-    VERSION 2.24.0
-    GITHUB_REPOSITORY libsdl-org/SDL
-    GIT_TAG release-2.24.0
-    OPTIONS
-      "SDL_SHARED OFF"
-      "SDL_TEST OFF"
-)
-if (SDL_ADDED)
-    set_target_properties(SDL2-static PROPERTIES FOLDER "ThirdParty")
-    set_target_properties(SDL2main PROPERTIES FOLDER "ThirdParty")
-    target_link_libraries(mazeman PRIVATE SDL2::SDL2main SDL2::SDL2-static)
-endif()
-
-CPMAddPackage(
-    name SDL2_image
-    VERSION 2.6.2
-    GITHUB_REPOSITORY libsdl-org/SDL_image
-    GIT_TAG release-2.6.2
-    OPTIONS
-        "SDL2IMAGE_SAMPLES FALSE"
-        "SDL2IMAGE_INSTALL FALSE"
-        "BUILD_SHARED_LIBS OFF"
-)
-if (SDL_image_ADDED)
-    set_target_properties(SDL2_image PROPERTIES FOLDER "ThirdParty")
-    target_link_libraries(mazeman PRIVATE SDL2_image::SDL2_image-static)
+find_package(SDL2)
+if (NOT SDL2_FOUND)
+    CPMAddPackage(
+        name SDL2
+        VERSION 2.24.0
+        GITHUB_REPOSITORY libsdl-org/SDL
+        GIT_TAG release-2.24.0
+        OPTIONS
+        "SDL_SHARED OFF"
+        "SDL_TEST OFF"
+    )
+    if (SDL_ADDED)
+        set_target_properties(SDL2-static PROPERTIES FOLDER "ThirdParty")
+        set_target_properties(SDL2main PROPERTIES FOLDER "ThirdParty")
+        target_link_libraries(mazeman PRIVATE SDL2::SDL2main SDL2::SDL2-static)
+    endif()
+    CPMAddPackage(
+        name SDL2_image
+        VERSION 2.6.2
+        GITHUB_REPOSITORY libsdl-org/SDL_image
+        GIT_TAG release-2.6.2
+        OPTIONS
+            "SDL2IMAGE_SAMPLES FALSE"
+            "SDL2IMAGE_INSTALL FALSE"
+            "BUILD_SHARED_LIBS OFF"
+    )
+    if (SDL_image_ADDED)
+        set_target_properties(SDL2_image PROPERTIES FOLDER "ThirdParty")
+        target_link_libraries(mazeman PRIVATE SDL2_image::SDL2_image-static)
+    endif()
+else()
+    find_package(SDL2_image)
+    target_link_libraries(mazeman PRIVATE SDL2::SDL2 SDL2::Image)
 endif()
 
 CPMAddPackage(
@@ -41,8 +46,8 @@ endif()
 
 CPMAddPackage(
     name glm
-    VERSION 0.9.9.8
     GITHUB_REPOSITORY g-truc/glm
+    GIT_TAG 0.9.9.8
     OPTIONS
       "BUILD_SHARED_LIBS FALSE"
 )

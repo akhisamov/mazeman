@@ -28,6 +28,11 @@ class ISystem {
    protected:
     virtual void update(float dt, const EntityPtr& entity) {}
 
+    const std::shared_ptr<EntityRegistry>& getRegistry() const {
+        return m_registry;
+    }
+
+   private:
     std::shared_ptr<EntityRegistry> m_registry;
 };
 }  // namespace inari
