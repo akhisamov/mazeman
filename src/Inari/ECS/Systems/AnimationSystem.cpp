@@ -13,8 +13,8 @@ AnimationSystem::AnimationSystem(std::shared_ptr<EntityRegistry> registry)
     : ISystem(std::move(registry)) {}
 
 void AnimationSystem::update(float dt, const EntityPtr& entity) {
-    auto* sprite = m_registry->getComponent<Sprite>(entity);
-    auto* animSprite = m_registry->getComponent<AnimationSprite>(entity);
+    auto* sprite = getRegistry()->getComponent<Sprite>(entity);
+    auto* animSprite = getRegistry()->getComponent<AnimationSprite>(entity);
     if (sprite == nullptr || animSprite == nullptr) {
         return;
     }

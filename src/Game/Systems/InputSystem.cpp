@@ -19,10 +19,10 @@ void InputSystem::update(float dt, const inari::EntityPtr& entity) {
         return;
     }
 
-    auto* transform = m_registry->getComponent<inari::Transform>(entity);
-    auto* rigidBody = m_registry->getComponent<inari::RigidBody>(entity);
+    auto* transform = getRegistry()->getComponent<inari::Transform>(entity);
+    auto* rigidBody = getRegistry()->getComponent<inari::RigidBody>(entity);
     if (rigidBody == nullptr || transform == nullptr ||
-        !m_registry->hasComponent<Player>(entity)) {
+        !getRegistry()->hasComponent<Player>(entity)) {
         return;
     }
 

@@ -10,8 +10,8 @@ PhysicsSystem::PhysicsSystem(std::shared_ptr<EntityRegistry> registry)
     : ISystem(std::move(registry)) {}
 
 void PhysicsSystem::update(float dt, const EntityPtr& entity) {
-    auto* transform = m_registry->getComponent<Transform>(entity);
-    auto* rigidBody = m_registry->getComponent<RigidBody>(entity);
+    auto* transform = getRegistry()->getComponent<Transform>(entity);
+    auto* rigidBody = getRegistry()->getComponent<RigidBody>(entity);
     if (transform == nullptr || rigidBody == nullptr) {
         return;
     }

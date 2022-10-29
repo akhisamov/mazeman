@@ -1,10 +1,26 @@
-find_package(SDL2)
-if (NOT SDL2_FOUND)
+# ---------------------------
+#             SDL
+# ---------------------------
+
+set(SDL_VERSION 2.24.0)
+set(SDL_IMAGE_VERSION 2.6.0)
+
+set(ALL_SDL_FOUND FALSE)
+find_package(SDL2 ${SDL_VERSION})
+if (SDL2_FOUND)
+    find_package(SDL2_image ${SDL_IMAGE_VERSION})
+    if (SDL2_image_FOUND)
+        set(ALL_SDL_FOUND TRUE)
+        target_link_libraries(mazeman PRIVATE SDL2::SDL2 SDL2::Image)
+    endif()
+endif()
+
+if (NOT ALL_SDL_FOUND)
     CPMAddPackage(
         name SDL2
-        VERSION 2.24.0
+        VERSION ${SDL_VERSION}
         GITHUB_REPOSITORY libsdl-org/SDL
-        GIT_TAG release-2.24.0
+        GIT_TAG release-${SDL_VERSION}
         OPTIONS
         "SDL_SHARED OFF"
         "SDL_TEST OFF"
@@ -16,9 +32,9 @@ if (NOT SDL2_FOUND)
     endif()
     CPMAddPackage(
         name SDL2_image
-        VERSION 2.6.2
+        VERSION ${SDL_IMAGE_VERSION}
         GITHUB_REPOSITORY libsdl-org/SDL_image
-        GIT_TAG release-2.6.2
+        GIT_TAG release-${SDL_IMAGE_VERSION}
         OPTIONS
             "SDL2IMAGE_SAMPLES FALSE"
             "SDL2IMAGE_INSTALL FALSE"
@@ -28,10 +44,11 @@ if (NOT SDL2_FOUND)
         set_target_properties(SDL2_image PROPERTIES FOLDER "ThirdParty")
         target_link_libraries(mazeman PRIVATE SDL2_image::SDL2_image-static)
     endif()
-else()
-    find_package(SDL2_image)
-    target_link_libraries(mazeman PRIVATE SDL2::SDL2 SDL2::Image)
 endif()
+
+# ---------------------------
+#            GLAD
+# ---------------------------
 
 CPMAddPackage(
     name glad
@@ -44,6 +61,10 @@ if (glad_ADDED)
     target_link_libraries(mazeman PRIVATE glad_gl_core_33)
 endif()
 
+# ---------------------------
+#             GLM
+# ---------------------------
+
 CPMAddPackage(
     name glm
     GITHUB_REPOSITORY g-truc/glm
@@ -55,6 +76,10 @@ if(glm_ADDED)
     set_target_properties(glm PROPERTIES FOLDER "ThirdParty")
     target_link_libraries(mazeman PRIVATE glm::glm)
 endif()
+
+# ---------------------------
+#           physfs
+# ---------------------------
 
 CPMAddPackage(
   NAME physfs
@@ -71,6 +96,10 @@ if(physfs_ADDED)
     target_link_libraries(mazeman PRIVATE physfs-static)
     target_include_directories(mazeman PRIVATE ${physfs_SOURCE_DIR}/src)
 endif()
+
+# ---------------------------
+#            json
+# ---------------------------
 
 CPMAddPackage(
     NAME json

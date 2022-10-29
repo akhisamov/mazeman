@@ -39,8 +39,8 @@ void SpriteRenderSystem::update(float dt, const EntityPtr& entity) {
         return;
     }
 
-    const auto* sprite = m_registry->getComponent<Sprite>(entity);
-    const auto* transformation = m_registry->getComponent<Transform>(entity);
+    const auto* sprite = getRegistry()->getComponent<Sprite>(entity);
+    const auto* transformation = getRegistry()->getComponent<Transform>(entity);
     if (sprite == nullptr || transformation == nullptr) {
         return;
     }
