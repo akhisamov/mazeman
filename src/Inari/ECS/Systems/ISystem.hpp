@@ -17,12 +17,8 @@ class ISystem {
             return;
         }
 
-        for (const auto& entity : m_registry->getEntities()) {
-            if (entity == nullptr) {
-                continue;
-            }
-            update(dt, entity);
-        }
+        m_registry->forEachEntity(
+            [this, dt](const EntityPtr& entity) { update(dt, entity); });
     }
 
    protected:

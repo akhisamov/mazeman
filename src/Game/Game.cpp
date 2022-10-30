@@ -25,8 +25,10 @@
 // inari
 
 // game
+#include "Game/Components/Collision.hpp"
 #include "Game/Components/Player.hpp"
 #include "Game/Prefabs/Mazeman.hpp"
+#include "Game/Systems/CollisionSystem.hpp"
 #include "Game/Systems/InputSystem.hpp"
 // game
 
@@ -63,6 +65,7 @@ bool Game::init() {
             m_entityRegistry, getSpriteBatch());
         m_systemRegistry->addSystem<InputSystem>(m_entityRegistry,
                                                  getInputManager());
+        m_systemRegistry->addSystem<CollisionSystem>(m_entityRegistry);
 
         return true;
     }
@@ -81,15 +84,20 @@ void Game::loadResources() {
                 inari::Sprite sprite;
                 sprite.texture = getResourceManager()->load<inari::Texture2D>(
                     "res/walls.png");
-                sprite.size = glm::vec2(tile.sourceRect.w, tile.sourceRect.z);
                 sprite.sourceRect = tile.sourceRect;
 
                 inari::Transform transform;
                 transform.position = tile.position;
+                transform.size =
+                    glm::vec2(tile.sourceRect.w, tile.sourceRect.z);
+
+                Collision collision;
+                collision.isDynamic = false;
 
                 auto tileEntity = m_entityRegistry->createEntity();
                 m_entityRegistry->emplaceComponent(tileEntity, sprite);
                 m_entityRegistry->emplaceComponent(tileEntity, transform);
+                m_entityRegistry->emplaceComponent(tileEntity, collision);
             }
         }
 
@@ -115,6 +123,7 @@ void Game::handleWindowResized(const glm::ivec2& size) {
 
 void Game::update(float dt) {
     m_systemRegistry->updateSystem<InputSystem>(dt);
+    m_systemRegistry->updateSystem<CollisionSystem>(dt);
     m_systemRegistry->updateSystem<inari::PhysicsSystem>(dt);
     m_systemRegistry->updateSystem<inari::AnimationSystem>(dt);
 

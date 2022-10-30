@@ -2,6 +2,7 @@
 
 #include <any>
 #include <cassert>
+#include <functional>
 #include <map>
 #include <memory>
 #include <string>
@@ -15,8 +16,6 @@ struct Entity {
 using EntityPtr = std::shared_ptr<Entity>;
 
 class EntityRegistry {
-    friend class ISystem;
-
     using ComponentHash = size_t;
     using AnyComponent = std::any;
     using ComponentMap = std::map<ComponentHash, AnyComponent>;
@@ -28,6 +27,13 @@ class EntityRegistry {
     EntityPtr createEntity(const std::string_view& name = "");
 
     EntityPtr getEntity(const std::string_view& name);
+
+    void forEachEntity(
+        const std::function<void(const EntityPtr& entity)>& handler) const;
+    bool anyOfEntity(
+        const std::function<bool(const EntityPtr& entity)>& handler);
+    EntityPtr findEntity(
+        const std::function<bool(const EntityPtr& entity)>& handler) const;
 
     bool destroyEntity(const EntityPtr& entity);
     bool destroyEntity(const std::string_view& name);
@@ -78,9 +84,6 @@ class EntityRegistry {
 
         return false;
     }
-
-   protected:
-    const std::vector<EntityPtr>& getEntities() const { return m_entities; }
 
    private:
     std::vector<EntityPtr> m_entities;

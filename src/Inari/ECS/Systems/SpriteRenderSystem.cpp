@@ -40,20 +40,20 @@ void SpriteRenderSystem::update(float dt, const EntityPtr& entity) {
     }
 
     const auto* sprite = getRegistry()->getComponent<Sprite>(entity);
-    const auto* transformation = getRegistry()->getComponent<Transform>(entity);
-    if (sprite == nullptr || transformation == nullptr) {
+    const auto* transform = getRegistry()->getComponent<Transform>(entity);
+    if (sprite == nullptr || transform == nullptr) {
         return;
     }
 
-    if (sprite->size != glm::vec2(0)) {
-        const glm::vec4 destRect(transformation->position, sprite->size);
-        spriteBatch->draw(sprite->texture, sprite->color, destRect,
-                          sprite->sourceRect, transformation->radian,
-                          transformation->origin);
-    } else {
+    if (transform->size != glm::vec2(0)) {
         spriteBatch->draw(sprite->texture, sprite->color,
-                          transformation->position, sprite->sourceRect,
-                          transformation->radian, transformation->origin);
+                          glm::vec4(transform->position, transform->size),
+                          sprite->sourceRect, transform->radian,
+                          transform->origin);
+    } else {
+        spriteBatch->draw(sprite->texture, sprite->color, transform->position,
+                          sprite->sourceRect, transform->radian,
+                          transform->origin);
     }
 }
 }  // namespace inari

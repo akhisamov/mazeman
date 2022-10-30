@@ -10,7 +10,6 @@ class Texture2D;
 
 struct Sprite {
     std::shared_ptr<inari::Texture2D> texture;
-    glm::vec2 size;
     glm::vec4 sourceRect;
     glm::vec4 color = glm::vec4(1.0f);
 };
