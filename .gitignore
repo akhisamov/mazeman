@@ -2,11 +2,15 @@
 build/
 cmake-build-*/
 Debug/
+out/
 
 .cache/
 .idea/
 .vim/
 .vscode/
+.vs/
 
 .exrc
 tags*
+
+CMakeSettings.json
