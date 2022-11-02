@@ -15,11 +15,11 @@ class Texture2D final : public IResource {
    protected:
     struct Data {
         uint32_t id = 0;
-        glm::vec2 size;
+        glm::ivec2 size;
+        int channels = 0;
     };
 
    public:
-    static std::shared_ptr<Texture2D> create(SDL_Surface* surface);
     static std::shared_ptr<Texture2D> createFromData(
         const std::string_view& data);
 

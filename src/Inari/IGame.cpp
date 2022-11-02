@@ -1,7 +1,6 @@
 ﻿#include "IGame.hpp"
 
 #include <SDL.h>
-#include <SDL_image.h>
 #include <SDL_timer.h>
 
 #include <Generated/shaders/sprite.hpp>
@@ -58,12 +57,6 @@ void IGame::run() {
 bool IGame::init() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "SDL Init Error: " << SDL_GetError() << std::endl;
-        return false;
-    }
-
-    constexpr int imgFlags = IMG_INIT_JPG | IMG_INIT_PNG;
-    if ((IMG_Init(imgFlags) & imgFlags) != imgFlags) {
-        std::cerr << "IMG Init Error: " << IMG_GetError() << std::endl;
         return false;
     }
 
