@@ -1,5 +1,6 @@
 #pragma once
 
+#include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
 
 #include "Inari/ECS/Systems/ISystem.hpp"
@@ -13,6 +14,11 @@ class CollisionSystem : public inari::ISystem {
     void update(float dt, const inari::EntityPtr& entity) override;
 
    private:
-    bool check(const inari::EntityPtr& a, const inari::EntityPtr& b) const;
-    bool check(const glm::vec4& aRect, const inari::EntityPtr& b) const;
+    struct AABB {
+        glm::vec2 min;
+        glm::vec2 max;
+        AABB(const glm::vec4& rect)
+            : min(rect.x, rect.y), max(min + glm::vec2(rect.z, rect.w)) {}
+    };
+    bool testAABBOverlap(const AABB& a, const AABB& b) const;
 };
