@@ -15,7 +15,7 @@ function get_output_content(input_file, namespace)
     local input_content = ""
     local f = io.open(input_file, "r")
     for line in f:lines() do
-        local line_content = line:gsub(tabs, "")
+        local line_content = line:gsub(tabs, ""):gsub("\n", ""):gsub("\r", "")
         input_content = input_content .. tabs .. tabs .. string.format("\"%s\\n\"\n", line_content)
     end
     input_content = input_content:sub(1, -2)

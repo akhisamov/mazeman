@@ -7,6 +7,7 @@ class AnimationSystem final : public ISystem {
    public:
     explicit AnimationSystem(std::shared_ptr<EntityRegistry> registry);
 
-    void update(float dt) override;
+   protected:
+    void update(float dt, const EntityPtr& entity) override;
 };
 }  // namespace inari

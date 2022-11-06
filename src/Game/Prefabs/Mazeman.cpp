@@ -11,12 +11,17 @@
 
 #include "Inari/Utils/Math.hpp"
 
+#include "Game/Components/Collision.hpp"
 #include "Game/Components/Player.hpp"
+
+namespace {
+constexpr glm::vec2 size(32);
+}
 
 namespace prefabs {
 struct TracksGenerator {
     glm::vec4 operator()() {
-        return {static_cast<float>(i++) * 32.0f, 0, 32, 32};
+        return {static_cast<float>(i++) * size.x, 0, size};
     }
 
    private:
@@ -43,14 +48,14 @@ void createMazeman(const std::shared_ptr<inari::EntityRegistry>& entityRegistry,
     const auto mazeman = entityRegistry->createEntity(name);
 
     if (texture) {
-        entityRegistry->emplaceComponent(mazeman,
-                                         inari::Sprite{texture, glm::vec2(32)});
+        entityRegistry->emplaceComponent(mazeman, inari::Sprite{texture});
     }
 
     {
         inari::Transform transform;
         transform.origin = glm::vec2(0.5f, 0.5f);
         transform.position = position;
+        transform.size = size;
         transform.radian = inari::math::degreesToRadians(angle);
         entityRegistry->emplaceComponent(mazeman, transform);
     }
@@ -61,5 +66,6 @@ void createMazeman(const std::shared_ptr<inari::EntityRegistry>& entityRegistry,
     }
     entityRegistry->emplaceComponent(mazeman, createAnimationSprite());
     entityRegistry->emplaceComponent<Player>(mazeman);
+    entityRegistry->emplaceComponent<Collision>(mazeman);
 }
 }  // namespace prefabs

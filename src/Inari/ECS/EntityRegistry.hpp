@@ -2,6 +2,7 @@
 
 #include <any>
 #include <cassert>
+#include <functional>
 #include <map>
 #include <memory>
 #include <string>
@@ -18,6 +19,8 @@ class EntityRegistry {
     using ComponentHash = size_t;
     using AnyComponent = std::any;
     using ComponentMap = std::map<ComponentHash, AnyComponent>;
+    using VoidHandler = std::function<void(const EntityPtr&)>;
+    using BoolHandler = std::function<bool(const EntityPtr&)>;
 
    public:
     EntityRegistry() = default;
@@ -26,7 +29,10 @@ class EntityRegistry {
     EntityPtr createEntity(const std::string_view& name = "");
 
     EntityPtr getEntity(const std::string_view& name);
-    const std::vector<EntityPtr>& getEntities() const { return m_entities; }
+
+    void forEachEntity(const VoidHandler& handler) const;
+    bool anyOfEntity(const BoolHandler& handler);
+    EntityPtr findEntity(const BoolHandler& handler) const;
 
     bool destroyEntity(const EntityPtr& entity);
     bool destroyEntity(const std::string_view& name);

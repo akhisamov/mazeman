@@ -1,7 +1,6 @@
 #include "ResourceManager.hpp"
 
 #include <SDL_filesystem.h>
-#include <SDL_image.h>
 
 #include <physfs.h>
 

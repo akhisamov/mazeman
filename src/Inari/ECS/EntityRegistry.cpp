@@ -1,5 +1,7 @@
 #include "EntityRegistry.hpp"
 
+#include <algorithm>
+
 #include "Inari/Utils/Random.hpp"
 
 struct NameComparator {
@@ -32,6 +34,53 @@ EntityPtr EntityRegistry::getEntity(const std::string_view& name) {
         }
     }
     return nullptr;
+}
+
+void EntityRegistry::forEachEntity(const VoidHandler& handler) const {
+    if (!handler) {
+        return;
+    }
+
+    const auto callback = [handler](const EntityPtr& entity) {
+        if (entity == nullptr) {
+            return;
+        }
+        handler(entity);
+    };
+    std::for_each(m_entities.begin(), m_entities.end(), callback);
+}
+
+bool EntityRegistry::anyOfEntity(const BoolHandler& handler) {
+    if (!handler) {
+        return false;
+    }
+
+    const auto callback = [handler](const EntityPtr& entity) {
+        if (entity == nullptr) {
+            return false;
+        }
+        return handler(entity);
+    };
+    return std::any_of(m_entities.begin(), m_entities.end(), callback);
+}
+
+EntityPtr EntityRegistry::findEntity(const BoolHandler& handler) const {
+    if (!handler) {
+        return nullptr;
+    }
+
+    const auto callback = [handler](const EntityPtr& entity) {
+        if (entity == nullptr) {
+            return false;
+        }
+        return handler(entity);
+    };
+    const auto it =
+        std::find_if(m_entities.begin(), m_entities.end(), callback);
+    if (it == m_entities.end()) {
+        return nullptr;
+    }
+    return *it;
 }
 
 bool EntityRegistry::destroyEntity(const EntityPtr& entity) {

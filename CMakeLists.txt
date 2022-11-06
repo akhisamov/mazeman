@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(MazeMan CXX)
+project(MazeMan CXX C)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -14,6 +14,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 include(cmake/CPM.cmake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sdl2)
 
 add_executable(mazeman)
 target_include_directories(mazeman PRIVATE src "${CMAKE_BINARY_DIR}/include")

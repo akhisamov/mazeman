@@ -1,6 +1,6 @@
 #include "SpriteBatch.hpp"
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 #include <glm/ext/matrix_transform.hpp>
 

@@ -25,8 +25,10 @@
 // inari
 
 // game
+#include "Game/Components/Collision.hpp"
 #include "Game/Components/Player.hpp"
 #include "Game/Prefabs/Mazeman.hpp"
+#include "Game/Systems/CollisionSystem.hpp"
 #include "Game/Systems/InputSystem.hpp"
 // game
 
@@ -34,6 +36,7 @@ namespace constants {
 constexpr std::string_view title = "MazeMan";
 constexpr int screenFps = 30;
 constexpr glm::ivec2 windowSize(1280, 720);
+constexpr std::string_view worldFilename = "res/world.ldtk";
 }  // namespace constants
 
 Game::Game()
@@ -57,11 +60,12 @@ bool Game::init() {
 
         // Init systems
         m_systemRegistry->addSystem<inari::AnimationSystem>(m_entityRegistry);
-        m_systemRegistry->addSystem<inari::SpriteRenderSystem>(
-            m_entityRegistry);
         m_systemRegistry->addSystem<inari::PhysicsSystem>(m_entityRegistry);
+        m_systemRegistry->addSystem<inari::SpriteRenderSystem>(
+            m_entityRegistry, getSpriteBatch());
         m_systemRegistry->addSystem<InputSystem>(m_entityRegistry,
                                                  getInputManager());
+        m_systemRegistry->addSystem<CollisionSystem>(m_entityRegistry);
 
         return true;
     }
@@ -69,25 +73,31 @@ bool Game::init() {
 }
 
 void Game::loadResources() {
-    auto world = getResourceManager()->load<inari::World>("res/mazeman.ldtk");
+    auto world =
+        getResourceManager()->load<inari::World>(constants::worldFilename);
     if (world) {
         const inari::WorldLevel& level = world->getLevel(0);
 
         {
-            auto it = level.layers.find("Walls");
-            for (const auto& tile : it->second.gridTiles) {
+            auto it = level.layers.find("Collisions");
+            for (const auto& tile : it->second.tiles) {
                 inari::Sprite sprite;
                 sprite.texture = getResourceManager()->load<inari::Texture2D>(
                     "res/walls.png");
-                sprite.size = glm::vec2(tile.sourceRect.w, tile.sourceRect.z);
                 sprite.sourceRect = tile.sourceRect;
 
                 inari::Transform transform;
                 transform.position = tile.position;
+                transform.size =
+                    glm::vec2(tile.sourceRect.w, tile.sourceRect.z);
+
+                Collision collision;
+                collision.isDynamic = false;
 
                 auto tileEntity = m_entityRegistry->createEntity();
                 m_entityRegistry->emplaceComponent(tileEntity, sprite);
                 m_entityRegistry->emplaceComponent(tileEntity, transform);
+                m_entityRegistry->emplaceComponent(tileEntity, collision);
             }
         }
 
@@ -113,6 +123,7 @@ void Game::handleWindowResized(const glm::ivec2& size) {
 
 void Game::update(float dt) {
     m_systemRegistry->updateSystem<InputSystem>(dt);
+    m_systemRegistry->updateSystem<CollisionSystem>(dt);
     m_systemRegistry->updateSystem<inari::PhysicsSystem>(dt);
     m_systemRegistry->updateSystem<inari::AnimationSystem>(dt);
 
@@ -123,7 +134,8 @@ void Game::update(float dt) {
 
 void Game::draw(float dt) {
     glm::vec3 bgColor(0.0f);
-    auto world = getResourceManager()->load<inari::World>("res/mazeman.ldtk");
+    auto world =
+        getResourceManager()->load<inari::World>(constants::worldFilename);
     if (world) {
         const inari::WorldLevel& level = world->getLevel(0);
         bgColor = level.backgroundColor;
@@ -133,8 +145,7 @@ void Game::draw(float dt) {
     auto spriteRenderSystem =
         m_systemRegistry->getSystem<inari::SpriteRenderSystem>();
     if (spriteRenderSystem) {
-        spriteRenderSystem->draw(dt, getSpriteBatch(),
-                                 m_camera->getTransform());
+        spriteRenderSystem->draw(dt, m_camera->getTransform());
     }
 
     getWindow()->display();

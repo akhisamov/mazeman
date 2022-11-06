@@ -12,7 +12,8 @@ class InputSystem : public inari::ISystem {
         std::shared_ptr<inari::EntityRegistry> registry,
         const std::shared_ptr<inari::InputManager>& inputManager);
 
-    void update(float dt) override;
+   protected:
+    void update(float dt, const inari::EntityPtr& entity) override;
 
    private:
     std::weak_ptr<inari::InputManager> m_inputPtr;

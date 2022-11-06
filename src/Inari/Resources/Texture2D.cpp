@@ -1,76 +1,38 @@
 #include "Texture2D.hpp"
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 
-#include <SDL_image.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 #include <iostream>
 
 #include "Inari/Utils/Strings.hpp"
 
 namespace inari {
-std::shared_ptr<Texture2D> Texture2D::create(SDL_Surface* surface) {
-    Texture2D::Data data;
-    bool success = true;
-    glGenTextures(1, &data.id);
-
-    glBindTexture(GL_TEXTURE_2D, data.id);
-
-    if (!surface) {
-        std::cerr << strings::format("IMG_Load: %s", IMG_GetError())
-                  << std::endl;
-        success = false;
-    } else {
-        GLenum mode = GL_RGB;
-        const uint8_t nOfColors = surface->format->BytesPerPixel;
-        switch (nOfColors) {
-            case 4:
-                if (surface->format->Rmask == 0x000000ff)
-                    mode = GL_RGBA;
-                else
-                    mode = GL_BGRA;
-                break;
-            case 3:
-                if (surface->format->Rmask == 0x000000ff)
-                    mode = GL_RGB;
-                else
-                    mode = GL_BGR;
-                break;
-            default:
-                std::cerr << "Error, image is not truecolor." << std::endl;
-                success = false;
-        }
-
-        if (success) {
-            data.size = glm::vec2(surface->w, surface->h);
-            glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLsizei>(mode),
-                         surface->w, surface->h, 0, mode, GL_UNSIGNED_BYTE,
-                         surface->pixels);
-
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        }
-    }
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    if (success) {
-        return std::make_shared<Texture2D>(data);
-    }
-    return nullptr;
-}
-
 std::shared_ptr<Texture2D> Texture2D::createFromData(
     const std::string_view& data) {
-    SDL_RWops* rw =
-        SDL_RWFromConstMem(data.data(), static_cast<int>(data.size()));
-    SDL_Surface* surface = IMG_Load_RW(rw, 1);
-    if (surface == nullptr) {
-        return nullptr;
+    Texture2D::Data textureData;
+    const auto* buffer = reinterpret_cast<const stbi_uc*>(data.data());
+    unsigned char* pixels = stbi_load_from_memory(
+        buffer, static_cast<int>(data.size()), &textureData.size.x,
+        &textureData.size.y, &textureData.channels, STBI_rgb_alpha);
+    if (pixels) {
+        glGenTextures(1, &textureData.id);
+        glBindTexture(GL_TEXTURE_2D, textureData.id);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureData.size.x,
+                     textureData.size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+        stbi_image_free(pixels);
+        return std::make_shared<Texture2D>(textureData);
     }
 
-    return create(surface);
+    return nullptr;
 }
 
 Texture2D::Texture2D(const Data& data) : m_id(data.id), m_size(data.size) {}

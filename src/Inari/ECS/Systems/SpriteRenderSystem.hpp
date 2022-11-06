@@ -10,18 +10,20 @@ enum class SpriteSortMode;
 
 class SpriteRenderSystem : public ISystem {
    public:
-    explicit SpriteRenderSystem(std::shared_ptr<EntityRegistry> registry);
+    explicit SpriteRenderSystem(
+        std::shared_ptr<EntityRegistry> registry,
+        const std::shared_ptr<inari::SpriteBatch>& spriteBatch);
 
-    void draw(float dt, const std::shared_ptr<SpriteBatch>& spriteBatch);
-    void draw(float dt,
-              const std::shared_ptr<SpriteBatch>& spriteBatch,
-              const glm::mat4& transform);
-    void draw(float dt,
-              const std::shared_ptr<SpriteBatch>& spriteBatch,
-              const glm::mat4& transform,
-              SpriteSortMode sortMode);
+    void updateSystem(float dt) = delete;
+
+    void draw(float dt);
+    void draw(float dt, const glm::mat4& transform);
+    void draw(float dt, const glm::mat4& transform, SpriteSortMode sortMode);
+
+   protected:
+    void update(float dt, const EntityPtr& entity) override;
 
    private:
-    void update(float dt) override {}
+    std::weak_ptr<inari::SpriteBatch> m_spriteBatchPtr;
 };
 }  // namespace inari

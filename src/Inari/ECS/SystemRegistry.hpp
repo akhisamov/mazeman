@@ -55,7 +55,7 @@ class SystemRegistry {
 
         std::shared_ptr<S> system = getSystem<S>();
         if (system) {
-            system->update(dt);
+            system->updateSystem(dt);
         }
     }
 
