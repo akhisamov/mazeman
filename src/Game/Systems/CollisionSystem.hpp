@@ -12,13 +12,4 @@ class CollisionSystem : public inari::ISystem {
 
    protected:
     void update(float dt, const inari::EntityPtr& entity) override;
-
-   private:
-    struct AABB {
-        glm::vec2 min;
-        glm::vec2 max;
-        AABB(const glm::vec4& rect)
-            : min(rect.x, rect.y), max(min + glm::vec2(rect.z, rect.w)) {}
-    };
-    bool testAABBOverlap(const AABB& a, const AABB& b) const;
 };
