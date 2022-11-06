@@ -1,8 +1,5 @@
 #pragma once
 
-#include <glm/vec2.hpp>
-#include <glm/vec4.hpp>
-
 #include "Inari/ECS/Systems/ISystem.hpp"
 
 // Simple AABB collision detection system

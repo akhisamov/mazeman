@@ -1,7 +1,6 @@
 ﻿#include "IGame.hpp"
 
 #include <SDL.h>
-#include <SDL_timer.h>
 
 #include <Generated/shaders/sprite.hpp>
 

@@ -36,49 +36,47 @@ EntityPtr EntityRegistry::getEntity(const std::string_view& name) {
     return nullptr;
 }
 
-void EntityRegistry::forEachEntity(
-    const std::function<void(const EntityPtr& entity)>& handler) const {
+void EntityRegistry::forEachEntity(const VoidHandler& handler) const {
     if (!handler) {
         return;
     }
 
-    std::for_each(m_entities.begin(), m_entities.end(),
-                  [handler](const EntityPtr& entity) {
-                      if (entity == nullptr) {
-                          return;
-                      }
-                      handler(entity);
-                  });
+    const auto callback = [handler](const EntityPtr& entity) {
+        if (entity == nullptr) {
+            return;
+        }
+        handler(entity);
+    };
+    std::for_each(m_entities.begin(), m_entities.end(), callback);
 }
 
-bool EntityRegistry::anyOfEntity(
-    const std::function<bool(const EntityPtr& entity)>& handler) {
+bool EntityRegistry::anyOfEntity(const BoolHandler& handler) {
     if (!handler) {
         return false;
     }
 
-    return std::any_of(m_entities.begin(), m_entities.end(),
-                       [handler](const EntityPtr& entity) {
-                           if (entity == nullptr) {
-                               return false;
-                           }
-                           return handler(entity);
-                       });
+    const auto callback = [handler](const EntityPtr& entity) {
+        if (entity == nullptr) {
+            return false;
+        }
+        return handler(entity);
+    };
+    return std::any_of(m_entities.begin(), m_entities.end(), callback);
 }
 
-EntityPtr EntityRegistry::findEntity(
-    const std::function<bool(const EntityPtr& entity)>& handler) const {
+EntityPtr EntityRegistry::findEntity(const BoolHandler& handler) const {
     if (!handler) {
         return nullptr;
     }
 
-    const auto it = std::find_if(m_entities.begin(), m_entities.end(),
-                                 [handler](const EntityPtr& entity) {
-                                     if (entity == nullptr) {
-                                         return false;
-                                     }
-                                     return handler(entity);
-                                 });
+    const auto callback = [handler](const EntityPtr& entity) {
+        if (entity == nullptr) {
+            return false;
+        }
+        return handler(entity);
+    };
+    const auto it =
+        std::find_if(m_entities.begin(), m_entities.end(), callback);
     if (it == m_entities.end()) {
         return nullptr;
     }

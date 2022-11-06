@@ -9,33 +9,45 @@
 
 namespace {
 struct AABB {
+    using DeltaPair = std::pair<glm::vec2, glm::vec2>;
+
     glm::vec2 min;
     glm::vec2 max;
+
     AABB(const glm::vec4& rect)
         : min(rect.x, rect.y), max(min + glm::vec2(rect.z, rect.w)) {}
+
+    static DeltaPair calculateDeltas(const AABB& a, const AABB& b) {
+        const glm::vec2 first(b.min.x - a.max.x, b.min.y - a.max.y);
+        const glm::vec2 second(a.min.x - b.max.x, a.min.y - b.max.y);
+        return {first, second};
+    }
+
+    static bool intersect(const AABB& a, const AABB& b) {
+        const DeltaPair deltas = calculateDeltas(a, b);
+        return deltas.first.x < 0.0f && deltas.first.y < 0.0f &&
+               deltas.second.x < 0.0f && deltas.second.y < 0.0f;
+    }
 };
 
 void updateVelocity(float dt,
                     glm::vec2& velocity,
                     const AABB& a,
                     const AABB& b) {
-    const float d1x = b.min.x - a.max.x;
-    const float d1y = b.min.y - a.max.y;
-    const float d2x = a.min.x - b.max.x;
-    const float d2y = a.min.y - b.max.y;
+    auto deltas = AABB::calculateDeltas(a, b);
 
     // check direction
     // x axis
-    if (velocity.x > 0 && d1x >= 0) {  // right
-        velocity.x = d1x / dt;
-    } else if (velocity.x < 0 && d2x >= 0) {  // left
-        velocity.x = -d2x / dt;
+    if (velocity.x > 0 && deltas.first.x >= 0) {  // right
+        velocity.x = deltas.first.x / dt;
+    } else if (velocity.x < 0 && deltas.second.x >= 0) {  // left
+        velocity.x = -deltas.second.x / dt;
     }
     // y axis
-    if (velocity.y > 0 && d1y >= 0) {  // down
-        velocity.y = d1y / dt;
-    } else if (velocity.y < 0 && d2y >= 0) {  // up
-        velocity.y = -d2y / dt;
+    if (velocity.y > 0 && deltas.first.y >= 0) {  // down
+        velocity.y = deltas.first.y / dt;
+    } else if (velocity.y < 0 && deltas.second.y >= 0) {  // up
+        velocity.y = -deltas.second.y / dt;
     }
 }
 }  // namespace
@@ -86,12 +98,7 @@ void CollisionSystem::update(float dt, const inari::EntityPtr& entity) {
 
         const AABB a(aRect);
         const AABB b(transform->getRect());
-        const float d1x = b.min.x - a.max.x;
-        const float d1y = b.min.y - a.max.y;
-        const float d2x = a.min.x - b.max.x;
-        const float d2y = a.min.y - b.max.y;
-
-        return d1x < 0.0f && d1y < 0.0f && d2x < 0.0f && d2y < 0.0f;
+        return AABB::intersect(a, b);
     };
     const inari::EntityPtr collidedEntity = getRegistry()->findEntity(callback);
     if (collidedEntity == nullptr) {

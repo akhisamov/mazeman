@@ -19,6 +19,8 @@ class EntityRegistry {
     using ComponentHash = size_t;
     using AnyComponent = std::any;
     using ComponentMap = std::map<ComponentHash, AnyComponent>;
+    using VoidHandler = std::function<void(const EntityPtr&)>;
+    using BoolHandler = std::function<bool(const EntityPtr&)>;
 
    public:
     EntityRegistry() = default;
@@ -28,12 +30,9 @@ class EntityRegistry {
 
     EntityPtr getEntity(const std::string_view& name);
 
-    void forEachEntity(
-        const std::function<void(const EntityPtr& entity)>& handler) const;
-    bool anyOfEntity(
-        const std::function<bool(const EntityPtr& entity)>& handler);
-    EntityPtr findEntity(
-        const std::function<bool(const EntityPtr& entity)>& handler) const;
+    void forEachEntity(const VoidHandler& handler) const;
+    bool anyOfEntity(const BoolHandler& handler);
+    EntityPtr findEntity(const BoolHandler& handler) const;
 
     bool destroyEntity(const EntityPtr& entity);
     bool destroyEntity(const std::string_view& name);

@@ -1,10 +1,11 @@
+target_include_directories(mazeman PRIVATE stb)
+
 # ---------------------------
 #             SDL
 # ---------------------------
 
 find_package(SDL2 2.24.0 REQUIRED)
 target_link_libraries(mazeman PRIVATE SDL2::Core SDL2::Main)
-target_include_directories(mazeman PRIVATE stb)
 
 # ---------------------------
 #            GLAD
