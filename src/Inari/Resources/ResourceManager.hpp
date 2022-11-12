@@ -29,6 +29,10 @@ class ResourceManager final {
     void addSearchPaths(
         const std::map<std::string_view, std::string_view>& searchPaths);
 
+    void addFileData(const std::string_view& name,
+                     const std::string_view& data);
+    void removeFileData(const std::string_view& name);
+
     template <class T>
     std::shared_ptr<T> load(const std::string_view& name) {
         static_assert(std::is_base_of_v<IResource, T>, "Is not resource");
@@ -39,51 +43,6 @@ class ResourceManager final {
         }
 
         std::shared_ptr<T> resource = T::createFromData(readFileData(name));
-        if (resource == nullptr) {
-            return nullptr;
-        }
-
-        const ResourceHashCode hashCode = typeid(T).hash_code();
-        const ResourceUUID& uuid = resource->getUUID();
-        m_names[hashCode].emplace(name, uuid);
-        m_resources.emplace(uuid, resource);
-
-        return resource;
-    }
-
-    template <class T, class... Args>
-    std::shared_ptr<T> create(const std::string_view& name, Args... args) {
-        static_assert(std::is_base_of_v<IResource, T>, "Is not resource");
-
-        ResourceFindResult result = getResourceByName<T>(name);
-        if (result.first) {
-            return std::dynamic_pointer_cast<T>(result.second);
-        }
-
-        std::shared_ptr<T> resource = T::create(args...);
-        if (resource == nullptr) {
-            return nullptr;
-        }
-
-        const ResourceHashCode hashCode = typeid(T).hash_code();
-        const ResourceUUID& uuid = resource->getUUID();
-        m_names[hashCode].emplace(name, uuid);
-        m_resources.emplace(uuid, resource);
-
-        return resource;
-    }
-
-    template <class T>
-    std::shared_ptr<T> createFromData(const std::string_view& name,
-                                      const std::string_view& data) {
-        static_assert(std::is_base_of_v<IResource, T>, "Is not resource");
-
-        ResourceFindResult result = getResourceByName<T>(name);
-        if (result.first) {
-            return std::dynamic_pointer_cast<T>(result.second);
-        }
-
-        std::shared_ptr<T> resource = T::createFromData(data);
         if (resource == nullptr) {
             return nullptr;
         }
@@ -129,7 +88,7 @@ class ResourceManager final {
     }
 
    private:
-    static std::string readFileData(const std::string_view& filename);
+    std::string readFileData(const std::string_view& filename);
 
     template <class T>
     ResourceFindResult getResourceByName(const std::string_view& name) {
@@ -144,7 +103,10 @@ class ResourceManager final {
         }
         return std::make_pair(false, nullptr);
     }
+
     ResourceFindResult getResourceByUUID(const ResourceUUID& uuid);
+
+    std::map<ResourceName, std::string> m_filesData;
 
     std::map<ResourceHashCode, std::map<ResourceName, ResourceUUID>> m_names;
     std::map<ResourceUUID, std::shared_ptr<IResource>> m_resources;

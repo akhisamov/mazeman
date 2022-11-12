@@ -27,7 +27,7 @@ std::shared_ptr<Window> Window::create(const std::string_view& title,
     auto data = std::make_unique<WindowData>();
     data->window = SDL_CreateWindow(title.data(), SDL_WINDOWPOS_CENTERED,
                                     SDL_WINDOWPOS_CENTERED, width, height,
-                                    SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+                                    SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
     if (data->window == nullptr) {
         return nullptr;
     }

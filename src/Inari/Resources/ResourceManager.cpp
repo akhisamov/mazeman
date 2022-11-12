@@ -38,11 +38,26 @@ void ResourceManager::addSearchPaths(
     }
 }
 
-std::string ResourceManager::readFileData(const std::string_view& filename) {
-    assert(PHYSFS_isInit());
-    assert(PHYSFS_exists(filename.data()) != 0);
+void ResourceManager::addFileData(const std::string_view& name,
+                                  const std::string_view& data) {
+    m_filesData[name.data()] = data.data();
+}
 
-    PHYSFS_File* file = PHYSFS_openRead(filename.data());
+void ResourceManager::removeFileData(const std::string_view& name) {
+    m_filesData.erase(name.data());
+}
+
+std::string ResourceManager::readFileData(const std::string_view& filename) {
+    const char* filenameStr = filename.data();
+    auto it = m_filesData.find(filenameStr);
+    if (it != m_filesData.end()) {
+        return it->second;
+    }
+
+    assert(PHYSFS_isInit());
+    assert(PHYSFS_exists(filenameStr) != 0);
+
+    PHYSFS_File* file = PHYSFS_openRead(filenameStr);
     assert(file);
 
     std::string buffer;
@@ -50,6 +65,8 @@ std::string ResourceManager::readFileData(const std::string_view& filename) {
     buffer.resize(size + 1, '\0');
     PHYSFS_readBytes(file, buffer.data(), size);
     PHYSFS_close(file);
+
+    addFileData(filename, buffer);
     return buffer;
 }
 

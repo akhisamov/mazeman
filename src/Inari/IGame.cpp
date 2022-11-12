@@ -68,15 +68,14 @@ bool IGame::init() {
         return false;
     }
     m_resources->addSearchPath(".");
+    m_resources->addFileData("sprite", shaders::sprite);
 
     // Init renderer
-    const auto& spriteShader =
-        m_resources->createFromData<Shader>("sprite", shaders::sprite);
-    if (spriteShader) {
-        m_spriteBatch = std::make_shared<SpriteBatch>(spriteShader);
-    } else {
+    const auto& spriteShader = m_resources->load<Shader>("sprite");
+    if (spriteShader == nullptr) {
         return false;
     }
+    m_spriteBatch = std::make_shared<SpriteBatch>(spriteShader);
 
     m_isRunning = true;
 

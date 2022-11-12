@@ -55,8 +55,7 @@ bool Game::init() {
         window->setFrameLimit(constants::screenFps);
 
         // Init camera
-        m_camera =
-            std::make_unique<inari::Camera2D>(constants::windowSize, 1.1f);
+        m_camera = std::make_unique<inari::Camera2D>(constants::windowSize);
 
         // Init systems
         m_systemRegistry->addSystem<inari::AnimationSystem>(m_entityRegistry);
@@ -77,6 +76,8 @@ void Game::loadResources() {
         getResourceManager()->load<inari::World>(constants::worldFilename);
     if (world) {
         const inari::WorldLevel& level = world->getLevel(0);
+        m_camera->setScale(
+            glm::vec2(level.size.y / m_camera->getWindowSize().y));
 
         {
             auto it = level.layers.find("Collisions");
@@ -119,6 +120,14 @@ void Game::unloadResources() {
 
 void Game::handleWindowResized(const glm::ivec2& size) {
     m_camera->setWindowSize(size);
+
+    auto world =
+        getResourceManager()->load<inari::World>(constants::worldFilename);
+    if (world) {
+        const inari::WorldLevel& level = world->getLevel(0);
+        m_camera->setScale(
+            glm::vec2(level.size.y / m_camera->getWindowSize().y));
+    }
 }
 
 void Game::update(float dt) {
