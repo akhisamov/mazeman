@@ -10,7 +10,9 @@ class GameTime {
     GameTime();
 
     float getTotalMs() const;
-    float getElapsedGameTime() const;
+    float getElapsedTime() const;
+
+    static uint32_t getCurrentTicks();
 
    protected:
     void reset();

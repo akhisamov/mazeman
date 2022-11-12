@@ -8,22 +8,28 @@
 #include "Inari/ECS/Components/AnimationSprite.hpp"
 #include "Inari/ECS/Components/Sprite.hpp"
 
+#include "Inari/Utils/GameTime.hpp"
+
 namespace inari {
 AnimationSystem::AnimationSystem(std::shared_ptr<EntityRegistry> registry)
     : ISystem(std::move(registry)) {}
 
-void AnimationSystem::update(float dt, const EntityPtr& entity) {
+void AnimationSystem::update(const inari::GameTime& gameTime,
+                             const EntityPtr& entity) {
     auto* sprite = getRegistry()->getComponent<Sprite>(entity);
     auto* animSprite = getRegistry()->getComponent<AnimationSprite>(entity);
     if (sprite == nullptr || animSprite == nullptr) {
         return;
     }
 
+    const uint32_t currentTicks = gameTime.getCurrentTicks();
+
     auto it = animSprite->tracks.find(animSprite->currentTrack);
     if (it != animSprite->tracks.end()) {
         int framesToUpdate = 1;
         if (animSprite->isFramesLimited) {
-            const float deltaTime = dt - animSprite->lastUpdate;
+            const float deltaTime =
+                (currentTicks - animSprite->lastUpdate) / 1000.0f;
             framesToUpdate = static_cast<int>(
                 std::floor(deltaTime / (1.0f / animSprite->framesLimit)));
         }
@@ -33,7 +39,7 @@ void AnimationSystem::update(float dt, const EntityPtr& entity) {
             if (animSprite->currentFrame >= it->second.size()) {
                 animSprite->currentFrame = 0;
             }
-            animSprite->lastUpdate = dt;
+            animSprite->lastUpdate = currentTicks;
         }
 
         sprite->sourceRect = it->second[animSprite->currentFrame];

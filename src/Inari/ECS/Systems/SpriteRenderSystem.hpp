@@ -16,12 +16,15 @@ class SpriteRenderSystem : public ISystem {
 
     void updateSystem(float dt) = delete;
 
-    void draw(float dt);
-    void draw(float dt, const glm::mat4& transform);
-    void draw(float dt, const glm::mat4& transform, SpriteSortMode sortMode);
+    void draw(const inari::GameTime& gameTime);
+    void draw(const inari::GameTime& gameTime, const glm::mat4& transform);
+    void draw(const inari::GameTime& gameTime,
+              const glm::mat4& transform,
+              SpriteSortMode sortMode);
 
    protected:
-    void update(float dt, const EntityPtr& entity) override;
+    void update(const inari::GameTime& gameTime,
+                const EntityPtr& entity) override;
 
    private:
     std::weak_ptr<inari::SpriteBatch> m_spriteBatchPtr;

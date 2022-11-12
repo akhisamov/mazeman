@@ -14,26 +14,28 @@ SpriteRenderSystem::SpriteRenderSystem(
     const std::shared_ptr<inari::SpriteBatch>& spriteBatch)
     : ISystem(std::move(registry)), m_spriteBatchPtr(spriteBatch) {}
 
-void SpriteRenderSystem::draw(float dt) {
-    draw(dt, glm::mat4(1.0f), SpriteSortMode::DEFERRED);
+void SpriteRenderSystem::draw(const inari::GameTime& gameTime) {
+    draw(gameTime, glm::mat4(1.0f), SpriteSortMode::DEFERRED);
 }
 
-void SpriteRenderSystem::draw(float dt, const glm::mat4& transform) {
-    draw(dt, transform, SpriteSortMode::DEFERRED);
+void SpriteRenderSystem::draw(const inari::GameTime& gameTime,
+                              const glm::mat4& transform) {
+    draw(gameTime, transform, SpriteSortMode::DEFERRED);
 }
 
-void SpriteRenderSystem::draw(float dt,
+void SpriteRenderSystem::draw(const inari::GameTime& gameTime,
                               const glm::mat4& transform,
                               SpriteSortMode sortMode) {
     auto spriteBatch = m_spriteBatchPtr.lock();
     assert(spriteBatch != nullptr && "Sprite batch is empty");
 
     spriteBatch->begin(transform, sortMode);
-    ISystem::updateSystem(dt);
+    ISystem::updateSystem(gameTime);
     spriteBatch->end();
 }
 
-void SpriteRenderSystem::update(float dt, const EntityPtr& entity) {
+void SpriteRenderSystem::update(const inari::GameTime& gameTime,
+                                const EntityPtr& entity) {
     auto spriteBatch = m_spriteBatchPtr.lock();
     if (spriteBatch == nullptr) {
         return;

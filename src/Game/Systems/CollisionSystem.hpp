@@ -8,5 +8,6 @@ class CollisionSystem : public inari::ISystem {
     explicit CollisionSystem(std::shared_ptr<inari::EntityRegistry> registry);
 
    protected:
-    void update(float dt, const inari::EntityPtr& entity) override;
+    void update(const inari::GameTime& gameTime,
+                const inari::EntityPtr& entity) override;
 };

@@ -5,7 +5,11 @@
 #include "Inari/ECS/Components/RigidBody.hpp"
 #include "Inari/ECS/Components/Transform.hpp"
 
+#include "Inari/Utils/GameTime.hpp"
+
 #include "Game/Components/Collision.hpp"
+
+using namespace inari;
 
 namespace {
 struct AABB {
@@ -52,23 +56,22 @@ void updateVelocity(float dt,
 }
 }  // namespace
 
-CollisionSystem::CollisionSystem(
-    std::shared_ptr<inari::EntityRegistry> registry)
+CollisionSystem::CollisionSystem(std::shared_ptr<EntityRegistry> registry)
     : ISystem(std::move(registry)) {}
 
-void CollisionSystem::update(float dt, const inari::EntityPtr& entity) {
+void CollisionSystem::update(const GameTime& gameTime,
+                             const EntityPtr& entity) {
     const auto* collision = getRegistry()->getComponent<Collision>(entity);
     if (collision == nullptr || !collision->isDynamic) {
         return;
     }
 
-    if (!getRegistry()->hasComponent<inari::RigidBody>(entity)) {
+    if (!getRegistry()->hasComponent<RigidBody>(entity)) {
         return;
     }
 
-    const auto* transform =
-        getRegistry()->getComponent<inari::Transform>(entity);
-    auto* rigidBody = getRegistry()->getComponent<inari::RigidBody>(entity);
+    const auto* transform = getRegistry()->getComponent<Transform>(entity);
+    auto* rigidBody = getRegistry()->getComponent<RigidBody>(entity);
     if (transform == nullptr || rigidBody == nullptr) {
         return;
     }
@@ -78,10 +81,11 @@ void CollisionSystem::update(float dt, const inari::EntityPtr& entity) {
     }
 
     const glm::vec4 futureRect(
-        transform->getAbsolutePosition() + (rigidBody->velocity * dt),
+        transform->getAbsolutePosition() +
+            (rigidBody->velocity * gameTime.getElapsedTime()),
         transform->size);
-    const auto callback = [this, entity, aRect = futureRect](
-                              const inari::EntityPtr& compareWith) {
+    const auto callback = [this, entity,
+                           aRect = futureRect](const EntityPtr& compareWith) {
         if (entity == compareWith) {
             return false;
         }
@@ -91,7 +95,7 @@ void CollisionSystem::update(float dt, const inari::EntityPtr& entity) {
         }
 
         const auto* transform =
-            getRegistry()->getComponent<inari::Transform>(compareWith);
+            getRegistry()->getComponent<Transform>(compareWith);
         if (transform == nullptr) {
             return false;
         }
@@ -100,17 +104,17 @@ void CollisionSystem::update(float dt, const inari::EntityPtr& entity) {
         const AABB b(transform->getRect());
         return AABB::intersect(a, b);
     };
-    const inari::EntityPtr collidedEntity = getRegistry()->findEntity(callback);
+    const EntityPtr collidedEntity = getRegistry()->findEntity(callback);
     if (collidedEntity == nullptr) {
         return;
     }
 
     const auto* collidedTransform =
-        getRegistry()->getComponent<inari::Transform>(collidedEntity);
+        getRegistry()->getComponent<Transform>(collidedEntity);
     if (collidedTransform == nullptr) {
         return;
     }
 
-    updateVelocity(dt, rigidBody->velocity, transform->getRect(),
-                   collidedTransform->getRect());
+    updateVelocity(gameTime.getElapsedTime(), rigidBody->velocity,
+                   transform->getRect(), collidedTransform->getRect());
 }

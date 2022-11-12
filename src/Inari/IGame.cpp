@@ -27,24 +27,23 @@ void IGame::run() {
         assert(init() && "Init is failed");
         loadResources();
 
-        uint32_t totalFrames = 0;
+        // uint32_t totalFrames = 0;
         GameTime gameTime;
         while (m_isRunning) {
-            totalFrames++;
+            // totalFrames++;
             m_window->begin();
 
             handleEvents();
 
-            const float dt = gameTime.getElapsedGameTime();
-            update(dt);
-            draw(dt);
+            update(gameTime);
+            draw(gameTime);
 
             m_window->end();
 
             // const float avgFPS = totalFrames / gameTime.getTotalMs(); // TODO
-            if (totalFrames > 20000) {
-                totalFrames = 0;
-            }
+            // if (totalFrames > 20000) {
+            //    totalFrames = 0;
+            //}
 
             gameTime.reset();
         }

@@ -10,6 +10,7 @@ class SpriteBatch;
 class Window;
 class ResourceManager;
 class InputManager;
+class GameTime;
 
 class IGame {
    public:
@@ -28,8 +29,8 @@ class IGame {
 
     virtual void handleWindowResized(const glm::ivec2& size) = 0;
 
-    virtual void update(float dt) = 0;
-    virtual void draw(float dt) = 0;
+    virtual void update(const GameTime& gameTime) = 0;
+    virtual void draw(const GameTime& gameTime) = 0;
 
     const std::shared_ptr<Window>& getWindow() const;
     const std::shared_ptr<SpriteBatch>& getSpriteBatch() const;

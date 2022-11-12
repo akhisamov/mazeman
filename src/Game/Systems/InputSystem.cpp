@@ -13,7 +13,8 @@ InputSystem::InputSystem(
     const std::shared_ptr<inari::InputManager>& inputManager)
     : ISystem(std::move(registry)), m_inputPtr(inputManager) {}
 
-void InputSystem::update(float dt, const inari::EntityPtr& entity) {
+void InputSystem::update(const inari::GameTime& gameTime,
+                         const inari::EntityPtr& entity) {
     auto inputManager = m_inputPtr.lock();
     if (inputManager == nullptr) {
         return;

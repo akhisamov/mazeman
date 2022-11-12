@@ -130,18 +130,18 @@ void Game::handleWindowResized(const glm::ivec2& size) {
     }
 }
 
-void Game::update(float dt) {
-    m_systemRegistry->updateSystem<InputSystem>(dt);
-    m_systemRegistry->updateSystem<CollisionSystem>(dt);
-    m_systemRegistry->updateSystem<inari::PhysicsSystem>(dt);
-    m_systemRegistry->updateSystem<inari::AnimationSystem>(dt);
+void Game::update(const inari::GameTime& gameTime) {
+    m_systemRegistry->updateSystem<InputSystem>(gameTime);
+    m_systemRegistry->updateSystem<CollisionSystem>(gameTime);
+    m_systemRegistry->updateSystem<inari::PhysicsSystem>(gameTime);
+    m_systemRegistry->updateSystem<inari::AnimationSystem>(gameTime);
 
     if (getInputManager()->isKeyPressed(SDLK_F1)) {
         getSpriteBatch()->toggleWireframeMode();
     }
 }
 
-void Game::draw(float dt) {
+void Game::draw(const inari::GameTime& gameTime) {
     glm::vec3 bgColor(0.0f);
     auto world =
         getResourceManager()->load<inari::World>(constants::worldFilename);
@@ -154,7 +154,7 @@ void Game::draw(float dt) {
     auto spriteRenderSystem =
         m_systemRegistry->getSystem<inari::SpriteRenderSystem>();
     if (spriteRenderSystem) {
-        spriteRenderSystem->draw(dt, m_camera->getTransform());
+        spriteRenderSystem->draw(gameTime, m_camera->getTransform());
     }
 
     getWindow()->display();

@@ -9,6 +9,7 @@
 
 namespace inari {
 class EntityRegistry;
+class GameTime;
 
 class SystemRegistry {
    public:
@@ -50,12 +51,12 @@ class SystemRegistry {
     }
 
     template <class S>
-    void updateSystem(float dt) {
+    void updateSystem(const inari::GameTime& gameTime) {
         static_assert(std::is_base_of_v<ISystem, S>, "Wrong System Type");
 
         std::shared_ptr<S> system = getSystem<S>();
         if (system) {
-            system->updateSystem(dt);
+            system->updateSystem(gameTime);
         }
     }
 

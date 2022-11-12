@@ -13,7 +13,8 @@ class InputSystem : public inari::ISystem {
         const std::shared_ptr<inari::InputManager>& inputManager);
 
    protected:
-    void update(float dt, const inari::EntityPtr& entity) override;
+    void update(const inari::GameTime& gameTime,
+                const inari::EntityPtr& entity) override;
 
    private:
     std::weak_ptr<inari::InputManager> m_inputPtr;
