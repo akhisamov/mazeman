@@ -4,7 +4,6 @@
 #include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
 
-
 namespace inari {
 class Camera2D {
    public:
@@ -16,22 +15,14 @@ class Camera2D {
     Camera2D(Camera2D&&) = delete;
     Camera2D(const Camera2D&) = delete;
 
-    void setWindowSize(int width, int height);
-    void setWindowSize(const glm::ivec2& windowSize);
+    const glm::vec2& getWindowSize() const { return m_windowSize; }
+    void setWindowSize(const glm::vec2& windowSize);
 
-    void setPositionX(float value);
-    void setPositionY(float value);
-    void setPosition(float x, float y);
+    const glm::vec2& getPosition() const { return m_position; }
     void setPosition(const glm::vec2& position);
-
-    void moveX(float value);
-    void moveY(float value);
-    void move(float x, float y);
     void move(const glm::vec2& shift);
 
     const glm::vec2& getScale() const { return m_scale; }
-    void setScale(float scale);
-    void setScale(float x, float y);
     void setScale(const glm::vec2& scale);
 
     const glm::mat4& getTransform();
