@@ -17,7 +17,7 @@ Camera2D::Camera2D(const glm::ivec2& windowSize, float scale)
       m_position(0.0f),
       m_scale(scale) {}
 
-void Camera2D::setWindowSize(const glm::ivec2& windowSize) {
+void Camera2D::setWindowSize(const glm::vec2& windowSize) {
     m_windowSize = windowSize;
     m_isDirty = true;
 }

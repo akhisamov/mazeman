@@ -37,7 +37,7 @@ class ResourceManager final {
     std::shared_ptr<T> load(const std::string_view& name) {
         static_assert(std::is_base_of_v<IResource, T>, "Is not resource");
 
-        ResourceFindResult result = getResourceByName<T>(name);
+        ResourceFindResult result = getResourceByName(name);
         if (result.first) {
             return std::dynamic_pointer_cast<T>(result.second);
         }
@@ -47,10 +47,9 @@ class ResourceManager final {
             return nullptr;
         }
 
-        const ResourceHashCode hashCode = typeid(T).hash_code();
         const ResourceUUID& uuid = resource->getUUID();
-        m_names[hashCode].emplace(name, uuid);
-        m_resources.emplace(uuid, resource);
+        m_uuidsByName.emplace(name.data(), uuid);
+        m_resourcesByUuid.emplace(uuid, resource);
 
         return resource;
     }
@@ -62,53 +61,29 @@ class ResourceManager final {
         const ResourceHashCode hashCode = typeid(T).hash_code();
 
         ResourceUUID uuid;
-        auto it = m_names.find(hashCode);
-        if (it != m_names.end()) {
-            auto& uuids = it->second;
-            auto uuidIt = uuids.find(name.data());
-            if (uuidIt != uuids.end()) {
-                uuid = uuidIt->second;
-                uuids.erase(uuidIt);
-            }
+        auto it = m_uuidsByName.find(name.data());
+        if (it != m_uuidsByName.end()) {
+            uuid = it->second;
+            m_uuidsByName.erase(it);
         }
 
         if (uuid.empty()) {
             return false;
         }
 
-        return m_resources.erase(uuid) == 1;
+        return m_resourcesByUuid.erase(uuid) == 1;
     }
 
-    template <class T>
-    bool has(const std::string_view& name) {
-        static_assert(std::is_base_of_v<IResource, T>, "Is not resource");
-
-        const ResourceFindResult result = getResourceByName<T>(name);
-        return result.first;
-    }
+    bool has(const std::string_view& name);
 
    private:
     std::string readFileData(const std::string_view& filename);
 
-    template <class T>
-    ResourceFindResult getResourceByName(const std::string_view& name) {
-        const ResourceHashCode hashCode = typeid(T).hash_code();
-        auto it = m_names.find(hashCode);
-        if (it != m_names.end()) {
-            const auto& uuids = it->second;
-            auto uuidIt = uuids.find(name.data());
-            if (uuidIt != uuids.end()) {
-                return getResourceByUUID(uuidIt->second);
-            }
-        }
-        return std::make_pair(false, nullptr);
-    }
-
+    ResourceFindResult getResourceByName(const std::string_view& name);
     ResourceFindResult getResourceByUUID(const ResourceUUID& uuid);
 
-    std::map<ResourceName, std::string> m_filesData;
-
-    std::map<ResourceHashCode, std::map<ResourceName, ResourceUUID>> m_names;
-    std::map<ResourceUUID, std::shared_ptr<IResource>> m_resources;
+    std::map<ResourceName, std::string> m_filesDataByName;
+    std::map<ResourceName, ResourceUUID> m_uuidsByName;
+    std::map<ResourceUUID, std::shared_ptr<IResource>> m_resourcesByUuid;
 };
 }  // namespace inari

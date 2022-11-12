@@ -40,17 +40,22 @@ void ResourceManager::addSearchPaths(
 
 void ResourceManager::addFileData(const std::string_view& name,
                                   const std::string_view& data) {
-    m_filesData[name.data()] = data.data();
+    m_filesDataByName[name.data()] = data.data();
 }
 
 void ResourceManager::removeFileData(const std::string_view& name) {
-    m_filesData.erase(name.data());
+    m_filesDataByName.erase(name.data());
+}
+
+bool ResourceManager::has(const std::string_view& name) {
+    const ResourceFindResult result = getResourceByName(name);
+    return result.first;
 }
 
 std::string ResourceManager::readFileData(const std::string_view& filename) {
     const char* filenameStr = filename.data();
-    auto it = m_filesData.find(filenameStr);
-    if (it != m_filesData.end()) {
+    auto it = m_filesDataByName.find(filenameStr);
+    if (it != m_filesDataByName.end()) {
         return it->second;
     }
 
@@ -72,10 +77,19 @@ std::string ResourceManager::readFileData(const std::string_view& filename) {
 
 ResourceManager::ResourceManager(Token /*unused*/) {}
 
+ResourceManager::ResourceFindResult ResourceManager::getResourceByName(
+    const std::string_view& name) {
+    auto it = m_uuidsByName.find(name.data());
+    if (it != m_uuidsByName.end()) {
+        return getResourceByUUID(it->second);
+    }
+    return std::make_pair(false, nullptr);
+}
+
 ResourceManager::ResourceFindResult ResourceManager::getResourceByUUID(
     const ResourceUUID& uuid) {
-    auto it = m_resources.find(uuid);
-    if (it != m_resources.end()) {
+    auto it = m_resourcesByUuid.find(uuid);
+    if (it != m_resourcesByUuid.end()) {
         return std::make_pair(true, it->second);
     }
     return std::make_pair(false, nullptr);

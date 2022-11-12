@@ -15,8 +15,8 @@ class Camera2D {
     Camera2D(Camera2D&&) = delete;
     Camera2D(const Camera2D&) = delete;
 
-    const glm::ivec2& getWindowSize() const { return m_windowSize; }
-    void setWindowSize(const glm::ivec2& windowSize);
+    const glm::vec2& getWindowSize() const { return m_windowSize; }
+    void setWindowSize(const glm::vec2& windowSize);
 
     const glm::vec2& getPosition() const { return m_position; }
     void setPosition(const glm::vec2& position);
