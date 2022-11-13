@@ -8,9 +8,14 @@
 
 #include "Inari/Graphics/SpriteBatch.hpp"
 #include "Inari/Graphics/Window.hpp"
-#include "Inari/InputManager.hpp"
+
+#include "Inari/GUI/GUIManager.hpp"
+
+#include "Inari/Input/InputManager.hpp"
+
 #include "Inari/Resources/ResourceManager.hpp"
 #include "Inari/Resources/Shader.hpp"
+
 #include "Inari/Utils/GameTime.hpp"
 #include "Inari/Utils/Strings.hpp"
 
@@ -20,7 +25,8 @@ IGame::IGame()
       m_window(nullptr),
       m_spriteBatch(nullptr),
       m_resources(nullptr),
-      m_inputManager(std::make_shared<InputManager>()) {}
+      m_inputManager(std::make_shared<InputManager>()),
+      m_guiManager(nullptr) {}
 
 void IGame::run() {
     if (!m_isRunning) {
@@ -61,6 +67,9 @@ bool IGame::init() {
     // Init window
     m_window = Window::create("Inari", 1280, 720);
 
+    // Init gui
+    m_guiManager = std::make_shared<GUIManager>(m_window);
+
     // Init resources
     m_resources = ResourceManager::create();
     if (m_resources == nullptr) {
@@ -97,10 +106,15 @@ const std::shared_ptr<InputManager>& IGame::getInputManager() const {
     return m_inputManager;
 }
 
+const std::shared_ptr<GUIManager>& IGame::getGUIManager() const {
+    return m_guiManager;
+}
+
 void IGame::handleEvents() {
     m_inputManager->prepareHandling();
     SDL_Event e;
     while (SDL_PollEvent(&e) != 0) {
+        m_guiManager->handleEvent(e);
         if (e.type == SDL_QUIT) {
             m_isRunning = false;
         } else if (e.type == SDL_WINDOWEVENT &&

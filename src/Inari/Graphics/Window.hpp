@@ -30,6 +30,8 @@ class Window {
 
     void setFrameLimit(int screenFps);
 
+    void setupGui();
+
    protected:
     void begin();
     void end();

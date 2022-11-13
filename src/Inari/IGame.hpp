@@ -11,6 +11,7 @@ class Window;
 class ResourceManager;
 class InputManager;
 class GameTime;
+class GUIManager;
 
 class IGame {
    public:
@@ -36,6 +37,7 @@ class IGame {
     const std::shared_ptr<SpriteBatch>& getSpriteBatch() const;
     const std::shared_ptr<ResourceManager>& getResourceManager() const;
     const std::shared_ptr<InputManager>& getInputManager() const;
+    const std::shared_ptr<GUIManager>& getGUIManager() const;
 
    private:
     void handleEvents();
@@ -46,5 +48,6 @@ class IGame {
     std::shared_ptr<SpriteBatch> m_spriteBatch;
     std::shared_ptr<ResourceManager> m_resources;
     std::shared_ptr<InputManager> m_inputManager;
+    std::shared_ptr<GUIManager> m_guiManager;
 };
 }  // namespace inari

@@ -2,9 +2,12 @@
 
 #include <cmath>
 
+// inari
 #include "Inari/ECS/Components/RigidBody.hpp"
 #include "Inari/ECS/Components/Transform.hpp"
-#include "Inari/InputManager.hpp"
+
+#include "Inari/Input/InputManager.hpp"
+// inari
 
 #include "Game/Components/Player.hpp"
 

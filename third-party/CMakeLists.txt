@@ -1,3 +1,9 @@
+add_subdirectory(imgui)
+
+# ---------------------------
+#             stb
+# ---------------------------
+
 target_include_directories(mazeman PRIVATE stb)
 
 # ---------------------------

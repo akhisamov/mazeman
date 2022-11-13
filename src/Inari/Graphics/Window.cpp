@@ -1,5 +1,8 @@
 #include "Window.hpp"
 
+#include <imgui_impl_opengl3.h>
+#include <imgui_impl_sdl.h>
+
 #include <glad/gl.h>
 
 #include <SDL.h>
@@ -94,6 +97,11 @@ void Window::setTitle(const std::string_view& title) {
 
 void Window::setFrameLimit(int screenFps) {
     m_frameLimit = std::make_unique<int>(screenFps);
+}
+
+void Window::setupGui() {
+    ImGui_ImplSDL2_InitForOpenGL(m_data->window, m_data->glContext);
+    ImGui_ImplOpenGL3_Init("#version 330 core");
 }
 
 void Window::begin() {

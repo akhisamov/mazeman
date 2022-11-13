@@ -1,4 +1,5 @@
 add_subdirectory(Components)
+add_subdirectory(GUI)
 add_subdirectory(Prefabs)
 add_subdirectory(Systems)
 

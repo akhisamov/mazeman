@@ -14,20 +14,26 @@
 #include "Inari/Graphics/SpriteBatch.hpp"
 #include "Inari/Graphics/Window.hpp"
 
+#include "Inari/GUI/GUIManager.hpp"
+
+#include "Inari/Input/InputManager.hpp"
+
 #include "Inari/Resources/ResourceManager.hpp"
 #include "Inari/Resources/Texture2D.hpp"
 #include "Inari/Resources/World.hpp"
 
 #include "Inari/Utils/Camera2D.hpp"
 #include "Inari/Utils/Colors.hpp"
-
-#include "Inari/InputManager.hpp"
 // inari
 
 // game
 #include "Game/Components/Collision.hpp"
 #include "Game/Components/Player.hpp"
+
+#include "Game/GUI/DemoWindow.hpp"
+
 #include "Game/Prefabs/Mazeman.hpp"
+
 #include "Game/Systems/CollisionSystem.hpp"
 #include "Game/Systems/InputSystem.hpp"
 // game
@@ -65,6 +71,8 @@ bool Game::init() {
         m_systemRegistry->addSystem<InputSystem>(m_entityRegistry,
                                                  getInputManager());
         m_systemRegistry->addSystem<CollisionSystem>(m_entityRegistry);
+
+        getGUIManager()->addWindow<DemoWindow>("demo");
 
         return true;
     }
@@ -157,5 +165,6 @@ void Game::draw(const inari::GameTime& gameTime) {
         spriteRenderSystem->draw(gameTime, m_camera->getTransform());
     }
 
+    getGUIManager()->draw();
     getWindow()->display();
 }
