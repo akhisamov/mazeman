@@ -110,6 +110,87 @@ struct ImGuiImplSDL2Data {
         }
         return it != mouseCursors.end() ? it->second : nullptr;
     }
+
+    static ImGuiImplSDL2Data* get() {
+        ImGuiContext* context = ImGui::GetCurrentContext();
+        return context ? reinterpret_cast<ImGuiImplSDL2Data*>(
+                             ImGui::GetIO().BackendPlatformUserData)
+                       : nullptr;
+    }
+
+    static void init() {
+        ImGuiIO& io = ImGui::GetIO();
+        assert(io.BackendPlatformUserData == nullptr);
+        io.BackendPlatformUserData =
+            reinterpret_cast<void*>(new ImGuiImplSDL2Data());
+        io.BackendPlatformName = "imguiImplSDL";
+        io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
+        io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
+        io.SetClipboardTextFn = [](void*, const char* text) {
+            SDL_SetClipboardText(text);
+        };
+        io.GetClipboardTextFn = [](void*) -> const char* {
+            ImGuiImplSDL2Data* bd = ImGuiImplSDL2Data::get();
+            if (bd == nullptr) {
+                return "";
+            }
+            if (bd->clipboardTextData) {
+                SDL_free(bd->clipboardTextData);
+            }
+            bd->clipboardTextData = SDL_GetClipboardText();
+            return bd->clipboardTextData;
+        };
+        io.ClipboardUserData = nullptr;
+    }
+
+    static void destroy() {
+        ImGuiImplSDL2Data* bd = ImGuiImplSDL2Data::get();
+        if (bd) {
+            delete bd;
+        }
+        ImGuiIO& io = ImGui::GetIO();
+        io.BackendPlatformName = nullptr;
+        io.BackendPlatformUserData = nullptr;
+    }
+
+    static void newFrame(const std::shared_ptr<Window>& window,
+                         float frequency) {
+        ImGuiImplSDL2Data* bd = ImGuiImplSDL2Data::get();
+        assert(bd != nullptr);
+        ImGuiIO& io = ImGui::GetIO();
+        const glm::ivec2 windowSize = window->getWindowSize();
+        const glm::ivec2 drawableSize = window->getDrawableSize();
+        io.DisplaySize = vec2cast(windowSize);
+        if (windowSize.x > 0 && windowSize.y > 0) {
+            io.DisplayFramebufferScale = vec2cast(drawableSize / windowSize);
+        }
+
+        const uint64_t currentTime = GameTime::getCurrentCounter();
+        if (bd->time > 0) {
+            io.DeltaTime = static_cast<float>(
+                static_cast<double>(currentTime - bd->time) / frequency);
+        } else {
+            io.DeltaTime = defaultDeltaTime;
+        }
+        bd->time = currentTime;
+        if (bd->pendingMouseLeaveFrame &&
+            bd->pendingMouseLeaveFrame >= ImGui::GetFrameCount() &&
+            bd->mouseButtonsDown == 0) {
+            io.AddMousePosEvent(-FLT_MAX, -FLT_MAX);
+            bd->pendingMouseLeaveFrame = 0;
+        }
+
+        const ImGuiMouseCursor imguiCursor = ImGui::GetMouseCursor();
+        if (io.MouseDrawCursor || imguiCursor == ImGuiMouseCursor_None) {
+            SDL_ShowCursor(SDL_FALSE);
+        } else {
+            SDL_Cursor* cursor = bd->getCursor(imguiCursor);
+            if (cursor) {
+                SDL_SetCursor(cursor);
+            }
+            SDL_ShowCursor(cursor ? SDL_TRUE : SDL_FALSE);
+        }
+    }
 };
 }  // namespace
 
@@ -120,53 +201,20 @@ GUIManager::GUIManager(std::shared_ptr<Window> window)
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
 
-    // SDL2 Init -->
-    ImGuiIO& io = ImGui::GetIO();
-    assert(io.BackendPlatformUserData == nullptr);
-    io.BackendPlatformUserData =
-        reinterpret_cast<void*>(new ImGuiImplSDL2Data());
-    io.BackendPlatformName = "imguiImplSDL";
-    io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
-    io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
-    io.SetClipboardTextFn = [](void*, const char* text) {
-        SDL_SetClipboardText(text);
-    };
-    io.GetClipboardTextFn = [](void*) -> const char* {
-        ImGuiIO& io = ImGui::GetIO();
-        auto* bd =
-            reinterpret_cast<ImGuiImplSDL2Data*>(io.BackendPlatformUserData);
-        if (bd == nullptr) {
-            return "";
-        }
-        if (bd->clipboardTextData) {
-            SDL_free(bd->clipboardTextData);
-        }
-        bd->clipboardTextData = SDL_GetClipboardText();
-        return bd->clipboardTextData;
-    };
-    io.ClipboardUserData = nullptr;
-
+    ImGuiImplSDL2Data::init();
 #ifdef _WIN32
     HWND hwnd = m_window->getHWND();
     if (hwnd) {
         ImGui::GetMainViewport()->PlatformHandleRaw = (void*)hwnd;
     }
 #endif
-    // <-- SDL2 Init
+
     ImGui_ImplOpenGL3_Init("#version 330 core");
 }
 
 GUIManager::~GUIManager() {
     ImGui_ImplOpenGL3_Shutdown();
-
-    ImGuiIO& io = ImGui::GetIO();
-    auto* bd = reinterpret_cast<ImGuiImplSDL2Data*>(io.BackendPlatformUserData);
-    if (bd) {
-        delete bd;
-    }
-    io.BackendPlatformName = nullptr;
-    io.BackendPlatformUserData = nullptr;
-
+    ImGuiImplSDL2Data::destroy();
     ImGui::DestroyContext();
 }
 
@@ -180,45 +228,7 @@ void GUIManager::draw() {
     }
 
     ImGui_ImplOpenGL3_NewFrame();
-
-    // SDL2 NewFrame -->
-    ImGuiIO& io = ImGui::GetIO();
-    auto* bd = reinterpret_cast<ImGuiImplSDL2Data*>(io.BackendPlatformUserData);
-    assert(bd != nullptr);
-    const glm::ivec2 windowSize = m_window->getWindowSize();
-    const glm::ivec2 drawableSize = m_window->getDrawableSize();
-    io.DisplaySize = vec2cast(windowSize);
-    if (windowSize.x > 0 && windowSize.y > 0) {
-        io.DisplayFramebufferScale = vec2cast(drawableSize / windowSize);
-    }
-
-    const uint64_t currentTime = GameTime::getCurrentCounter();
-    if (bd->time > 0) {
-        io.DeltaTime = static_cast<float>(
-            static_cast<double>(currentTime - bd->time) / m_frequency);
-    } else {
-        io.DeltaTime = defaultDeltaTime;
-    }
-    bd->time = currentTime;
-    if (bd->pendingMouseLeaveFrame &&
-        bd->pendingMouseLeaveFrame >= ImGui::GetFrameCount() &&
-        bd->mouseButtonsDown == 0) {
-        io.AddMousePosEvent(-FLT_MAX, -FLT_MAX);
-        bd->pendingMouseLeaveFrame = 0;
-    }
-
-    const ImGuiMouseCursor imguiCursor = ImGui::GetMouseCursor();
-    if (io.MouseDrawCursor || imguiCursor == ImGuiMouseCursor_None) {
-        SDL_ShowCursor(SDL_FALSE);
-    } else {
-        SDL_Cursor* cursor = bd->getCursor(imguiCursor);
-        if (cursor) {
-            SDL_SetCursor(cursor);
-        }
-        SDL_ShowCursor(cursor ? SDL_TRUE : SDL_FALSE);
-    }
-    // <-- SDL2 NewFrame
-
+    ImGuiImplSDL2Data::newFrame(m_window, m_frequency);
     ImGui::NewFrame();
 
     for (const auto& [name, window] : m_windows) {
@@ -232,9 +242,9 @@ void GUIManager::draw() {
 }
 
 void GUIManager::handleEvent(const SDL_Event& event) {
-    ImGuiIO& io = ImGui::GetIO();
-    auto* bd = reinterpret_cast<ImGuiImplSDL2Data*>(io.BackendPlatformUserData);
+    ImGuiImplSDL2Data* bd = ImGuiImplSDL2Data::get();
     assert(bd != nullptr);
+    ImGuiIO& io = ImGui::GetIO();
 
     switch (event.type) {
         case SDL_MOUSEMOTION: {
