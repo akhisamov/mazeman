@@ -1,11 +1,9 @@
 #include "Window.hpp"
 
-#include <imgui_impl_opengl3.h>
-#include <imgui_impl_sdl.h>
-
 #include <glad/gl.h>
 
 #include <SDL.h>
+#include <SDL_syswm.h>
 
 #include <stdexcept>
 
@@ -89,6 +87,14 @@ glm::ivec2 Window::getWindowSize() const {
     return size;
 }
 
+glm::ivec2 Window::getDrawableSize() const {
+    glm::ivec2 size{};
+    if (m_data->window) {
+        SDL_GL_GetDrawableSize(m_data->window, &size.x, &size.y);
+    }
+    return size;
+}
+
 void Window::setTitle(const std::string_view& title) {
     if (m_data->window) {
         SDL_SetWindowTitle(m_data->window, title.data());
@@ -99,14 +105,10 @@ void Window::setFrameLimit(int screenFps) {
     m_frameLimit = std::make_unique<int>(screenFps);
 }
 
-void Window::setupGui() {
-    ImGui_ImplSDL2_InitForOpenGL(m_data->window, m_data->glContext);
-    ImGui_ImplOpenGL3_Init("#version 330 core");
-}
-
 void Window::begin() {
     m_data->startCounter = SDL_GetPerformanceCounter();
 }
+
 void Window::end() {
     const uint64_t endCounter = SDL_GetPerformanceCounter();
     if (m_frameLimit) {
@@ -120,4 +122,15 @@ void Window::end() {
         }
     }
 }
+
+#ifdef _WIN32
+HWND Window::getHWND() const {
+    SDL_SysWMinfo info;
+    SDL_VERSION(&info.version);
+    if (SDL_GetWindowWMInfo(m_data->window, &info)) {
+        return info.info.win.window;
+    }
+    return nullptr;
+}
+#endif
 }  // namespace inari

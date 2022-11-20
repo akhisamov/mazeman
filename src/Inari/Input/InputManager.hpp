@@ -9,6 +9,7 @@ namespace inari {
 
 class InputManager {
     friend class IGame;
+    friend class GUIManager;
 
    public:
     InputManager() = default;
@@ -26,6 +27,8 @@ class InputManager {
    protected:
     void prepareHandling();
     void handleEvent(const SDL_KeyboardEvent& event);
+
+    static int keycodeToGuiKey(SDL_Keycode keyCode);
 
    private:
     enum class KeyState { RELEASED = 0, PRESSED = 1, DOWN = 2, UP = 3 };

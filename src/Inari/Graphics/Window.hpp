@@ -7,9 +7,14 @@
 #include <memory>
 #include <string_view>
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 namespace inari {
 class Window {
     friend class IGame;
+    friend class GUIManager;
 
    public:
     static std::shared_ptr<Window> create(const std::string_view& title,
@@ -26,15 +31,19 @@ class Window {
     void setWindowSize(const glm::ivec2& size);
     glm::ivec2 getWindowSize() const;
 
+    glm::ivec2 getDrawableSize() const;
+
     void setTitle(const std::string_view& title);
 
     void setFrameLimit(int screenFps);
 
-    void setupGui();
-
    protected:
     void begin();
     void end();
+
+#ifdef _WIN32
+    HWND getHWND() const;
+#endif
 
    private:
     std::unique_ptr<struct WindowData> m_data;

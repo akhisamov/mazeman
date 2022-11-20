@@ -15,7 +15,7 @@ class GUIManager final {
     friend class IGame;
 
    public:
-    GUIManager(const std::shared_ptr<Window>& window);
+    GUIManager(std::shared_ptr<Window> window);
     ~GUIManager();
 
     GUIManager() = delete;
@@ -35,6 +35,10 @@ class GUIManager final {
     void handleEvent(const SDL_Event& event);
 
    private:
+    std::shared_ptr<Window> m_window;
+
     std::unordered_map<std::string, GUIWindowPtr> m_windows;
+
+    const uint64_t m_frequency;
 };
 }  // namespace inari

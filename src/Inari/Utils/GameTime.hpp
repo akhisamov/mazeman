@@ -14,6 +14,9 @@ class GameTime {
 
     static uint32_t getCurrentTicks();
 
+    static uint64_t getFrequency();
+    static uint64_t getCurrentCounter();
+
    protected:
     void reset();
 

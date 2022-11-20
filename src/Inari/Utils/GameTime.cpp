@@ -20,6 +20,14 @@ uint32_t GameTime::getCurrentTicks() {
     return SDL_GetTicks();
 }
 
+uint64_t GameTime::getFrequency() {
+    return SDL_GetPerformanceFrequency();
+}
+
+uint64_t GameTime::getCurrentCounter() {
+    return SDL_GetPerformanceCounter();
+}
+
 void GameTime::reset() {
     m_lastTicks = m_currentTicks;
     m_currentTicks = getCurrentTicks();
