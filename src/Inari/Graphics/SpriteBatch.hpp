@@ -8,16 +8,20 @@
 #include <memory>
 #include <vector>
 
+#include "VertexLayout.hpp"
+
 namespace inari {
 class Texture2D;
 class Shader;
+class Renderer;
 struct SpriteData;
 
 enum class SpriteSortMode { DEFERRED, IMMEDIATE, TEXTURE };
 
 class SpriteBatch {
    public:
-    explicit SpriteBatch(std::shared_ptr<Shader> spriteShader);
+    explicit SpriteBatch(const std::shared_ptr<Renderer>& renderer,
+                         std::shared_ptr<Shader> spriteShader);
     ~SpriteBatch();
 
     SpriteBatch() = delete;
@@ -63,13 +67,13 @@ class SpriteBatch {
     void flush();
     void flushData(const SpriteData& data);
 
+    std::weak_ptr<Renderer> m_rendererPtr;
+
     bool m_isBegan;
     bool m_isWireframeMode;
 
     std::shared_ptr<Shader> m_shader;
-    uint32_t m_vao;
-    uint32_t m_vbo;
-    uint32_t m_ebo;
+    VertexLayout m_layout;
 
     glm::mat4 m_transformMatrix;
     SpriteSortMode m_sortMode;

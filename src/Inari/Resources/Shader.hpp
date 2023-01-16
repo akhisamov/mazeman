@@ -34,6 +34,8 @@ class Shader final : public IResource {
     void set(const std::string_view& name, const glm::vec4& value) const;
     void set(const std::string_view& name, const glm::mat4& matrix) const;
 
+    int32_t getAttributePosition(const std::string_view& name) const;
+
    private:
     uint32_t m_id;
 };

@@ -1,6 +1,6 @@
 #include "Shader.hpp"
 
-#include <glad/gl.h>
+#include <glad/glad.h>
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -122,5 +122,8 @@ void Shader::set(const std::string_view& name, const glm::vec4& value) const {
 void Shader::set(const std::string_view& name, const glm::mat4& matrix) const {
     glUniformMatrix4fv(glGetUniformLocation(m_id, name.data()), 1, false,
                        glm::value_ptr(matrix));
+}
+int32_t Shader::getAttributePosition(const std::string_view& name) const {
+    return glGetAttribLocation(m_id, name.data());
 }
 }  // namespace inari

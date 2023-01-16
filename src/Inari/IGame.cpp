@@ -6,6 +6,7 @@
 
 #include <iostream>
 
+#include "Inari/Graphics/Renderer.hpp"
 #include "Inari/Graphics/SpriteBatch.hpp"
 #include "Inari/Graphics/Window.hpp"
 #include "Inari/InputManager.hpp"
@@ -18,6 +19,7 @@ namespace inari {
 IGame::IGame()
     : m_isRunning(false),
       m_window(nullptr),
+      m_renderer(nullptr),
       m_spriteBatch(nullptr),
       m_resources(nullptr),
       m_inputManager(std::make_shared<InputManager>()) {}
@@ -61,6 +63,9 @@ bool IGame::init() {
     // Init window
     m_window = Window::create("Inari", 1280, 720);
 
+    // Init renderer
+    m_renderer = std::make_shared<Renderer>();
+
     // Init resources
     m_resources = ResourceManager::create();
     if (m_resources == nullptr) {
@@ -69,12 +74,12 @@ bool IGame::init() {
     m_resources->addSearchPath(".");
     m_resources->addFileData("sprite", shaders::sprite);
 
-    // Init renderer
+    // Init sprite batch
     const auto& spriteShader = m_resources->load<Shader>("sprite");
     if (spriteShader == nullptr) {
         return false;
     }
-    m_spriteBatch = std::make_shared<SpriteBatch>(spriteShader);
+    m_spriteBatch = std::make_shared<SpriteBatch>(m_renderer, spriteShader);
 
     m_isRunning = true;
 
@@ -83,6 +88,10 @@ bool IGame::init() {
 
 const std::shared_ptr<ResourceManager>& IGame::getResourceManager() const {
     return m_resources;
+}
+
+const std::shared_ptr<Renderer>& IGame::getRenderer() const {
+    return m_renderer;
 }
 
 const std::shared_ptr<SpriteBatch>& IGame::getSpriteBatch() const {

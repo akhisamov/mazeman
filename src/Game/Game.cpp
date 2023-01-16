@@ -11,6 +11,7 @@
 #include "Inari/ECS/Systems/PhysicsSystem.hpp"
 #include "Inari/ECS/Systems/SpriteRenderSystem.hpp"
 
+#include "Inari/Graphics/Renderer.hpp"
 #include "Inari/Graphics/SpriteBatch.hpp"
 #include "Inari/Graphics/Window.hpp"
 
@@ -149,7 +150,7 @@ void Game::draw(const inari::GameTime& gameTime) {
         const inari::WorldLevel& level = world->getLevel(0);
         bgColor = level.backgroundColor;
     }
-    getWindow()->clear(bgColor);
+    getRenderer()->clear(bgColor);
 
     auto spriteRenderSystem =
         m_systemRegistry->getSystem<inari::SpriteRenderSystem>();

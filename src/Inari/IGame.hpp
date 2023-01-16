@@ -6,8 +6,9 @@
 #include <string>
 
 namespace inari {
-class SpriteBatch;
 class Window;
+class Renderer;
+class SpriteBatch;
 class ResourceManager;
 class InputManager;
 class GameTime;
@@ -33,6 +34,7 @@ class IGame {
     virtual void draw(const GameTime& gameTime) = 0;
 
     const std::shared_ptr<Window>& getWindow() const;
+    const std::shared_ptr<Renderer>& getRenderer() const;
     const std::shared_ptr<SpriteBatch>& getSpriteBatch() const;
     const std::shared_ptr<ResourceManager>& getResourceManager() const;
     const std::shared_ptr<InputManager>& getInputManager() const;
@@ -43,6 +45,7 @@ class IGame {
     bool m_isRunning;
 
     std::shared_ptr<Window> m_window;
+    std::shared_ptr<Renderer> m_renderer;
     std::shared_ptr<SpriteBatch> m_spriteBatch;
     std::shared_ptr<ResourceManager> m_resources;
     std::shared_ptr<InputManager> m_inputManager;

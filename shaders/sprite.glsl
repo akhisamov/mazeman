@@ -5,12 +5,14 @@ layout(location = 1) in vec2 in_uv;
 out vec2 uv;
 
 uniform mat4 transform;
+uniform mat4 model;
+uniform mat4 uv_model;
 
 void main()
 {
-    gl_Position = transform * vec4(in_position, 0, 1);
+    gl_Position = transform * model * vec4(in_position, 0, 1);
 
-    uv = in_uv;
+    uv = (uv_model * vec4(in_uv, 0, 1)).xy;
 }
 #endif // VERTEX_SHADER
 

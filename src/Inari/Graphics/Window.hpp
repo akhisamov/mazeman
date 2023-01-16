@@ -19,8 +19,6 @@ class Window {
     explicit Window(std::unique_ptr<struct WindowData>&& data);
     ~Window();
 
-    void clear(const glm::vec4& color);
-    void clear(const glm::vec3& color);
     void display();
 
     void setWindowSize(const glm::ivec2& size);

@@ -1,6 +1,6 @@
 #include "Window.hpp"
 
-#include <glad/gl.h>
+#include <glad/glad.h>
 
 #include <SDL.h>
 
@@ -43,7 +43,7 @@ std::shared_ptr<Window> Window::create(const std::string_view& title,
         return nullptr;
     }
 
-    if (!gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress)) {
+    if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
         data->destroy();
         return nullptr;
     }
@@ -57,15 +57,6 @@ Window::Window(std::unique_ptr<struct WindowData>&& data)
 Window::~Window() {
     m_data->destroy();
     SDL_Quit();
-}
-
-void Window::clear(const glm::vec4& color) {
-    glClearColor(color.r, color.g, color.b, color.a);
-    glClear(GL_COLOR_BUFFER_BIT);
-}
-
-void Window::clear(const glm::vec3& color) {
-    clear(glm::vec4(color, 1.0f));
 }
 
 void Window::display() {
