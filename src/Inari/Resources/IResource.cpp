@@ -4,10 +4,11 @@
 
 namespace inari {
 
-IResource::IResource() : m_uuid(random::generateUUID()) {}
+    IResource::IResource()
+        : m_uuid(random::generateUUID())
+    {
+    }
 
-const std::string& IResource::getUUID() const {
-    return m_uuid;
-}
+    const std::string& IResource::getUUID() const { return m_uuid; }
 
-}  // namespace inari
+} // namespace inari

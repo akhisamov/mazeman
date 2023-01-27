@@ -4,10 +4,9 @@
 
 // Simple AABB collision detection system
 class CollisionSystem : public inari::ISystem {
-   public:
+public:
     explicit CollisionSystem(std::shared_ptr<inari::EntityRegistry> registry);
 
-   protected:
-    void update(const inari::GameTime& gameTime,
-                const inari::EntityPtr& entity) override;
+protected:
+    void update(const inari::GameTime& gameTime, const inari::EntityPtr& entity) override;
 };

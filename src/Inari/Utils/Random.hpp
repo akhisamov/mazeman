@@ -3,5 +3,5 @@
 #include <string>
 
 namespace inari::random {
-std::string generateUUID();
+    std::string generateUUID();
 }

@@ -6,23 +6,8 @@
 #include <vector>
 
 namespace inari {
-struct VertexLayout;
-struct Primitive;
-
-class Renderer {
-   public:
-    Renderer();
-    ~Renderer();
-
-    Renderer(Renderer&&) = delete;
-    Renderer(const Renderer&) = delete;
-    Renderer& operator=(Renderer&&) = delete;
-    Renderer& operator=(const Renderer&) = delete;
-
-    void clear(const glm::vec4& color);
-    void clear(const glm::vec3& color);
-
-    void setWireframe(bool value);
+    struct VertexLayout;
+    struct Primitive;
 
     enum class BlendParam {
         ZERO,
@@ -45,19 +30,34 @@ class Renderer {
         SRC1_ALPHA,
         ONE_MINUS_SRC1_ALPHA
     };
-    void enableBlend(BlendParam source, BlendParam destination);
+    class Renderer {
+    public:
+        Renderer();
+        ~Renderer();
 
-    void activeTexture(uint32_t idx);
+        Renderer(Renderer&&) = delete;
+        Renderer(const Renderer&) = delete;
+        Renderer& operator=(Renderer&&) = delete;
+        Renderer& operator=(const Renderer&) = delete;
 
-    void setVertexLayout(const VertexLayout& layout);
+        void clear(const glm::vec4& color);
+        void clear(const glm::vec3& color);
 
-    void drawPrimitive(const Primitive& primitive);
+        void setWireframe(bool value);
 
-   private:
-    uint32_t m_vao;
-    uint32_t m_vbo;
-    uint32_t m_ebo;
+        void enableBlend(BlendParam source, BlendParam destination);
 
-    std::vector<int32_t> m_attributePositions;
-};
-}  // namespace inari
+        void activeTexture(uint32_t idx);
+
+        void setVertexLayout(const VertexLayout& layout);
+
+        void drawPrimitive(const Primitive& primitive);
+
+    private:
+        uint32_t m_vao;
+        uint32_t m_vbo;
+        uint32_t m_ebo;
+
+        std::vector<int32_t> m_attributePositions;
+    };
+} // namespace inari

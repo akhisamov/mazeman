@@ -8,13 +8,15 @@
 
 #include "Game/Components/Player.hpp"
 
-InputSystem::InputSystem(
-    std::shared_ptr<inari::EntityRegistry> registry,
-    const std::shared_ptr<inari::InputManager>& inputManager)
-    : ISystem(std::move(registry)), m_inputPtr(inputManager) {}
+InputSystem::InputSystem(std::shared_ptr<inari::EntityRegistry> registry,
+                         const std::shared_ptr<inari::InputManager>& inputManager)
+    : ISystem(std::move(registry))
+    , m_inputPtr(inputManager)
+{
+}
 
-void InputSystem::update(const inari::GameTime& gameTime,
-                         const inari::EntityPtr& entity) {
+void InputSystem::update(const inari::GameTime& gameTime, const inari::EntityPtr& entity)
+{
     auto inputManager = m_inputPtr.lock();
     if (inputManager == nullptr) {
         return;
@@ -22,8 +24,7 @@ void InputSystem::update(const inari::GameTime& gameTime,
 
     auto* transform = getRegistry()->getComponent<inari::Transform>(entity);
     auto* rigidBody = getRegistry()->getComponent<inari::RigidBody>(entity);
-    if (rigidBody == nullptr || transform == nullptr ||
-        !getRegistry()->hasComponent<Player>(entity)) {
+    if (rigidBody == nullptr || transform == nullptr || !getRegistry()->hasComponent<Player>(entity)) {
         return;
     }
 
@@ -43,7 +44,6 @@ void InputSystem::update(const inari::GameTime& gameTime,
     }
 
     if (rigidBody->velocity != glm::vec2(0.0f)) {
-        transform->radian =
-            std::atan2(-rigidBody->velocity.y, -rigidBody->velocity.x);
+        transform->radian = std::atan2(-rigidBody->velocity.y, -rigidBody->velocity.x);
     }
 }

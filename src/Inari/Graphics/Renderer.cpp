@@ -9,8 +9,9 @@
 using namespace inari;
 
 namespace {
-constexpr GLenum cast(PrimitiveType type) {
-    switch (type) {
+    constexpr GLenum cast(PrimitiveType type)
+    {
+        switch (type) {
         case PrimitiveType::LINES:
             return GL_LINES;
         case PrimitiveType::LINE_STRIP:
@@ -26,11 +27,12 @@ constexpr GLenum cast(PrimitiveType type) {
         case PrimitiveType::NONE:
         default:
             return GL_NONE;
+        }
     }
-}
-constexpr GLenum cast(Renderer::BlendParam value) {
-    using B = Renderer::BlendParam;
-    switch (value) {
+    constexpr GLenum cast(BlendParam value)
+    {
+        using B = BlendParam;
+        switch (value) {
         case B::ZERO:
             return GL_ZERO;
         case B::ONE:
@@ -69,52 +71,56 @@ constexpr GLenum cast(Renderer::BlendParam value) {
             return GL_SRC1_ALPHA;
         case B::ONE_MINUS_SRC1_ALPHA:
             return GL_ONE_MINUS_SRC1_ALPHA;
+        }
     }
-}
-}  // namespace
+} // namespace
 
-Renderer::Renderer() : m_vao(0), m_vbo(0), m_ebo(0) {
+Renderer::Renderer()
+    : m_vao(0)
+    , m_vbo(0)
+    , m_ebo(0)
+{
     glGenVertexArrays(1, &m_vao);
     glGenBuffers(1, &m_vbo);
     glGenBuffers(1, &m_ebo);
 }
-Renderer::~Renderer() {
+Renderer::~Renderer()
+{
     glDeleteBuffers(1, &m_ebo);
     glDeleteBuffers(1, &m_vbo);
     glDeleteVertexArrays(1, &m_vao);
 }
 
-void Renderer::clear(const glm::vec4& color) {
+void Renderer::clear(const glm::vec4& color)
+{
     glClearColor(color.r, color.g, color.b, color.a);
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void Renderer::clear(const glm::vec3& color) {
-    clear({color, 1.0f});
-}
+void Renderer::clear(const glm::vec3& color) { clear({ color, 1.0f }); }
 
-void Renderer::setWireframe(bool value) {
-    glPolygonMode(GL_FRONT_AND_BACK, value ? GL_LINE : GL_FILL);
-}
+void Renderer::setWireframe(bool value) { glPolygonMode(GL_FRONT_AND_BACK, value ? GL_LINE : GL_FILL); }
 
-void Renderer::enableBlend(BlendParam source, BlendParam destination) {
+void Renderer::enableBlend(BlendParam source, BlendParam destination)
+{
     glEnable(GL_BLEND);
     glBlendFunc(cast(source), cast(destination));
 }
 
-void Renderer::activeTexture(uint32_t idx) {
+void Renderer::activeTexture(uint32_t idx)
+{
     assert(idx < 32);
     glActiveTexture(GL_TEXTURE0 + idx);
 }
 
-void Renderer::setVertexLayout(const VertexLayout& layout) {
+void Renderer::setVertexLayout(const VertexLayout& layout)
+{
     m_attributePositions.clear();
     glBindVertexArray(m_vao);
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     for (auto [position, data] : layout.attributes) {
         glEnableVertexAttribArray(position);
-        glVertexAttribPointer(position, data.size, GL_FLOAT, data.normalized,
-                              data.stride,
+        glVertexAttribPointer(position, data.size, GL_FLOAT, data.normalized, data.stride,
                               reinterpret_cast<void*>(data.offset));
         glDisableVertexAttribArray(position);
         m_attributePositions.push_back(position);
@@ -123,28 +129,23 @@ void Renderer::setVertexLayout(const VertexLayout& layout) {
     glBindVertexArray(0);
 }
 
-void Renderer::drawPrimitive(const Primitive& primitive) {
+void Renderer::drawPrimitive(const Primitive& primitive)
+{
     glBindVertexArray(m_vao);
-    const auto verticesSize =
-        static_cast<GLsizeiptr>(sizeof(float) * primitive.vertices.size());
+    const auto verticesSize = static_cast<GLsizeiptr>(sizeof(float) * primitive.vertices.size());
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, verticesSize, primitive.vertices.data(),
-                 GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, verticesSize, primitive.vertices.data(), GL_STATIC_DRAW);
 
-    std::for_each(m_attributePositions.begin(), m_attributePositions.end(),
-                  glEnableVertexAttribArray);
+    std::for_each(m_attributePositions.begin(), m_attributePositions.end(), glEnableVertexAttribArray);
 
-    const auto indicesSize = static_cast<GLsizeiptr>(
-        sizeof(decltype(primitive.indices)::value_type) *
-        primitive.indices.size());
+    const auto indicesSize
+        = static_cast<GLsizeiptr>(sizeof(decltype(primitive.indices)::value_type) * primitive.indices.size());
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, primitive.indices.data(),
-                 GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, primitive.indices.data(), GL_STATIC_DRAW);
     glDrawElements(cast(primitive.type), 6, GL_UNSIGNED_INT, nullptr);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    std::for_each(m_attributePositions.rbegin(), m_attributePositions.rend(),
-                  glDisableVertexAttribArray);
+    std::for_each(m_attributePositions.rbegin(), m_attributePositions.rend(), glDisableVertexAttribArray);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);

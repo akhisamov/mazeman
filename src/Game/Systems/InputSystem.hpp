@@ -3,19 +3,17 @@
 #include "Inari/ECS/Systems/ISystem.hpp"
 
 namespace inari {
-class InputManager;
+    class InputManager;
 }
 
 class InputSystem : public inari::ISystem {
-   public:
-    explicit InputSystem(
-        std::shared_ptr<inari::EntityRegistry> registry,
-        const std::shared_ptr<inari::InputManager>& inputManager);
+public:
+    explicit InputSystem(std::shared_ptr<inari::EntityRegistry> registry,
+                         const std::shared_ptr<inari::InputManager>& inputManager);
 
-   protected:
-    void update(const inari::GameTime& gameTime,
-                const inari::EntityPtr& entity) override;
+protected:
+    void update(const inari::GameTime& gameTime, const inari::EntityPtr& entity) override;
 
-   private:
+private:
     std::weak_ptr<inari::InputManager> m_inputPtr;
 };
