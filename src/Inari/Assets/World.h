@@ -7,12 +7,12 @@
 #include <any>
 #include <map>
 #include <memory>
+#include <string>
 #include <vector>
 
-#include "Inari/Resources/IResource.hpp"
+#include "Inari/Assets/IAsset.h"
 
 namespace inari {
-
     struct LevelTile {
         glm::vec2 position;
         glm::vec4 sourceRect;
@@ -44,21 +44,28 @@ namespace inari {
         std::map<std::string, LevelLayer> layers;
     };
 
-    class World : public IResource {
-    protected:
-        struct Data;
+    class World final : public IAsset {
+        friend class WorldMaker;
 
     public:
-        static std::shared_ptr<World> createFromData(const std::string_view& data);
+        const WorldLevel& getLevel(int idx) const;
 
+    protected:
+        struct Data {
+            std::map<std::string, WorldLevel> levels;
+        };
+
+    public:
         explicit World(std::unique_ptr<Data>&& data);
-        World() = delete;
         ~World() override;
 
-        const WorldLevel& getLevel(int idx) const;
+        World() = delete;
+        World(World&&) = delete;
+        World(const World&) = delete;
+        World& operator=(World&&) = delete;
+        World& operator=(const World&) = delete;
 
     private:
         std::unique_ptr<Data> m_data;
     };
-
-} // namespace inari
+}

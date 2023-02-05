@@ -1,17 +1,16 @@
-﻿#include "IGame.hpp"
+﻿#include "IGame.h"
 
 #include <SDL.h>
 
-#include <Generated/shaders/sprite.hpp>
-
 #include <iostream>
 
+#include "Inari/Assets/AssetsManager.h"
+#include "Inari/Assets/Shader.h"
+#include "Inari/GameServices.h"
 #include "Inari/Graphics/Renderer.hpp"
 #include "Inari/Graphics/SpriteBatch.hpp"
 #include "Inari/Graphics/Window.hpp"
 #include "Inari/InputManager.hpp"
-#include "Inari/Resources/ResourceManager.hpp"
-#include "Inari/Resources/Shader.hpp"
 #include "Inari/Utils/GameTime.hpp"
 
 namespace inari {
@@ -20,7 +19,7 @@ namespace inari {
         , m_window(nullptr)
         , m_renderer(nullptr)
         , m_spriteBatch(nullptr)
-        , m_resources(nullptr)
+        , m_assets(nullptr)
         , m_inputManager(std::make_shared<InputManager>())
     {
     }
@@ -69,27 +68,21 @@ namespace inari {
         // Init renderer
         m_renderer = std::make_shared<Renderer>();
 
-        // Init resources
-        m_resources = ResourceManager::create();
-        if (m_resources == nullptr) {
+        // Init assets
+        m_assets = AssetsManager::create();
+        if (m_assets == nullptr) {
             return false;
         }
-        m_resources->addSearchPath(".");
-        m_resources->addFileData("sprite", shaders::sprite);
+        m_assets->addSearchPath(".");
+        GameServices::provide(m_assets);
 
         // Init sprite batch
-        const auto& spriteShader = m_resources->load<Shader>("sprite");
-        if (spriteShader == nullptr) {
-            return false;
-        }
-        m_spriteBatch = std::make_shared<SpriteBatch>(m_renderer, spriteShader);
+        m_spriteBatch = std::make_shared<SpriteBatch>(m_renderer);
 
         m_isRunning = true;
 
         return true;
     }
-
-    const std::shared_ptr<ResourceManager>& IGame::getResourceManager() const { return m_resources; }
 
     const std::shared_ptr<Renderer>& IGame::getRenderer() const { return m_renderer; }
 
@@ -113,4 +106,4 @@ namespace inari {
             }
         }
     }
-} // namespace inari
+}

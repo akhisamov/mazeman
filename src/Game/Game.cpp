@@ -1,4 +1,4 @@
-#include "Game.hpp"
+#include "Game.h"
 
 #include <SDL_keycode.h>
 
@@ -15,19 +15,19 @@
 #include "Inari/Graphics/SpriteBatch.hpp"
 #include "Inari/Graphics/Window.hpp"
 
-#include "Inari/Resources/ResourceManager.hpp"
-#include "Inari/Resources/Texture2D.hpp"
-#include "Inari/Resources/World.hpp"
+#include "Inari/Assets/AssetsManager.h"
+#include "Inari/Assets/Texture2D.h"
+#include "Inari/Assets/World.h"
 
 #include "Inari/Utils/Camera2D.hpp"
 #include "Inari/Utils/Colors.hpp"
 
+#include "Inari/GameServices.h"
 #include "Inari/InputManager.hpp"
 // inari
 
 // game
 #include "Game/Components/Collision.hpp"
-#include "Game/Components/Player.hpp"
 #include "Game/Prefabs/Mazeman.hpp"
 #include "Game/Systems/CollisionSystem.hpp"
 #include "Game/Systems/InputSystem.hpp"
@@ -75,7 +75,12 @@ bool Game::init()
 
 void Game::loadResources()
 {
-    auto world = getResourceManager()->load<inari::World>(constants::worldFilename);
+    const auto& assets = inari::GameServices::get<inari::AssetsManager>();
+    if (assets == nullptr) {
+        return;
+    }
+
+    auto world = assets->load<inari::World>(constants::worldFilename);
     if (world) {
         const inari::WorldLevel& level = world->getLevel(0);
         m_camera->setScale(glm::vec2(level.size.y / m_camera->getWindowSize().y));
@@ -84,7 +89,7 @@ void Game::loadResources()
             auto it = level.layers.find("Collisions");
             for (const auto& tile : it->second.tiles) {
                 inari::Sprite sprite;
-                sprite.texture = getResourceManager()->load<inari::Texture2D>("res/walls.png");
+                sprite.texture = assets->load<inari::Texture2D>("res/walls.png");
                 sprite.sourceRect = tile.sourceRect;
 
                 inari::Transform transform;
@@ -104,19 +109,31 @@ void Game::loadResources()
         {
             auto it = level.layers.find("Spawns")->second.entityInstances.find("MazeMan");
             const inari::LevelEntityInstance entityInstance = it->second;
-            prefabs::createMazeman(m_entityRegistry, getResourceManager()->load<inari::Texture2D>("res/mazeman.png"),
+            prefabs::createMazeman(m_entityRegistry, assets->load<inari::Texture2D>("res/mazeman.png"),
                                    entityInstance.position, entityInstance.get<float>("angle"));
         }
     }
 }
 
-void Game::unloadResources() { getResourceManager()->unload<inari::Texture2D>("res/mazeman.png"); }
+void Game::unloadResources()
+{
+    const auto& assets = inari::GameServices::get<inari::AssetsManager>();
+    if (assets == nullptr) {
+        return;
+    }
+    assets->unload("res/mazeman.png");
+}
 
 void Game::handleWindowResized(const glm::ivec2& size)
 {
     m_camera->setWindowSize(size);
 
-    auto world = getResourceManager()->load<inari::World>(constants::worldFilename);
+    const auto& assets = inari::GameServices::get<inari::AssetsManager>();
+    if (assets == nullptr) {
+        return;
+    }
+
+    auto world = assets->load<inari::World>(constants::worldFilename);
     if (world) {
         const inari::WorldLevel& level = world->getLevel(0);
         m_camera->setScale(glm::vec2(level.size.y / m_camera->getWindowSize().y));
@@ -138,10 +155,13 @@ void Game::update(const inari::GameTime& gameTime)
 void Game::draw(const inari::GameTime& gameTime)
 {
     glm::vec3 bgColor(0.0f);
-    auto world = getResourceManager()->load<inari::World>(constants::worldFilename);
-    if (world) {
-        const inari::WorldLevel& level = world->getLevel(0);
-        bgColor = level.backgroundColor;
+    const auto& assets = inari::GameServices::get<inari::AssetsManager>();
+    if (assets) {
+        auto world = assets->load<inari::World>(constants::worldFilename);
+        if (world) {
+            const inari::WorldLevel& level = world->getLevel(0);
+            bgColor = level.backgroundColor;
+        }
     }
     getRenderer()->clear(bgColor);
 

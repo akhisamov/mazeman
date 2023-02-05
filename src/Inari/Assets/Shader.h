@@ -2,27 +2,15 @@
 
 #include <glm/mat4x4.hpp>
 
-#include <map>
-#include <memory>
-#include <string>
+#include <string_view>
 
-#include "Inari/Resources/IResource.hpp"
+#include "Inari/Assets/IAsset.h"
 
 namespace inari {
-    class Shader final : public IResource {
-    protected:
-        struct Data {
-            uint32_t id = 0;
-        };
+    class Shader final : public IAsset {
+        friend class ShaderMaker;
 
     public:
-        static std::shared_ptr<Shader> create(const std::string_view& vertexCode, const std::string_view& fragmentCode);
-        static std::shared_ptr<Shader> createFromData(const std::string_view& data);
-
-        explicit Shader(const Data& data);
-        Shader() = delete;
-        ~Shader() override;
-
         void use() const;
 
         void set(const std::string_view& name, int value) const;
@@ -35,7 +23,22 @@ namespace inari {
 
         int32_t getAttributePosition(const std::string_view& name) const;
 
+    protected:
+        struct Data {
+            uint32_t id = 0;
+        };
+
+    public:
+        explicit Shader(const Data& data);
+        ~Shader() override;
+
+        Shader() = delete;
+        Shader(Shader&&) = delete;
+        Shader(const Shader&) = delete;
+        Shader& operator=(Shader&&) = delete;
+        Shader& operator=(const Shader&) = delete;
+
     private:
         uint32_t m_id;
     };
-} // namespace inari
+}

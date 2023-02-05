@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "Game.hpp"
+#include "Game.h"
 
 int main(int argc, char* argv[])
 {

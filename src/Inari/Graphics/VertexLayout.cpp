@@ -1,6 +1,6 @@
 #include "VertexLayout.hpp"
 
-#include "Inari/Resources/Shader.hpp"
+#include "Inari/Assets/Shader.h"
 
 #include "AttributeData.hpp"
 

@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Inari/IGame.hpp"
+#include "Inari/IGame.h"
 
 namespace inari {
     class EntityRegistry;
     class SystemRegistry;
     class Camera2D;
     class GameTime;
-} // namespace inari
+}
 
 class Game final : public inari::IGame {
 public:

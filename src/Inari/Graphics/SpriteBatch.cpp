@@ -8,8 +8,10 @@
 #include "Primitive.hpp"
 #include "Renderer.hpp"
 
-#include "Inari/Resources/Shader.hpp"
-#include "Inari/Resources/Texture2D.hpp"
+#include "Inari/Assets/Shader.h"
+#include "Inari/Assets/ShaderMaker.h"
+#include "Inari/Assets/Shaders/SpriteShader.h"
+#include "Inari/Assets/Texture2D.h"
 
 using namespace inari;
 
@@ -56,11 +58,11 @@ namespace inari {
     };
 } // namespace inari
 
-SpriteBatch::SpriteBatch(const std::shared_ptr<Renderer>& renderer, std::shared_ptr<Shader> spriteShader)
+SpriteBatch::SpriteBatch(const std::shared_ptr<Renderer>& renderer)
     : m_rendererPtr(renderer)
     , m_isBegan(false)
     , m_isWireframeMode(false)
-    , m_shader(std::move(spriteShader))
+    , m_shader(std::dynamic_pointer_cast<Shader>(ShaderMaker {}.createAsset(shaders::sprite)))
     , m_layout(m_shader, ATTRIBUTES)
     , m_transformMatrix(1.0f)
     , m_sortMode(SpriteSortMode::DEFERRED)
