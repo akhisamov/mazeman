@@ -1,12 +1,11 @@
-#include "World.hpp"
+#include "WorldMaker.h"
 
 #include <nlohmann/json.hpp>
 
+#include "Inari/Assets/World.h"
 #include "Inari/Utils/Colors.hpp"
 
 namespace {
-    constexpr std::string_view levelPrefix = "Level_";
-
     std::any createAny(const std::string_view& type, const nlohmann::json& value)
     {
         if (type == "Int") {
@@ -27,10 +26,9 @@ namespace {
 
         return value.get<std::string>();
     }
-} // namespace
+}
 
 namespace inari {
-
     void from_json(const nlohmann::json& j, LevelTile& tile)
     {
         j.at("px").at(0).get_to(tile.position.x);
@@ -98,37 +96,15 @@ namespace inari {
         }
     }
 
-    struct World::Data {
-        std::map<std::string, WorldLevel> levels;
-
-        friend void from_json(const nlohmann::json& j, World::Data& data)
-        {
-            for (auto& element : j.at("levels")) {
-                WorldLevel level;
-                element.get_to(level);
-                data.levels[level.identifier] = level;
-            }
-        }
-    };
-
-    std::shared_ptr<World> World::createFromData(const std::string_view& data)
+    std::shared_ptr<IAsset> WorldMaker::createAsset(const std::string_view& data)
     {
         auto jsonData = nlohmann::json::parse(data);
-        auto worldData = std::make_unique<Data>(jsonData.get<World::Data>());
+        auto worldData = std::make_unique<World::Data>();
+        for (auto& element : jsonData.at("levels")) {
+            WorldLevel level;
+            element.get_to(level);
+            worldData->levels[level.identifier] = level;
+        }
         return std::make_shared<World>(std::move(worldData));
     }
-
-    World::World(std::unique_ptr<Data>&& data)
-        : m_data(std::move(data))
-    {
-    }
-    World::~World() = default;
-
-    const WorldLevel& World::getLevel(int idx) const
-    {
-        const auto it = m_data->levels.find(levelPrefix.data() + std::to_string(idx));
-        assert(it != m_data->levels.end());
-        return it->second;
-    }
-
-} // namespace inari
+}
