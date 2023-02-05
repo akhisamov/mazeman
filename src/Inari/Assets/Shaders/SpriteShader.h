@@ -1,3 +1,9 @@
+#pragma once
+
+#include <string_view>
+
+namespace inari::shaders {
+    inline constexpr std::string_view sprite = R"(
 #ifdef VERTEX_SHADER
 layout(location = 0) in vec2 in_position;
 layout(location = 1) in vec2 in_uv;
@@ -29,3 +35,6 @@ void main()
     out_color = texelFetch(image, ivec2(uv), 0) * color;
 }
 #endif // FRAGMENT_SHADER
+
+)";
+}
