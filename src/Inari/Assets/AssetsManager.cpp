@@ -4,10 +4,6 @@
 
 #include <physfs.h>
 
-#include "Inari/Assets/ShaderMaker.h"
-#include "Inari/Assets/Texture2DMaker.h"
-#include "Inari/Assets/WorldMaker.h"
-
 #include <iostream>
 
 namespace inari {
@@ -78,23 +74,5 @@ namespace inari {
 
         m_filesDataByName[filenameCStr] = buffer;
         return buffer;
-    }
-
-    template <>
-    std::shared_ptr<AssetMaker> AssetsManager::getMaker<class Texture2D>()
-    {
-        return std::make_shared<Texture2DMaker>();
-    }
-
-    template <>
-    std::shared_ptr<AssetMaker> AssetsManager::getMaker<class Shader>()
-    {
-        return std::make_shared<ShaderMaker>();
-    }
-
-    template <>
-    std::shared_ptr<AssetMaker> AssetsManager::getMaker<class World>()
-    {
-        return std::make_shared<WorldMaker>();
     }
 }

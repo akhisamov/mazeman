@@ -25,14 +25,16 @@ namespace inari {
         bool unload(const std::string_view& name);
         bool has(const std::string_view& name);
 
+        template <class T>
+        void registerMaker(const std::shared_ptr<AssetMaker>& maker);
+        template <class T>
+        std::shared_ptr<AssetMaker> getMaker();
+
     protected:
         struct Token { };
         static std::shared_ptr<AssetsManager> create();
 
     private:
-        template <class T>
-        std::shared_ptr<AssetMaker> getMaker();
-
         std::string readFileData(const std::string_view& filename);
 
     public:
@@ -46,6 +48,7 @@ namespace inari {
         AssetsManager& operator=(AssetsManager&&) = delete;
 
     private:
+        std::map<std::size_t, std::shared_ptr<AssetMaker>> m_makers;
         std::map<std::string, std::string> m_filesDataByName;
         std::map<AssetID, std::shared_ptr<IAsset>> m_assets;
     };
@@ -74,8 +77,25 @@ namespace inari {
     }
 
     template <class T>
+    void AssetsManager::registerMaker(const std::shared_ptr<AssetMaker>& maker)
+    {
+        static_assert(std::is_base_of_v<IAsset, T>);
+        const size_t hash = typeid(T).hash_code();
+        const auto& it = m_makers.find(hash);
+        if (it == m_makers.end()) {
+            m_makers.emplace(hash, maker);
+        }
+    }
+
+    template <class T>
     std::shared_ptr<AssetMaker> AssetsManager::getMaker()
     {
+        static_assert(std::is_base_of_v<IAsset, T>);
+        const size_t hash = typeid(T).hash_code();
+        const auto& it = m_makers.find(hash);
+        if (it != m_makers.end()) {
+            return it->second;
+        }
         return nullptr;
     }
 }
