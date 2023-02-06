@@ -26,9 +26,9 @@ namespace inari {
         bool has(const std::string_view& name);
 
         template <class T>
-        void registerMaker(const std::shared_ptr<AssetMaker>& maker);
+        void registerMaker(std::unique_ptr<AssetMaker>&& maker);
         template <class T>
-        std::shared_ptr<AssetMaker> getMaker();
+        const std::unique_ptr<AssetMaker>& getMaker() const;
 
     protected:
         struct Token { };
@@ -48,7 +48,7 @@ namespace inari {
         AssetsManager& operator=(AssetsManager&&) = delete;
 
     private:
-        std::map<std::size_t, std::shared_ptr<AssetMaker>> m_makers;
+        std::map<std::size_t, std::unique_ptr<AssetMaker>> m_makers;
         std::map<std::string, std::string> m_filesDataByName;
         std::map<AssetID, std::shared_ptr<IAsset>> m_assets;
     };
@@ -66,7 +66,7 @@ namespace inari {
             }
         }
 
-        std::shared_ptr<AssetMaker> maker = getMaker<T>();
+        const std::unique_ptr<AssetMaker>& maker = getMaker<T>();
         if (maker) {
             const auto& it = m_assets.emplace(id, maker->createAsset(readFileData(name)));
             if (it.second) {
@@ -77,25 +77,23 @@ namespace inari {
     }
 
     template <class T>
-    void AssetsManager::registerMaker(const std::shared_ptr<AssetMaker>& maker)
+    void AssetsManager::registerMaker(std::unique_ptr<AssetMaker>&& maker)
     {
         static_assert(std::is_base_of_v<IAsset, T>);
         const size_t hash = typeid(T).hash_code();
         const auto& it = m_makers.find(hash);
         if (it == m_makers.end()) {
-            m_makers.emplace(hash, maker);
+            m_makers.emplace(hash, std::move(maker));
         }
     }
 
     template <class T>
-    std::shared_ptr<AssetMaker> AssetsManager::getMaker()
+    const std::unique_ptr<AssetMaker>& AssetsManager::getMaker() const
     {
         static_assert(std::is_base_of_v<IAsset, T>);
         const size_t hash = typeid(T).hash_code();
         const auto& it = m_makers.find(hash);
-        if (it != m_makers.end()) {
-            return it->second;
-        }
-        return nullptr;
+        assert(it != m_makers.end());
+        return it->second;
     }
 }

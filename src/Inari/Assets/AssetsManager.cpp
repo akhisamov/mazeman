@@ -4,6 +4,13 @@
 
 #include <physfs.h>
 
+#include "Inari/Assets/Shader.h"
+#include "Inari/Assets/ShaderMaker.h"
+#include "Inari/Assets/Texture2D.h"
+#include "Inari/Assets/Texture2DMaker.h"
+#include "Inari/Assets/World.h"
+#include "Inari/Assets/WorldMaker.h"
+
 #include <iostream>
 
 namespace inari {
@@ -18,7 +25,12 @@ namespace inari {
             return nullptr;
         }
 
-        return std::make_shared<AssetsManager>(AssetsManager::Token {});
+        auto manager = std::make_shared<AssetsManager>(AssetsManager::Token {});
+        manager->addSearchPath(".");
+        manager->registerMaker<Texture2D>(std::make_unique<Texture2DMaker>());
+        manager->registerMaker<Shader>(std::make_unique<ShaderMaker>());
+        manager->registerMaker<World>(std::make_unique<WorldMaker>());
+        return manager;
     }
 
     AssetsManager::AssetsManager(AssetsManager::Token /*unused*/) { }

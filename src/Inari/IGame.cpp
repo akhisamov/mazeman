@@ -5,12 +5,6 @@
 #include <iostream>
 
 #include "Inari/Assets/AssetsManager.h"
-#include "Inari/Assets/Shader.h"
-#include "Inari/Assets/ShaderMaker.h"
-#include "Inari/Assets/Texture2D.h"
-#include "Inari/Assets/Texture2DMaker.h"
-#include "Inari/Assets/World.h"
-#include "Inari/Assets/WorldMaker.h"
 #include "Inari/GameServices.h"
 #include "Inari/Graphics/Renderer.hpp"
 #include "Inari/Graphics/SpriteBatch.hpp"
@@ -69,6 +63,9 @@ namespace inari {
 
         // Init window
         m_window = Window::create("Inari", 1280, 720);
+        if (m_window == nullptr) {
+            return false;
+        }
 
         // Init renderer
         m_renderer = std::make_shared<Renderer>();
@@ -78,10 +75,6 @@ namespace inari {
         if (m_assets == nullptr) {
             return false;
         }
-        m_assets->addSearchPath(".");
-        m_assets->registerMaker<Texture2D>(std::make_shared<Texture2DMaker>());
-        m_assets->registerMaker<Shader>(std::make_shared<ShaderMaker>());
-        m_assets->registerMaker<World>(std::make_shared<WorldMaker>());
         GameServices::provide(m_assets);
 
         // Init sprite batch
