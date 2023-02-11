@@ -10,8 +10,11 @@
 
 namespace inari {
     struct Entity {
-        std::string uuid;
+        using ID = uint64_t;
+        const ID id;
         std::string name;
+
+        explicit Entity(const std::string_view& name);
     };
     using EntityPtr = std::shared_ptr<Entity>;
 
@@ -48,7 +51,7 @@ namespace inari {
         {
             assert(entity != nullptr && "Entity is empty");
 
-            auto& componentMap = m_components[entity->uuid];
+            auto& componentMap = m_components[entity->id];
             ComponentHash hashCode = typeid(C).hash_code();
             if (componentMap.find(hashCode) == componentMap.end()) {
                 auto resultPair = componentMap.emplace(hashCode, std::any(component));
@@ -60,7 +63,7 @@ namespace inari {
         {
             assert(entity != nullptr && "Entity is empty");
 
-            const auto& entityIt = m_components.find(entity->uuid);
+            const auto& entityIt = m_components.find(entity->id);
             if (entityIt != m_components.end()) {
                 const auto& componentIt = entityIt->second.find(typeid(C).hash_code());
                 if (componentIt != entityIt->second.end()) {
@@ -76,7 +79,7 @@ namespace inari {
         {
             assert(entity != nullptr && "Entity is empty");
 
-            const auto& entityIt = m_components.find(entity->uuid);
+            const auto& entityIt = m_components.find(entity->id);
             if (entityIt != m_components.end()) {
                 const auto& componentIt = entityIt->second.find(typeid(C).hash_code());
                 return componentIt != entityIt->second.end();
@@ -87,6 +90,6 @@ namespace inari {
 
     private:
         std::vector<EntityPtr> m_entities;
-        std::map<std::string, ComponentMap> m_components;
+        std::map<Entity::ID, ComponentMap> m_components;
     };
 } // namespace inari

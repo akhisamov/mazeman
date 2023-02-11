@@ -2,8 +2,6 @@
 
 #include <algorithm>
 
-#include "Inari/Utils/Random.hpp"
-
 struct NameComparator {
 public:
     explicit NameComparator(const std::string_view& name)
@@ -18,11 +16,18 @@ private:
 };
 
 namespace inari {
+    Entity::Entity(const std::string_view& name)
+        : name(name)
+        , id([] {
+            static Entity::ID idCounter = 0;
+            return idCounter++;
+        }())
+    {
+    }
+
     EntityPtr EntityRegistry::createEntity(const std::string_view& name)
     {
-        EntityPtr entity = std::make_shared<Entity>();
-        entity->uuid = random::generateUUID();
-        entity->name = name;
+        EntityPtr entity = std::make_shared<Entity>(name);
         m_entities.push_back(entity);
         return entity;
     }
@@ -91,7 +96,7 @@ namespace inari {
     {
         assert(entity != nullptr && "Entity is empty");
 
-        const bool result = m_components.erase(entity->uuid);
+        const bool result = m_components.erase(entity->id);
         const auto it = std::find(m_entities.begin(), m_entities.end(), entity);
         if (it != m_entities.end()) {
             m_entities.erase(it);
@@ -107,7 +112,7 @@ namespace inari {
             if (it != m_entities.end()) {
                 const EntityPtr& entity = *it;
                 assert(entity != nullptr && "Entity is empty");
-                const bool result = m_components.erase(entity->uuid);
+                const bool result = m_components.erase(entity->id);
                 m_entities.erase(it);
                 return result;
             }
