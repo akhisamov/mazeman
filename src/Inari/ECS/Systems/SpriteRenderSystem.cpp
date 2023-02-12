@@ -1,50 +1,51 @@
-﻿#include "SpriteRenderSystem.hpp"
+﻿#include "SpriteRenderSystem.h"
 
 #include <cassert>
 #include <utility>
 
-#include "Inari/ECS/Components/Sprite.hpp"
-#include "Inari/ECS/Components/Transform.hpp"
+#include "Inari/ECS/Components/Sprite.h"
+#include "Inari/ECS/Components/Transform.h"
+#include "Inari/ECS/EntityRegistry.h"
 
 #include "Inari/Graphics/SpriteBatch.hpp"
 
 namespace inari {
-    SpriteRenderSystem::SpriteRenderSystem(std::shared_ptr<EntityRegistry> registry,
-                                           const std::shared_ptr<inari::SpriteBatch>& spriteBatch)
-        : ISystem(std::move(registry))
-        , m_spriteBatchPtr(spriteBatch)
+    SpriteRenderSystem::SpriteRenderSystem(const std::shared_ptr<SpriteBatch>& spriteBatch)
+        : m_spriteBatchPtr(spriteBatch)
     {
     }
 
-    void SpriteRenderSystem::draw(const inari::GameTime& gameTime)
-    {
-        draw(gameTime, glm::mat4(1.0f), SpriteSortMode::DEFERRED);
-    }
+    void SpriteRenderSystem::begin() { begin(glm::mat4(1.0f), SpriteSortMode::DEFERRED); }
 
-    void SpriteRenderSystem::draw(const inari::GameTime& gameTime, const glm::mat4& transform)
-    {
-        draw(gameTime, transform, SpriteSortMode::DEFERRED);
-    }
+    void SpriteRenderSystem::begin(const glm::mat4& transform) { begin(transform, SpriteSortMode::DEFERRED); }
 
-    void SpriteRenderSystem::draw(const inari::GameTime& gameTime, const glm::mat4& transform, SpriteSortMode sortMode)
+    void SpriteRenderSystem::begin(const glm::mat4& transform, SpriteSortMode sortMode)
     {
         auto spriteBatch = m_spriteBatchPtr.lock();
         assert(spriteBatch != nullptr && "Sprite batch is empty");
 
         spriteBatch->begin(transform, sortMode);
-        ISystem::updateSystem(gameTime);
+    }
+
+    void SpriteRenderSystem::end()
+    {
+        auto spriteBatch = m_spriteBatchPtr.lock();
+        assert(spriteBatch != nullptr && "Sprite batch is empty");
         spriteBatch->end();
     }
 
-    void SpriteRenderSystem::update(const inari::GameTime& gameTime, const EntityPtr& entity)
+    void SpriteRenderSystem::update(const GameTime& gameTime, const EntityRegPtr& entityRegistry,
+                                    const EntityPtr& entity)
     {
+        assert(entityRegistry != nullptr && "Entity registry is empty");
+
         auto spriteBatch = m_spriteBatchPtr.lock();
         if (spriteBatch == nullptr) {
             return;
         }
 
-        const auto* sprite = getRegistry()->getComponent<Sprite>(entity);
-        const auto* transform = getRegistry()->getComponent<Transform>(entity);
+        const auto* sprite = entityRegistry->getComponent<Sprite>(entity);
+        const auto* transform = entityRegistry->getComponent<Transform>(entity);
         if (sprite == nullptr || transform == nullptr) {
             return;
         }

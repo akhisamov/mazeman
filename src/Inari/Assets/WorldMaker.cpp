@@ -3,7 +3,7 @@
 #include <nlohmann/json.hpp>
 
 #include "Inari/Assets/World.h"
-#include "Inari/Utils/Colors.hpp"
+#include "Inari/Utils/Colors.h"
 
 namespace {
     std::any createAny(const std::string_view& type, const nlohmann::json& value)

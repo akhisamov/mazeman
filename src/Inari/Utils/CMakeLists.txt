@@ -1,8 +1,8 @@
 target_sources(mazeman PRIVATE
-        Camera2D.hpp Camera2D.cpp
-        Colors.hpp
-        GameTime.hpp GameTime.cpp
-        Strings.hpp
+        Camera2D.h Camera2D.cpp
+        Colors.h
+        GameTime.h GameTime.cpp
+        Strings.h
 
         CMakeLists.txt
         )

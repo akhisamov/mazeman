@@ -18,11 +18,12 @@ namespace inari {
     };
     using EntityPtr = std::shared_ptr<Entity>;
 
-    class EntityRegistry {
+    class EntityRegistry final {
+        friend class SystemRegistry;
+
         using ComponentHash = size_t;
         using AnyComponent = std::any;
         using ComponentMap = std::map<ComponentHash, AnyComponent>;
-        using VoidHandler = std::function<void(const EntityPtr&)>;
         using BoolHandler = std::function<bool(const EntityPtr&)>;
 
     public:
@@ -33,7 +34,6 @@ namespace inari {
 
         EntityPtr getEntity(const std::string_view& name);
 
-        void forEachEntity(const VoidHandler& handler) const;
         bool anyOfEntity(const BoolHandler& handler);
         EntityPtr findEntity(const BoolHandler& handler) const;
 
@@ -50,7 +50,6 @@ namespace inari {
         void emplaceComponent(const EntityPtr& entity, const C& component)
         {
             assert(entity != nullptr && "Entity is empty");
-
             auto& componentMap = m_components[entity->id];
             ComponentHash hashCode = typeid(C).hash_code();
             if (componentMap.find(hashCode) == componentMap.end()) {
@@ -62,7 +61,6 @@ namespace inari {
         C* getComponent(const EntityPtr& entity)
         {
             assert(entity != nullptr && "Entity is empty");
-
             const auto& entityIt = m_components.find(entity->id);
             if (entityIt != m_components.end()) {
                 const auto& componentIt = entityIt->second.find(typeid(C).hash_code());
@@ -70,23 +68,23 @@ namespace inari {
                     return std::any_cast<C>(&componentIt->second);
                 }
             }
-
             return nullptr;
         }
 
         template <class C>
-        bool hasComponent(const EntityPtr& entity)
+        bool hasComponent(const EntityPtr& entity) const
         {
             assert(entity != nullptr && "Entity is empty");
-
             const auto& entityIt = m_components.find(entity->id);
             if (entityIt != m_components.end()) {
                 const auto& componentIt = entityIt->second.find(typeid(C).hash_code());
                 return componentIt != entityIt->second.end();
             }
-
             return false;
         }
+
+    protected:
+        const std::vector<EntityPtr>& getEntities() const { return m_entities; }
 
     private:
         std::vector<EntityPtr> m_entities;

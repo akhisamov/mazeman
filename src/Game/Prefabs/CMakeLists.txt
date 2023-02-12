@@ -1,5 +1,5 @@
 target_sources(mazeman PRIVATE
-    Mazeman.hpp Mazeman.cpp
+        Mazeman.h Mazeman.cpp
 
-    CMakeLists.txt
-)
+        CMakeLists.txt
+        )

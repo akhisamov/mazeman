@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 
 #include "Inari/Assets/Shader.h"
-#include "Inari/Utils/Strings.hpp"
+#include "Inari/Utils/Strings.h"
 
 #include <iostream>
 

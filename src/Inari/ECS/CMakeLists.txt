@@ -2,8 +2,8 @@ add_subdirectory(Components)
 add_subdirectory(Systems)
 
 target_sources(mazeman PRIVATE
-    EntityRegistry.hpp EntityRegistry.cpp
-    SystemRegistry.hpp
+        EntityRegistry.h EntityRegistry.cpp
+        SystemRegistry.h SystemRegistry.cpp
 
-    CMakeLists.txt
-)
+        CMakeLists.txt
+        )

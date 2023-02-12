@@ -1,4 +1,4 @@
-#include "Camera2D.hpp"
+#include "Camera2D.h"
 
 #include <glm/ext/matrix_clip_space.hpp>
 

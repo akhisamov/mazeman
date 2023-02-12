@@ -1,13 +1,14 @@
-#include "CollisionSystem.hpp"
+#include "CollisionSystem.h"
 
 #include <glm/geometric.hpp>
 
-#include "Inari/ECS/Components/RigidBody.hpp"
-#include "Inari/ECS/Components/Transform.hpp"
+#include "Inari/ECS/Components/RigidBody.h"
+#include "Inari/ECS/Components/Transform.h"
+#include "Inari/ECS/EntityRegistry.h"
 
-#include "Inari/Utils/GameTime.hpp"
+#include "Inari/Utils/GameTime.h"
 
-#include "Game/Components/Collision.hpp"
+#include "Game/Components/Collision.h"
 
 using namespace inari;
 
@@ -58,24 +59,22 @@ namespace {
     }
 } // namespace
 
-CollisionSystem::CollisionSystem(std::shared_ptr<EntityRegistry> registry)
-    : ISystem(std::move(registry))
+void CollisionSystem::update(const inari::GameTime& gameTime, const EntityRegPtr& entityRegistry,
+                             const EntityPtr& entity)
 {
-}
+    assert(entityRegistry != nullptr && "Entity Registry is empty");
 
-void CollisionSystem::update(const GameTime& gameTime, const EntityPtr& entity)
-{
-    const auto* collision = getRegistry()->getComponent<Collision>(entity);
+    const auto* collision = entityRegistry->getComponent<Collision>(entity);
     if (collision == nullptr || !collision->isDynamic) {
         return;
     }
 
-    if (!getRegistry()->hasComponent<RigidBody>(entity)) {
+    if (!entityRegistry->hasComponent<RigidBody>(entity)) {
         return;
     }
 
-    const auto* transform = getRegistry()->getComponent<Transform>(entity);
-    auto* rigidBody = getRegistry()->getComponent<RigidBody>(entity);
+    const auto* transform = entityRegistry->getComponent<Transform>(entity);
+    auto* rigidBody = entityRegistry->getComponent<RigidBody>(entity);
     if (transform == nullptr || rigidBody == nullptr) {
         return;
     }
@@ -86,16 +85,16 @@ void CollisionSystem::update(const GameTime& gameTime, const EntityPtr& entity)
 
     const glm::vec4 futureRect(transform->getAbsolutePosition() + (rigidBody->velocity * gameTime.getElapsedTime()),
                                transform->size);
-    const auto callback = [this, entity, aRect = futureRect](const EntityPtr& compareWith) {
+    const auto callback = [this, entityRegistry, entity, aRect = futureRect](const EntityPtr& compareWith) {
         if (entity == compareWith) {
             return false;
         }
 
-        if (!getRegistry()->hasComponent<Collision>(compareWith)) {
+        if (!entityRegistry->hasComponent<Collision>(compareWith)) {
             return false;
         }
 
-        const auto* transform = getRegistry()->getComponent<Transform>(compareWith);
+        const auto* transform = entityRegistry->getComponent<Transform>(compareWith);
         if (transform == nullptr) {
             return false;
         }
@@ -104,12 +103,12 @@ void CollisionSystem::update(const GameTime& gameTime, const EntityPtr& entity)
         const AABB b(transform->getRect());
         return AABB::intersect(a, b);
     };
-    const EntityPtr collidedEntity = getRegistry()->findEntity(callback);
+    const EntityPtr collidedEntity = entityRegistry->findEntity(callback);
     if (collidedEntity == nullptr) {
         return;
     }
 
-    const auto* collidedTransform = getRegistry()->getComponent<Transform>(collidedEntity);
+    const auto* collidedTransform = entityRegistry->getComponent<Transform>(collidedEntity);
     if (collidedTransform == nullptr) {
         return;
     }

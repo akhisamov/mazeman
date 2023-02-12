@@ -1,8 +1,8 @@
 target_sources(mazeman PRIVATE
-    AnimationSystem.hpp AnimationSystem.cpp
-    ISystem.hpp
-    PhysicsSystem.hpp PhysicsSystem.cpp
-    SpriteRenderSystem.hpp SpriteRenderSystem.cpp
+        AnimationSystem.h AnimationSystem.cpp
+        ISystem.h
+        PhysicsSystem.h PhysicsSystem.cpp
+        SpriteRenderSystem.h SpriteRenderSystem.cpp
 
-    CMakeLists.txt
-)
+        CMakeLists.txt
+        )

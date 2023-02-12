@@ -1,4 +1,4 @@
-#include "EntityRegistry.hpp"
+#include "EntityRegistry.h"
 
 #include <algorithm>
 
@@ -41,21 +41,6 @@ namespace inari {
             }
         }
         return nullptr;
-    }
-
-    void EntityRegistry::forEachEntity(const VoidHandler& handler) const
-    {
-        if (!handler) {
-            return;
-        }
-
-        const auto callback = [handler](const EntityPtr& entity) {
-            if (entity == nullptr) {
-                return;
-            }
-            handler(entity);
-        };
-        std::for_each(m_entities.begin(), m_entities.end(), callback);
     }
 
     bool EntityRegistry::anyOfEntity(const BoolHandler& handler)

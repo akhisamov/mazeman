@@ -1,27 +1,25 @@
-﻿#include "AnimationSystem.hpp"
+﻿#include "AnimationSystem.h"
 
 #include <cmath>
 
-#include "Inari/ECS/Components/AnimationSprite.hpp"
-#include "Inari/ECS/Components/Sprite.hpp"
+#include "Inari/ECS/Components/AnimationSprite.h"
+#include "Inari/ECS/Components/Sprite.h"
+#include "Inari/ECS/EntityRegistry.h"
 
-#include "Inari/Utils/GameTime.hpp"
+#include "Inari/Utils/GameTime.h"
 
 namespace inari {
-    AnimationSystem::AnimationSystem(std::shared_ptr<EntityRegistry> registry)
-        : ISystem(std::move(registry))
+    void AnimationSystem::update(const GameTime& gameTime, const EntityRegPtr& entityRegistry, const EntityPtr& entity)
     {
-    }
+        assert(entityRegistry != nullptr && "Entity Registry is empty");
 
-    void AnimationSystem::update(const inari::GameTime& gameTime, const EntityPtr& entity)
-    {
-        auto* sprite = getRegistry()->getComponent<Sprite>(entity);
-        auto* animSprite = getRegistry()->getComponent<AnimationSprite>(entity);
+        auto* sprite = entityRegistry->getComponent<Sprite>(entity);
+        auto* animSprite = entityRegistry->getComponent<AnimationSprite>(entity);
         if (sprite == nullptr || animSprite == nullptr) {
             return;
         }
 
-        const auto currentTicks = static_cast<float>(inari::GameTime::getCurrentTicks());
+        const auto currentTicks = static_cast<float>(GameTime::getCurrentTicks());
 
         auto it = animSprite->tracks.find(animSprite->currentTrack);
         if (it != animSprite->tracks.end()) {

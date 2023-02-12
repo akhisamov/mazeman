@@ -6,7 +6,7 @@
 
 #include <stdexcept>
 
-#include "Inari/Utils/Strings.hpp"
+#include "Inari/Utils/Strings.h"
 
 namespace inari {
     struct WindowData {

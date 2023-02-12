@@ -9,8 +9,8 @@
 #include "Inari/Graphics/Renderer.hpp"
 #include "Inari/Graphics/SpriteBatch.hpp"
 #include "Inari/Graphics/Window.hpp"
-#include "Inari/InputManager.hpp"
-#include "Inari/Utils/GameTime.hpp"
+#include "Inari/InputManager.h"
+#include "Inari/Utils/GameTime.h"
 
 namespace inari {
     IGame::IGame()

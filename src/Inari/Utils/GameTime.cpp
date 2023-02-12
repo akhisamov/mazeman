@@ -1,4 +1,4 @@
-#include "GameTime.hpp"
+#include "GameTime.h"
 
 #include <SDL_timer.h>
 

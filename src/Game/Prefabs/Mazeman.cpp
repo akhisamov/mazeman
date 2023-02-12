@@ -1,17 +1,17 @@
-#include "Mazeman.hpp"
+#include "Mazeman.h"
 
 #include <algorithm>
 
 #include <glm/trigonometric.hpp>
 
-#include "Inari/ECS/Components/AnimationSprite.hpp"
-#include "Inari/ECS/Components/RigidBody.hpp"
-#include "Inari/ECS/Components/Sprite.hpp"
-#include "Inari/ECS/Components/Transform.hpp"
-#include "Inari/ECS/EntityRegistry.hpp"
+#include "Inari/ECS/Components/AnimationSprite.h"
+#include "Inari/ECS/Components/RigidBody.h"
+#include "Inari/ECS/Components/Sprite.h"
+#include "Inari/ECS/Components/Transform.h"
+#include "Inari/ECS/EntityRegistry.h"
 
-#include "Game/Components/Collision.hpp"
-#include "Game/Components/Player.hpp"
+#include "Game/Components/Collision.h"
+#include "Game/Components/Player.h"
 
 namespace {
     constexpr glm::vec2 size(32);

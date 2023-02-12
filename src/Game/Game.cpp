@@ -3,13 +3,13 @@
 #include <SDL_keycode.h>
 
 // inari
-#include "Inari/ECS/Components/Sprite.hpp"
-#include "Inari/ECS/Components/Transform.hpp"
-#include "Inari/ECS/EntityRegistry.hpp"
-#include "Inari/ECS/SystemRegistry.hpp"
-#include "Inari/ECS/Systems/AnimationSystem.hpp"
-#include "Inari/ECS/Systems/PhysicsSystem.hpp"
-#include "Inari/ECS/Systems/SpriteRenderSystem.hpp"
+#include "Inari/ECS/Components/Sprite.h"
+#include "Inari/ECS/Components/Transform.h"
+#include "Inari/ECS/EntityRegistry.h"
+#include "Inari/ECS/SystemRegistry.h"
+#include "Inari/ECS/Systems/AnimationSystem.h"
+#include "Inari/ECS/Systems/PhysicsSystem.h"
+#include "Inari/ECS/Systems/SpriteRenderSystem.h"
 
 #include "Inari/Graphics/Renderer.hpp"
 #include "Inari/Graphics/SpriteBatch.hpp"
@@ -19,18 +19,18 @@
 #include "Inari/Assets/Texture2D.h"
 #include "Inari/Assets/World.h"
 
-#include "Inari/Utils/Camera2D.hpp"
-#include "Inari/Utils/Colors.hpp"
+#include "Inari/Utils/Camera2D.h"
+#include "Inari/Utils/Colors.h"
 
 #include "Inari/GameServices.h"
-#include "Inari/InputManager.hpp"
+#include "Inari/InputManager.h"
 // inari
 
 // game
-#include "Game/Components/Collision.hpp"
-#include "Game/Prefabs/Mazeman.hpp"
-#include "Game/Systems/CollisionSystem.hpp"
-#include "Game/Systems/InputSystem.hpp"
+#include "Game/Components/Collision.h"
+#include "Game/Prefabs/Mazeman.h"
+#include "Game/Systems/CollisionSystem.h"
+#include "Game/Systems/InputSystem.h"
 // game
 
 namespace constants {
@@ -62,11 +62,11 @@ bool Game::init()
         m_camera = std::make_unique<inari::Camera2D>(constants::windowSize);
 
         // Init systems
-        m_systemRegistry->addSystem<inari::AnimationSystem>(m_entityRegistry);
-        m_systemRegistry->addSystem<inari::PhysicsSystem>(m_entityRegistry);
-        m_systemRegistry->addSystem<inari::SpriteRenderSystem>(m_entityRegistry, getSpriteBatch());
-        m_systemRegistry->addSystem<InputSystem>(m_entityRegistry, getInputManager());
-        m_systemRegistry->addSystem<CollisionSystem>(m_entityRegistry);
+        m_systemRegistry->addSystem<inari::SpriteRenderSystem>(getSpriteBatch());
+        m_systemRegistry->addOrderedSystem<InputSystem>(getInputManager());
+        m_systemRegistry->addOrderedSystem<CollisionSystem>();
+        m_systemRegistry->addOrderedSystem<inari::PhysicsSystem>();
+        m_systemRegistry->addOrderedSystem<inari::AnimationSystem>();
 
         return true;
     }
@@ -142,11 +142,7 @@ void Game::handleWindowResized(const glm::ivec2& size)
 
 void Game::update(const inari::GameTime& gameTime)
 {
-    m_systemRegistry->updateSystem<InputSystem>(gameTime);
-    m_systemRegistry->updateSystem<CollisionSystem>(gameTime);
-    m_systemRegistry->updateSystem<inari::PhysicsSystem>(gameTime);
-    m_systemRegistry->updateSystem<inari::AnimationSystem>(gameTime);
-
+    m_systemRegistry->updateOrderedSystem(gameTime, m_entityRegistry);
     if (getInputManager()->isKeyPressed(SDLK_F1)) {
         getSpriteBatch()->toggleWireframeMode();
     }
@@ -167,7 +163,9 @@ void Game::draw(const inari::GameTime& gameTime)
 
     auto spriteRenderSystem = m_systemRegistry->getSystem<inari::SpriteRenderSystem>();
     if (spriteRenderSystem) {
-        spriteRenderSystem->draw(gameTime, m_camera->getTransform());
+        spriteRenderSystem->begin(m_camera->getTransform());
+        m_systemRegistry->updateSystem(spriteRenderSystem, gameTime, m_entityRegistry);
+        spriteRenderSystem->end();
     }
 
     getWindow()->display();
