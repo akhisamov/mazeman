@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Inari/IGame.h"
+#include "Inari/BaseGame.h"
 
 namespace inari {
     class EntityRegistry;
@@ -9,7 +9,7 @@ namespace inari {
     class GameTime;
 }
 
-class Game final : public inari::IGame {
+class Game final : public inari::BaseGame {
 public:
     Game();
     ~Game();

@@ -51,7 +51,7 @@ Game::~Game() = default;
 
 bool Game::init()
 {
-    if (IGame::init()) {
+    if (BaseGame::init()) {
         // Init window
         const auto& window = getWindow();
         window->setWindowSize(constants::windowSize);

@@ -8,7 +8,7 @@
 namespace inari {
 
     class InputManager {
-        friend class IGame;
+        friend class BaseGame;
 
     public:
         InputManager() = default;

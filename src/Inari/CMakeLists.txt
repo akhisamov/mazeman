@@ -5,7 +5,7 @@ add_subdirectory(Utils)
 
 target_sources(mazeman PRIVATE
         GameServices.h GameServices.cpp
-        IGame.h IGame.cpp
+        BaseGame.h BaseGame.cpp
         InputManager.h InputManager.cpp
         IService.h
 

@@ -12,7 +12,7 @@ namespace inari {
     class AssetMaker;
 
     class AssetsManager final : public IService {
-        friend class IGame;
+        friend class BaseGame;
 
         using AssetID = std::size_t;
 

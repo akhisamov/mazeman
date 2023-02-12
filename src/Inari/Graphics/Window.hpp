@@ -9,7 +9,7 @@
 
 namespace inari {
     class Window {
-        friend class IGame;
+        friend class BaseGame;
 
     public:
         static std::shared_ptr<Window> create(const std::string_view& title, int width, int height);

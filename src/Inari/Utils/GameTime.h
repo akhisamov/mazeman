@@ -4,7 +4,7 @@
 
 namespace inari {
     class GameTime {
-        friend class IGame;
+        friend class BaseGame;
 
     public:
         GameTime();

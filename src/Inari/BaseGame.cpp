@@ -1,4 +1,4 @@
-﻿#include "IGame.h"
+﻿#include "BaseGame.h"
 
 #include <SDL.h>
 
@@ -13,7 +13,7 @@
 #include "Inari/Utils/GameTime.h"
 
 namespace inari {
-    IGame::IGame()
+    BaseGame::BaseGame()
         : m_isRunning(false)
         , m_window(nullptr)
         , m_renderer(nullptr)
@@ -23,7 +23,7 @@ namespace inari {
     {
     }
 
-    void IGame::run()
+    void BaseGame::run()
     {
         if (!m_isRunning) {
             assert(init() && "Init is failed");
@@ -54,7 +54,7 @@ namespace inari {
         }
     }
 
-    bool IGame::init()
+    bool BaseGame::init()
     {
         if (SDL_Init(SDL_INIT_VIDEO) < 0) {
             std::cerr << "SDL Init Error: " << SDL_GetError() << std::endl;
@@ -85,15 +85,15 @@ namespace inari {
         return true;
     }
 
-    const std::shared_ptr<Renderer>& IGame::getRenderer() const { return m_renderer; }
+    const std::shared_ptr<Renderer>& BaseGame::getRenderer() const { return m_renderer; }
 
-    const std::shared_ptr<SpriteBatch>& IGame::getSpriteBatch() const { return m_spriteBatch; }
+    const std::shared_ptr<SpriteBatch>& BaseGame::getSpriteBatch() const { return m_spriteBatch; }
 
-    const std::shared_ptr<Window>& IGame::getWindow() const { return m_window; }
+    const std::shared_ptr<Window>& BaseGame::getWindow() const { return m_window; }
 
-    const std::shared_ptr<InputManager>& IGame::getInputManager() const { return m_inputManager; }
+    const std::shared_ptr<InputManager>& BaseGame::getInputManager() const { return m_inputManager; }
 
-    void IGame::handleEvents()
+    void BaseGame::handleEvents()
     {
         m_inputManager->prepareHandling();
         SDL_Event e;

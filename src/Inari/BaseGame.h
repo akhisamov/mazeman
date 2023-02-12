@@ -13,12 +13,12 @@ namespace inari {
     class GameTime;
     class AssetsManager;
 
-    class IGame {
+    class BaseGame {
     public:
-        IGame();
+        BaseGame();
 
-        IGame(const IGame&) = delete;
-        IGame(IGame&&) = delete;
+        BaseGame(const BaseGame&) = delete;
+        BaseGame(BaseGame&&) = delete;
 
         void run();
 
