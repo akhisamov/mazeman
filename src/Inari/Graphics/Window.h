@@ -7,16 +7,14 @@
 #include <memory>
 #include <string_view>
 
+#include "Inari/IService.h"
+
 namespace inari {
-    class Window {
+    class Window final : public IService {
         friend class BaseGame;
+        friend class Renderer;
 
     public:
-        static std::shared_ptr<Window> create(const std::string_view& title, int width, int height);
-
-        explicit Window(std::unique_ptr<struct WindowData>&& data);
-        ~Window();
-
         void display();
 
         void setWindowSize(const glm::ivec2& size);
@@ -27,8 +25,16 @@ namespace inari {
         void setFrameLimit(int screenFps);
 
     protected:
+        static std::shared_ptr<Window> create(const std::string_view& title, int width, int height);
+
         void begin();
         void end();
+
+        void* getWindow() const;
+
+    public:
+        explicit Window(std::unique_ptr<struct WindowData>&& data);
+        ~Window() override;
 
     private:
         std::unique_ptr<struct WindowData> m_data;

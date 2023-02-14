@@ -5,19 +5,16 @@
 #include "Inari/ECS/Components/RigidBody.h"
 #include "Inari/ECS/Components/Transform.h"
 #include "Inari/ECS/EntityRegistry.h"
+#include "Inari/GameServices.h"
 #include "Inari/InputManager.h"
 
 #include "Game/Components/Player.h"
 
-InputSystem::InputSystem(const std::shared_ptr<inari::InputManager>& inputManager)
-    : m_inputPtr(inputManager)
-{
-}
-
 void InputSystem::update(const inari::GameTime& gameTime, const EntityRegPtr& entityRegistry, const EntityPtr& entity)
 {
     assert(entityRegistry != nullptr && "Entity Registry is empty");
-    auto inputManager = m_inputPtr.lock();
+
+    const auto& inputManager = inari::GameServices::get<inari::InputManager>();
     if (inputManager == nullptr) {
         return;
     }

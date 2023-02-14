@@ -8,25 +8,21 @@
 #include <memory>
 #include <vector>
 
-#include "VertexLayout.hpp"
+#include "Inari/IService.h"
 
 namespace inari {
     class Texture2D;
     class Shader;
     class Renderer;
     struct SpriteData;
+    struct VertexLayout;
 
     enum class SpriteSortMode { DEFERRED, IMMEDIATE, TEXTURE };
 
-    class SpriteBatch {
+    class SpriteBatch final : public IService {
+        friend class BaseGame;
+
     public:
-        explicit SpriteBatch(const std::shared_ptr<Renderer>& renderer);
-        ~SpriteBatch();
-
-        SpriteBatch() = delete;
-        SpriteBatch(SpriteBatch&&) = delete;
-        SpriteBatch(const SpriteBatch&) = delete;
-
         void begin(const glm::mat4& transformMatrix = glm::mat4(1.0f),
                    SpriteSortMode sortMode = SpriteSortMode::DEFERRED);
 
@@ -46,6 +42,22 @@ namespace inari {
 
         void toggleWireframeMode();
 
+    protected:
+        struct Token {
+            std::weak_ptr<Renderer> weakRenderer;
+        };
+        static std::shared_ptr<SpriteBatch> create(const std::shared_ptr<Renderer>& renderer);
+
+    public:
+        explicit SpriteBatch(const Token& token);
+        ~SpriteBatch() override;
+
+        SpriteBatch() = delete;
+        SpriteBatch(SpriteBatch&&) = delete;
+        SpriteBatch(const SpriteBatch&) = delete;
+        SpriteBatch& operator=(SpriteBatch&&) = delete;
+        SpriteBatch& operator=(const SpriteBatch&) = delete;
+
     private:
         void flush();
         void flushData(const SpriteData& data);
@@ -56,7 +68,7 @@ namespace inari {
         bool m_isWireframeMode;
 
         std::shared_ptr<Shader> m_shader;
-        VertexLayout m_layout;
+        std::unique_ptr<VertexLayout> m_layout;
 
         glm::mat4 m_transformMatrix;
         SpriteSortMode m_sortMode;

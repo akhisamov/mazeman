@@ -15,11 +15,6 @@ namespace inari {
 
     class BaseGame {
     public:
-        BaseGame();
-
-        BaseGame(const BaseGame&) = delete;
-        BaseGame(BaseGame&&) = delete;
-
         void run();
 
     protected:
@@ -33,13 +28,17 @@ namespace inari {
         virtual void update(const GameTime& gameTime) = 0;
         virtual void draw(const GameTime& gameTime) = 0;
 
-        const std::shared_ptr<Window>& getWindow() const;
-        const std::shared_ptr<Renderer>& getRenderer() const;
-        const std::shared_ptr<SpriteBatch>& getSpriteBatch() const;
-        const std::shared_ptr<InputManager>& getInputManager() const;
+    public:
+        BaseGame();
+
+        BaseGame(const BaseGame&) = delete;
+        BaseGame(BaseGame&&) = delete;
+        BaseGame& operator=(const BaseGame&) = delete;
+        BaseGame& operator=(BaseGame&&) = delete;
 
     private:
         void handleEvents();
+        void clear();
 
         bool m_isRunning;
 

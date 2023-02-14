@@ -1,6 +1,4 @@
-#include "Window.hpp"
-
-#include <glad/glad.h>
+#include "Window.h"
 
 #include <SDL.h>
 
@@ -11,15 +9,8 @@
 namespace inari {
     struct WindowData {
         SDL_Window* window = nullptr;
-        SDL_GLContext glContext = nullptr;
 
         uint64_t startCounter = 0;
-
-        void destroy() const
-        {
-            SDL_GL_DeleteContext(glContext);
-            SDL_DestroyWindow(window);
-        }
     };
 
     std::shared_ptr<Window> Window::create(const std::string_view& title, int width, int height)
@@ -28,21 +19,6 @@ namespace inari {
         data->window = SDL_CreateWindow(title.data(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
                                         SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
         if (data->window == nullptr) {
-            return nullptr;
-        }
-
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-        SDL_GLContext glContext = SDL_GL_CreateContext(data->window);
-        if (glContext == nullptr) {
-            data->destroy();
-            return nullptr;
-        }
-
-        if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
-            data->destroy();
             return nullptr;
         }
 
@@ -55,11 +31,7 @@ namespace inari {
     {
     }
 
-    Window::~Window()
-    {
-        m_data->destroy();
-        SDL_Quit();
-    }
+    Window::~Window() { SDL_DestroyWindow(m_data->window); }
 
     void Window::display() { SDL_GL_SwapWindow(m_data->window); }
 
@@ -100,5 +72,13 @@ namespace inari {
                 SDL_Delay(static_cast<uint32_t>(screenTicksPerFrame - elapsedMs));
             }
         }
+    }
+
+    void* Window::getWindow() const
+    {
+        if (m_data) {
+            return m_data->window;
+        }
+        return nullptr;
     }
 } // namespace inari

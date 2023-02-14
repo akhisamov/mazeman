@@ -5,15 +5,13 @@
 
 #include <map>
 
-namespace inari {
+#include "IService.h"
 
-    class InputManager {
+namespace inari {
+    class InputManager final : public IService {
         friend class BaseGame;
 
     public:
-        InputManager() = default;
-        ~InputManager() = default;
-
         // Key has been pressed
         bool isKeyPressed(SDL_Keycode keyCode) const;
         // Key is being pressed
@@ -24,8 +22,20 @@ namespace inari {
         bool isKeyUp(SDL_Keycode keyCode) const;
 
     protected:
+        struct Token { };
+        static std::shared_ptr<InputManager> create();
+
         void prepareHandling();
         void handleEvent(const SDL_KeyboardEvent& event);
+
+    public:
+        explicit InputManager(Token);
+        ~InputManager() override;
+
+        InputManager(const InputManager&) = delete;
+        InputManager(InputManager&&) = delete;
+        InputManager& operator=(const InputManager&) = delete;
+        InputManager& operator=(InputManager&&) = delete;
 
     private:
         enum class KeyState { RELEASED = 0, PRESSED = 1, DOWN = 2, UP = 3 };
@@ -34,5 +44,4 @@ namespace inari {
 
         std::map<SDL_Keycode, KeyState> m_states;
     };
-
 } // namespace inari

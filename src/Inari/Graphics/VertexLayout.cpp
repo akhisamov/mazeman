@@ -1,8 +1,8 @@
-#include "VertexLayout.hpp"
+#include "VertexLayout.h"
 
 #include "Inari/Assets/Shader.h"
 
-#include "AttributeData.hpp"
+#include "AttributeData.h"
 
 using namespace inari;
 

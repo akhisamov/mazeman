@@ -1,6 +1,10 @@
 #include "InputManager.h"
 
 namespace inari {
+    std::shared_ptr<InputManager> InputManager::create() { return std::make_shared<InputManager>(Token {}); }
+
+    InputManager::InputManager(Token /*unused*/) { }
+    InputManager::~InputManager() = default;
 
     InputManager::KeyState InputManager::getState(SDL_Keycode keyCode) const
     {
@@ -58,5 +62,4 @@ namespace inari {
 
         m_states[code] = state;
     }
-
 } // namespace inari

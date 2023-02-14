@@ -37,6 +37,16 @@ namespace inari {
             m_services.emplace(hash, service);
         }
 
+        template <class T>
+        static void remove()
+        {
+            static_assert(std::is_base_of_v<IService, T>);
+            const size_t hash = typeid(T).hash_code();
+            const auto& it = m_services.find(hash);
+            assert(it != m_services.end());
+            m_services.erase(it);
+        }
+
     private:
         static std::map<std::size_t, std::weak_ptr<IService>> m_services;
     };

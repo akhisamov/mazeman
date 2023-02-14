@@ -6,11 +6,20 @@
 
 #include "Inari/Assets/AssetsManager.h"
 #include "Inari/GameServices.h"
-#include "Inari/Graphics/Renderer.hpp"
-#include "Inari/Graphics/SpriteBatch.hpp"
-#include "Inari/Graphics/Window.hpp"
+#include "Inari/Graphics/Renderer.h"
+#include "Inari/Graphics/SpriteBatch.h"
+#include "Inari/Graphics/Window.h"
 #include "Inari/InputManager.h"
 #include "Inari/Utils/GameTime.h"
+
+namespace {
+    template <class T>
+    void destroyService(std::shared_ptr<T>& service)
+    {
+        inari::GameServices::remove<T>();
+        service = nullptr;
+    }
+}
 
 namespace inari {
     BaseGame::BaseGame()
@@ -19,7 +28,7 @@ namespace inari {
         , m_renderer(nullptr)
         , m_spriteBatch(nullptr)
         , m_assets(nullptr)
-        , m_inputManager(std::make_shared<InputManager>())
+        , m_inputManager(nullptr)
     {
     }
 
@@ -51,6 +60,8 @@ namespace inari {
             }
 
             unloadResources();
+
+            clear();
         }
     }
 
@@ -66,9 +77,14 @@ namespace inari {
         if (m_window == nullptr) {
             return false;
         }
+        GameServices::provide(m_window);
 
         // Init renderer
-        m_renderer = std::make_shared<Renderer>();
+        m_renderer = Renderer::create(m_window);
+        if (m_renderer == nullptr) {
+            return false;
+        }
+        GameServices::provide(m_renderer);
 
         // Init assets
         m_assets = AssetsManager::create();
@@ -78,20 +94,23 @@ namespace inari {
         GameServices::provide(m_assets);
 
         // Init sprite batch
-        m_spriteBatch = std::make_shared<SpriteBatch>(m_renderer);
+        m_spriteBatch = SpriteBatch::create(m_renderer);
+        if (m_spriteBatch == nullptr) {
+            return false;
+        }
+        GameServices::provide(m_spriteBatch);
+
+        // Init input manager
+        m_inputManager = InputManager::create();
+        if (m_inputManager == nullptr) {
+            return false;
+        }
+        GameServices::provide(m_inputManager);
 
         m_isRunning = true;
 
         return true;
     }
-
-    const std::shared_ptr<Renderer>& BaseGame::getRenderer() const { return m_renderer; }
-
-    const std::shared_ptr<SpriteBatch>& BaseGame::getSpriteBatch() const { return m_spriteBatch; }
-
-    const std::shared_ptr<Window>& BaseGame::getWindow() const { return m_window; }
-
-    const std::shared_ptr<InputManager>& BaseGame::getInputManager() const { return m_inputManager; }
 
     void BaseGame::handleEvents()
     {
@@ -106,5 +125,15 @@ namespace inari {
                 m_inputManager->handleEvent(e.key);
             }
         }
+    }
+
+    void BaseGame::clear()
+    {
+        destroyService(m_inputManager);
+        destroyService(m_spriteBatch);
+        destroyService(m_assets);
+        destroyService(m_renderer);
+        destroyService(m_window);
+        SDL_Quit();
     }
 }

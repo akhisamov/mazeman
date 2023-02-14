@@ -11,9 +11,9 @@
 #include "Inari/ECS/Systems/PhysicsSystem.h"
 #include "Inari/ECS/Systems/SpriteRenderSystem.h"
 
-#include "Inari/Graphics/Renderer.hpp"
-#include "Inari/Graphics/SpriteBatch.hpp"
-#include "Inari/Graphics/Window.hpp"
+#include "Inari/Graphics/Renderer.h"
+#include "Inari/Graphics/SpriteBatch.h"
+#include "Inari/Graphics/Window.h"
 
 #include "Inari/Assets/AssetsManager.h"
 #include "Inari/Assets/Texture2D.h"
@@ -40,6 +40,19 @@ namespace constants {
     constexpr std::string_view worldFilename = "res/world.ldtk";
 } // namespace constants
 
+glm::vec3 getBackgroundColor()
+{
+    const auto& assets = inari::GameServices::get<inari::AssetsManager>();
+    if (assets) {
+        auto world = assets->load<inari::World>(constants::worldFilename);
+        if (world) {
+            const inari::WorldLevel& level = world->getLevel(0);
+            return level.backgroundColor;
+        }
+    }
+    return {};
+}
+
 Game::Game()
     : m_entityRegistry(std::make_shared<inari::EntityRegistry>())
     , m_systemRegistry(std::make_unique<inari::SystemRegistry>())
@@ -53,7 +66,7 @@ bool Game::init()
 {
     if (BaseGame::init()) {
         // Init window
-        const auto& window = getWindow();
+        const auto& window = inari::GameServices::get<inari::Window>();
         window->setWindowSize(constants::windowSize);
         window->setTitle(constants::title);
         window->setFrameLimit(constants::screenFps);
@@ -62,8 +75,8 @@ bool Game::init()
         m_camera = std::make_unique<inari::Camera2D>(constants::windowSize);
 
         // Init systems
-        m_systemRegistry->addSystem<inari::SpriteRenderSystem>(getSpriteBatch());
-        m_systemRegistry->addOrderedSystem<InputSystem>(getInputManager());
+        m_systemRegistry->addSystem<inari::SpriteRenderSystem>();
+        m_systemRegistry->addOrderedSystem<InputSystem>();
         m_systemRegistry->addOrderedSystem<CollisionSystem>();
         m_systemRegistry->addOrderedSystem<inari::PhysicsSystem>();
         m_systemRegistry->addOrderedSystem<inari::AnimationSystem>();
@@ -143,23 +156,14 @@ void Game::handleWindowResized(const glm::ivec2& size)
 void Game::update(const inari::GameTime& gameTime)
 {
     m_systemRegistry->updateOrderedSystem(gameTime, m_entityRegistry);
-    if (getInputManager()->isKeyPressed(SDLK_F1)) {
-        getSpriteBatch()->toggleWireframeMode();
+    if (inari::GameServices::get<inari::InputManager>()->isKeyPressed(SDLK_F1)) {
+        inari::GameServices::get<inari::SpriteBatch>()->toggleWireframeMode();
     }
 }
 
 void Game::draw(const inari::GameTime& gameTime)
 {
-    glm::vec3 bgColor(0.0f);
-    const auto& assets = inari::GameServices::get<inari::AssetsManager>();
-    if (assets) {
-        auto world = assets->load<inari::World>(constants::worldFilename);
-        if (world) {
-            const inari::WorldLevel& level = world->getLevel(0);
-            bgColor = level.backgroundColor;
-        }
-    }
-    getRenderer()->clear(bgColor);
+    inari::GameServices::get<inari::Renderer>()->clear(getBackgroundColor());
 
     auto spriteRenderSystem = m_systemRegistry->getSystem<inari::SpriteRenderSystem>();
     if (spriteRenderSystem) {
@@ -168,5 +172,5 @@ void Game::draw(const inari::GameTime& gameTime)
         spriteRenderSystem->end();
     }
 
-    getWindow()->display();
+    inari::GameServices::get<inari::Window>()->display();
 }

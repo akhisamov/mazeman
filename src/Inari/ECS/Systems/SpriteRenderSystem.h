@@ -10,8 +10,6 @@ namespace inari {
 
     class SpriteRenderSystem : public ISystem {
     public:
-        explicit SpriteRenderSystem(const std::shared_ptr<SpriteBatch>& spriteBatch);
-
         void begin();
         void begin(const glm::mat4& transform);
         void begin(const glm::mat4& transform, SpriteSortMode sortMode);
@@ -19,8 +17,5 @@ namespace inari {
 
     protected:
         void update(const GameTime& gameTime, const EntityRegPtr& entityRegistry, const EntityPtr& entity) override;
-
-    private:
-        std::weak_ptr<SpriteBatch> m_spriteBatchPtr;
     };
 } // namespace inari

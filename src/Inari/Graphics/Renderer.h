@@ -5,9 +5,12 @@
 #include <memory>
 #include <vector>
 
+#include "Inari/IService.h"
+
 namespace inari {
     struct VertexLayout;
     struct Primitive;
+    class Window;
 
     enum class BlendParam {
         ZERO,
@@ -30,16 +33,11 @@ namespace inari {
         SRC1_ALPHA,
         ONE_MINUS_SRC1_ALPHA
     };
-    class Renderer {
+
+    class Renderer final : public IService {
+        friend class BaseGame;
+
     public:
-        Renderer();
-        ~Renderer();
-
-        Renderer(Renderer&&) = delete;
-        Renderer(const Renderer&) = delete;
-        Renderer& operator=(Renderer&&) = delete;
-        Renderer& operator=(const Renderer&) = delete;
-
         void clear(const glm::vec4& color);
         void clear(const glm::vec3& color);
 
@@ -53,7 +51,23 @@ namespace inari {
 
         void drawPrimitive(const Primitive& primitive);
 
+    protected:
+        struct Token;
+        static std::shared_ptr<Renderer> create(const std::shared_ptr<Window>& window);
+
+    public:
+        explicit Renderer(const Token& token);
+        ~Renderer() override;
+
+        Renderer() = delete;
+        Renderer(Renderer&&) = delete;
+        Renderer(const Renderer&) = delete;
+        Renderer& operator=(Renderer&&) = delete;
+        Renderer& operator=(const Renderer&) = delete;
+
     private:
+        void* m_glContext;
+
         uint32_t m_vao;
         uint32_t m_vbo;
         uint32_t m_ebo;

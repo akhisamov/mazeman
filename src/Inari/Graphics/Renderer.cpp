@@ -1,37 +1,39 @@
-#include "Renderer.hpp"
-
-#include "AttributeData.hpp"
-#include "Primitive.hpp"
-#include "VertexLayout.hpp"
+#include "Renderer.h"
 
 #include <glad/glad.h>
 
-using namespace inari;
+#include <SDL.h>
+
+#include "AttributeData.h"
+#include "Primitive.h"
+#include "VertexLayout.h"
+#include "Window.h"
 
 namespace {
-    constexpr GLenum cast(PrimitiveType type)
+    constexpr GLenum cast(inari::PrimitiveType type)
     {
+        using T = inari::PrimitiveType;
         switch (type) {
-        case PrimitiveType::LINES:
+        case T::LINES:
             return GL_LINES;
-        case PrimitiveType::LINE_STRIP:
+        case T::LINE_STRIP:
             return GL_LINE_STRIP;
-        case PrimitiveType::POINTS:
+        case T::POINTS:
             return GL_POINTS;
-        case PrimitiveType::TRIANGLE_FAN:
+        case T::TRIANGLE_FAN:
             return GL_TRIANGLE_FAN;
-        case PrimitiveType::TRIANGLES:
+        case T::TRIANGLES:
             return GL_TRIANGLES;
-        case PrimitiveType::TRIANGLE_STRIP:
+        case T::TRIANGLE_STRIP:
             return GL_TRIANGLE_STRIP;
-        case PrimitiveType::NONE:
+        case T::NONE:
         default:
             return GL_NONE;
         }
     }
-    constexpr GLenum cast(BlendParam value)
+    constexpr GLenum cast(inari::BlendParam value)
     {
-        using B = BlendParam;
+        using B = inari::BlendParam;
         switch (value) {
         case B::ZERO:
             return GL_ZERO;
@@ -75,78 +77,115 @@ namespace {
     }
 } // namespace
 
-Renderer::Renderer()
-    : m_vao(0)
-    , m_vbo(0)
-    , m_ebo(0)
-{
-    glGenVertexArrays(1, &m_vao);
-    glGenBuffers(1, &m_vbo);
-    glGenBuffers(1, &m_ebo);
-}
-Renderer::~Renderer()
-{
-    glDeleteBuffers(1, &m_ebo);
-    glDeleteBuffers(1, &m_vbo);
-    glDeleteVertexArrays(1, &m_vao);
-}
+namespace inari {
+    struct Renderer::Token {
+        SDL_GLContext glContext = nullptr;
+    };
 
-void Renderer::clear(const glm::vec4& color)
-{
-    glClearColor(color.r, color.g, color.b, color.a);
-    glClear(GL_COLOR_BUFFER_BIT);
-}
+    std::shared_ptr<Renderer> Renderer::create(const std::shared_ptr<Window>& window)
+    {
+        if (window == nullptr) {
+            return nullptr;
+        }
 
-void Renderer::clear(const glm::vec3& color) { clear({ color, 1.0f }); }
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-void Renderer::setWireframe(bool value) { glPolygonMode(GL_FRONT_AND_BACK, value ? GL_LINE : GL_FILL); }
+        auto* sdlWindow = reinterpret_cast<SDL_Window*>(window->getWindow());
+        if (sdlWindow == nullptr) {
+            return nullptr;
+        }
 
-void Renderer::enableBlend(BlendParam source, BlendParam destination)
-{
-    glEnable(GL_BLEND);
-    glBlendFunc(cast(source), cast(destination));
-}
+        Token token;
+        token.glContext = SDL_GL_CreateContext(sdlWindow);
+        if (token.glContext == nullptr) {
+            return nullptr;
+        }
 
-void Renderer::activeTexture(uint32_t idx)
-{
-    assert(idx < 32);
-    glActiveTexture(GL_TEXTURE0 + idx);
-}
-
-void Renderer::setVertexLayout(const VertexLayout& layout)
-{
-    m_attributePositions.clear();
-    glBindVertexArray(m_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    for (auto [position, data] : layout.attributes) {
-        glEnableVertexAttribArray(position);
-        glVertexAttribPointer(position, data.size, GL_FLOAT, data.normalized, data.stride,
-                              reinterpret_cast<void*>(data.offset));
-        glDisableVertexAttribArray(position);
-        m_attributePositions.push_back(position);
+        if (!gladLoadGLLoader(SDL_GL_GetProcAddress)) {
+            SDL_GL_DeleteContext(token.glContext);
+            return nullptr;
+        }
+        return std::make_shared<Renderer>(token);
     }
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-}
 
-void Renderer::drawPrimitive(const Primitive& primitive)
-{
-    glBindVertexArray(m_vao);
-    const auto verticesSize = static_cast<GLsizeiptr>(sizeof(float) * primitive.vertices.size());
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, verticesSize, primitive.vertices.data(), GL_STATIC_DRAW);
+    Renderer::Renderer(const Token& token)
+        : m_glContext(token.glContext)
+        , m_vao(0)
+        , m_vbo(0)
+        , m_ebo(0)
+    {
+        glGenVertexArrays(1, &m_vao);
+        glGenBuffers(1, &m_vbo);
+        glGenBuffers(1, &m_ebo);
+    }
 
-    std::for_each(m_attributePositions.begin(), m_attributePositions.end(), glEnableVertexAttribArray);
+    Renderer::~Renderer()
+    {
+        glDeleteBuffers(1, &m_ebo);
+        glDeleteBuffers(1, &m_vbo);
+        glDeleteVertexArrays(1, &m_vao);
+        SDL_GL_DeleteContext(reinterpret_cast<SDL_GLContext>(m_glContext));
+    }
 
-    const auto indicesSize
-        = static_cast<GLsizeiptr>(sizeof(decltype(primitive.indices)::value_type) * primitive.indices.size());
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, primitive.indices.data(), GL_STATIC_DRAW);
-    glDrawElements(cast(primitive.type), 6, GL_UNSIGNED_INT, nullptr);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    void Renderer::clear(const glm::vec4& color)
+    {
+        glClearColor(color.r, color.g, color.b, color.a);
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
 
-    std::for_each(m_attributePositions.rbegin(), m_attributePositions.rend(), glDisableVertexAttribArray);
+    void Renderer::clear(const glm::vec3& color) { clear({ color, 1.0f }); }
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    void Renderer::setWireframe(bool value) { glPolygonMode(GL_FRONT_AND_BACK, value ? GL_LINE : GL_FILL); }
+
+    void Renderer::enableBlend(BlendParam source, BlendParam destination)
+    {
+        glEnable(GL_BLEND);
+        glBlendFunc(cast(source), cast(destination));
+    }
+
+    void Renderer::activeTexture(uint32_t idx)
+    {
+        assert(idx < 32);
+        glActiveTexture(GL_TEXTURE0 + idx);
+    }
+
+    void Renderer::setVertexLayout(const VertexLayout& layout)
+    {
+        m_attributePositions.clear();
+        glBindVertexArray(m_vao);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+        for (auto [position, data] : layout.attributes) {
+            glEnableVertexAttribArray(position);
+            glVertexAttribPointer(position, data.size, GL_FLOAT, data.normalized, data.stride,
+                                  reinterpret_cast<void*>(data.offset));
+            glDisableVertexAttribArray(position);
+            m_attributePositions.push_back(position);
+        }
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+    }
+
+    void Renderer::drawPrimitive(const Primitive& primitive)
+    {
+        glBindVertexArray(m_vao);
+        const auto verticesSize = static_cast<GLsizeiptr>(sizeof(float) * primitive.vertices.size());
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+        glBufferData(GL_ARRAY_BUFFER, verticesSize, primitive.vertices.data(), GL_STATIC_DRAW);
+
+        std::for_each(m_attributePositions.begin(), m_attributePositions.end(), glEnableVertexAttribArray);
+
+        const auto indicesSize
+            = static_cast<GLsizeiptr>(sizeof(decltype(primitive.indices)::value_type) * primitive.indices.size());
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, primitive.indices.data(), GL_STATIC_DRAW);
+        glDrawElements(cast(primitive.type), 6, GL_UNSIGNED_INT, nullptr);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+        std::for_each(m_attributePositions.rbegin(), m_attributePositions.rend(), glDisableVertexAttribArray);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+    }
 }
