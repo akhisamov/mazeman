@@ -38,10 +38,8 @@ namespace inari {
             assert(init() && "Init is failed");
             loadResources();
 
-            // uint32_t totalFrames = 0;
             GameTime gameTime;
             while (m_isRunning) {
-                // totalFrames++;
                 m_window->begin();
 
                 handleEvents();
@@ -49,12 +47,7 @@ namespace inari {
                 update(gameTime);
                 draw(gameTime);
 
-                m_window->end();
-
-                // const float avgFPS = totalFrames / gameTime.getTotalMs(); // TODO
-                // if (totalFrames > 20000) {
-                //    totalFrames = 0;
-                //}
+                m_window->end(gameTime);
 
                 gameTime.reset();
             }

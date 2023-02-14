@@ -4,12 +4,14 @@
 
 #include <stdexcept>
 
+#include "Inari/Utils/GameTime.h"
 #include "Inari/Utils/Strings.h"
 
 namespace inari {
     struct WindowData {
         SDL_Window* window = nullptr;
 
+        uint32_t totalFrames = 0;
         uint64_t startCounter = 0;
     };
 
@@ -60,9 +62,18 @@ namespace inari {
 
     void Window::setFrameLimit(int screenFps) { m_frameLimit = std::make_unique<int>(screenFps); }
 
-    void Window::begin() { m_data->startCounter = SDL_GetPerformanceCounter(); }
-    void Window::end()
+    void Window::begin()
     {
+        m_data->totalFrames++;
+        m_data->startCounter = SDL_GetPerformanceCounter();
+    }
+
+    void Window::end(const GameTime& gameTime)
+    {
+        m_frameRate = static_cast<float>(m_data->totalFrames) / gameTime.getTotalMs();
+        if (m_data->totalFrames > 20000) {
+            m_data->totalFrames = 0;
+        }
         const uint64_t endCounter = SDL_GetPerformanceCounter();
         if (m_frameLimit) {
             const float screenTicksPerFrame = 1000.0f / static_cast<float>(*m_frameLimit);

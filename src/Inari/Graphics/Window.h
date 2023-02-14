@@ -10,6 +10,8 @@
 #include "Inari/IService.h"
 
 namespace inari {
+    class GameTime;
+
     class Window final : public IService {
         friend class BaseGame;
         friend class Renderer;
@@ -24,11 +26,13 @@ namespace inari {
 
         void setFrameLimit(int screenFps);
 
+        [[nodiscard]] const float& getFrameRate() const { return m_frameRate; }
+
     protected:
         static std::shared_ptr<Window> create(const std::string_view& title, int width, int height);
 
         void begin();
-        void end();
+        void end(const GameTime& gameTime);
 
         void* getWindow() const;
 
@@ -40,5 +44,7 @@ namespace inari {
         std::unique_ptr<struct WindowData> m_data;
 
         std::unique_ptr<int> m_frameLimit;
+
+        float m_frameRate { 0.0f };
     };
 } // namespace inari
