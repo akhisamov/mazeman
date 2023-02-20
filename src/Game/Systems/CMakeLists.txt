@@ -1,6 +1,6 @@
 target_sources(mazeman PRIVATE
-    CollisionSystem.hpp CollisionSystem.cpp
-    InputSystem.hpp InputSystem.cpp
+        CollisionSystem.h CollisionSystem.cpp
+        InputSystem.h InputSystem.cpp
 
-    CMakeLists.txt
-)
+        CMakeLists.txt
+        )

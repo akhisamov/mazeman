@@ -1,2 +1,9 @@
-BasedOnStyle: Chromium
+BasedOnStyle: WebKit
 IndentWidth: 4
+---
+Language: Cpp
+ColumnLimit: 120
+AlignAfterOpenBracket: Align
+NamespaceIndentation: All
+AlwaysBreakTemplateDeclarations: Yes
+BreakInheritanceList: BeforeComma

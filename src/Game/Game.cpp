@@ -1,56 +1,72 @@
-#include "Game.hpp"
+#include "Game.h"
 
 #include <SDL_keycode.h>
 
 // inari
-#include "Inari/ECS/Components/Sprite.hpp"
-#include "Inari/ECS/Components/Transform.hpp"
-#include "Inari/ECS/EntityRegistry.hpp"
-#include "Inari/ECS/SystemRegistry.hpp"
-#include "Inari/ECS/Systems/AnimationSystem.hpp"
-#include "Inari/ECS/Systems/PhysicsSystem.hpp"
-#include "Inari/ECS/Systems/SpriteRenderSystem.hpp"
+#include "Inari/ECS/Components/Sprite.h"
+#include "Inari/ECS/Components/Transform.h"
+#include "Inari/ECS/EntityRegistry.h"
+#include "Inari/ECS/SystemRegistry.h"
+#include "Inari/ECS/Systems/AnimationSystem.h"
+#include "Inari/ECS/Systems/PhysicsSystem.h"
+#include "Inari/ECS/Systems/SpriteRenderSystem.h"
 
-#include "Inari/Graphics/Renderer.hpp"
-#include "Inari/Graphics/SpriteBatch.hpp"
-#include "Inari/Graphics/Window.hpp"
+#include "Inari/Graphics/Renderer.h"
+#include "Inari/Graphics/SpriteBatch.h"
+#include "Inari/Graphics/Window.h"
 
-#include "Inari/Resources/ResourceManager.hpp"
-#include "Inari/Resources/Texture2D.hpp"
-#include "Inari/Resources/World.hpp"
+#include "Inari/Assets/AssetsManager.h"
+#include "Inari/Assets/Texture2D.h"
+#include "Inari/Assets/World.h"
 
-#include "Inari/Utils/Camera2D.hpp"
-#include "Inari/Utils/Colors.hpp"
+#include "Inari/Utils/Camera2D.h"
+#include "Inari/Utils/Colors.h"
 
-#include "Inari/InputManager.hpp"
+#include "Inari/GameServices.h"
+#include "Inari/InputManager.h"
 // inari
 
 // game
-#include "Game/Components/Collision.hpp"
-#include "Game/Components/Player.hpp"
-#include "Game/Prefabs/Mazeman.hpp"
-#include "Game/Systems/CollisionSystem.hpp"
-#include "Game/Systems/InputSystem.hpp"
+#include "Game/Components/Collision.h"
+#include "Game/Prefabs/Mazeman.h"
+#include "Game/Systems/CollisionSystem.h"
+#include "Game/Systems/InputSystem.h"
 // game
 
 namespace constants {
-constexpr std::string_view title = "MazeMan";
-constexpr int screenFps = 30;
-constexpr glm::ivec2 windowSize(1280, 720);
-constexpr std::string_view worldFilename = "res/world.ldtk";
-}  // namespace constants
+    constexpr std::string_view title = "MazeMan";
+    constexpr int screenFps = 30;
+    constexpr glm::ivec2 windowSize(1280, 720);
+    constexpr std::string_view worldFilename = "res/world.ldtk";
+} // namespace constants
+
+glm::vec3 getBackgroundColor()
+{
+    const auto& assets = inari::GameServices::get<inari::AssetsManager>();
+    if (assets) {
+        auto world = assets->load<inari::World>(constants::worldFilename);
+        if (world) {
+            const inari::WorldLevel& level = world->getLevel(0);
+            return level.backgroundColor;
+        }
+    }
+    return {};
+}
 
 Game::Game()
-    : m_entityRegistry(std::make_shared<inari::EntityRegistry>()),
-      m_systemRegistry(std::make_unique<inari::SystemRegistry>()),
-      m_camera(nullptr) {}
+    : m_entityRegistry(std::make_shared<inari::EntityRegistry>())
+    , m_systemRegistry(std::make_unique<inari::SystemRegistry>())
+    , m_camera(nullptr)
+{
+}
 
 Game::~Game() = default;
 
-bool Game::init() {
-    if (IGame::init()) {
+bool Game::init()
+{
+    if (BaseGame::init()) {
         // Init window
-        const auto& window = getWindow();
+        const auto& window = inari::GameServices::get<inari::Window>();
         window->setWindowSize(constants::windowSize);
         window->setTitle(constants::title);
         window->setFrameLimit(constants::screenFps);
@@ -59,39 +75,39 @@ bool Game::init() {
         m_camera = std::make_unique<inari::Camera2D>(constants::windowSize);
 
         // Init systems
-        m_systemRegistry->addSystem<inari::AnimationSystem>(m_entityRegistry);
-        m_systemRegistry->addSystem<inari::PhysicsSystem>(m_entityRegistry);
-        m_systemRegistry->addSystem<inari::SpriteRenderSystem>(
-            m_entityRegistry, getSpriteBatch());
-        m_systemRegistry->addSystem<InputSystem>(m_entityRegistry,
-                                                 getInputManager());
-        m_systemRegistry->addSystem<CollisionSystem>(m_entityRegistry);
+        m_systemRegistry->addSystem<inari::SpriteRenderSystem>();
+        m_systemRegistry->addOrderedSystem<InputSystem>();
+        m_systemRegistry->addOrderedSystem<CollisionSystem>();
+        m_systemRegistry->addOrderedSystem<inari::PhysicsSystem>();
+        m_systemRegistry->addOrderedSystem<inari::AnimationSystem>();
 
         return true;
     }
     return false;
 }
 
-void Game::loadResources() {
-    auto world =
-        getResourceManager()->load<inari::World>(constants::worldFilename);
+void Game::loadResources()
+{
+    const auto& assets = inari::GameServices::get<inari::AssetsManager>();
+    if (assets == nullptr) {
+        return;
+    }
+
+    auto world = assets->load<inari::World>(constants::worldFilename);
     if (world) {
         const inari::WorldLevel& level = world->getLevel(0);
-        m_camera->setScale(
-            glm::vec2(level.size.y / m_camera->getWindowSize().y));
+        m_camera->setScale(glm::vec2(level.size.y / m_camera->getWindowSize().y));
 
         {
             auto it = level.layers.find("Collisions");
             for (const auto& tile : it->second.tiles) {
                 inari::Sprite sprite;
-                sprite.texture = getResourceManager()->load<inari::Texture2D>(
-                    "res/walls.png");
+                sprite.texture = assets->load<inari::Texture2D>("res/walls.png");
                 sprite.sourceRect = tile.sourceRect;
 
                 inari::Transform transform;
                 transform.position = tile.position;
-                transform.size =
-                    glm::vec2(tile.sourceRect.w, tile.sourceRect.z);
+                transform.size = glm::vec2(tile.sourceRect.w, tile.sourceRect.z);
 
                 Collision collision;
                 collision.isDynamic = false;
@@ -104,59 +120,57 @@ void Game::loadResources() {
         }
 
         {
-            auto it = level.layers.find("Spawns")->second.entityInstances.find(
-                "MazeMan");
+            auto it = level.layers.find("Spawns")->second.entityInstances.find("MazeMan");
             const inari::LevelEntityInstance entityInstance = it->second;
-            prefabs::createMazeman(
-                m_entityRegistry,
-                getResourceManager()->load<inari::Texture2D>("res/mazeman.png"),
-                entityInstance.position, entityInstance.get<float>("angle"));
+            prefabs::createMazeman(m_entityRegistry, assets->load<inari::Texture2D>("res/mazeman.png"),
+                                   entityInstance.position, entityInstance.get<float>("angle"));
         }
     }
 }
 
-void Game::unloadResources() {
-    getResourceManager()->unload<inari::Texture2D>("res/mazeman.png");
+void Game::unloadResources()
+{
+    const auto& assets = inari::GameServices::get<inari::AssetsManager>();
+    if (assets == nullptr) {
+        return;
+    }
+    assets->unload("res/mazeman.png");
 }
 
-void Game::handleWindowResized(const glm::ivec2& size) {
+void Game::handleWindowResized(const glm::ivec2& size)
+{
     m_camera->setWindowSize(size);
 
-    auto world =
-        getResourceManager()->load<inari::World>(constants::worldFilename);
+    const auto& assets = inari::GameServices::get<inari::AssetsManager>();
+    if (assets == nullptr) {
+        return;
+    }
+
+    auto world = assets->load<inari::World>(constants::worldFilename);
     if (world) {
         const inari::WorldLevel& level = world->getLevel(0);
-        m_camera->setScale(
-            glm::vec2(level.size.y / m_camera->getWindowSize().y));
+        m_camera->setScale(glm::vec2(level.size.y / m_camera->getWindowSize().y));
     }
 }
 
-void Game::update(const inari::GameTime& gameTime) {
-    m_systemRegistry->updateSystem<InputSystem>(gameTime);
-    m_systemRegistry->updateSystem<CollisionSystem>(gameTime);
-    m_systemRegistry->updateSystem<inari::PhysicsSystem>(gameTime);
-    m_systemRegistry->updateSystem<inari::AnimationSystem>(gameTime);
-
-    if (getInputManager()->isKeyPressed(SDLK_F1)) {
-        getSpriteBatch()->toggleWireframeMode();
+void Game::update(const inari::GameTime& gameTime)
+{
+    m_systemRegistry->updateOrderedSystem(gameTime, m_entityRegistry);
+    if (inari::GameServices::get<inari::InputManager>()->isKeyPressed(SDLK_F1)) {
+        inari::GameServices::get<inari::SpriteBatch>()->toggleWireframeMode();
     }
 }
 
-void Game::draw(const inari::GameTime& gameTime) {
-    glm::vec3 bgColor(0.0f);
-    auto world =
-        getResourceManager()->load<inari::World>(constants::worldFilename);
-    if (world) {
-        const inari::WorldLevel& level = world->getLevel(0);
-        bgColor = level.backgroundColor;
-    }
-    getRenderer()->clear(bgColor);
+void Game::draw(const inari::GameTime& gameTime)
+{
+    inari::GameServices::get<inari::Renderer>()->clear(getBackgroundColor());
 
-    auto spriteRenderSystem =
-        m_systemRegistry->getSystem<inari::SpriteRenderSystem>();
+    auto spriteRenderSystem = m_systemRegistry->getSystem<inari::SpriteRenderSystem>();
     if (spriteRenderSystem) {
-        spriteRenderSystem->draw(gameTime, m_camera->getTransform());
+        spriteRenderSystem->begin(m_camera->getTransform());
+        m_systemRegistry->updateSystem(spriteRenderSystem, gameTime, m_entityRegistry);
+        spriteRenderSystem->end();
     }
 
-    getWindow()->display();
+    inari::GameServices::get<inari::Window>()->display();
 }

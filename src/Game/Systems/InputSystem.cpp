@@ -1,29 +1,27 @@
-#include "InputSystem.hpp"
+#include "InputSystem.h"
 
 #include <cmath>
 
-#include "Inari/ECS/Components/RigidBody.hpp"
-#include "Inari/ECS/Components/Transform.hpp"
-#include "Inari/InputManager.hpp"
+#include "Inari/ECS/Components/RigidBody.h"
+#include "Inari/ECS/Components/Transform.h"
+#include "Inari/ECS/EntityRegistry.h"
+#include "Inari/GameServices.h"
+#include "Inari/InputManager.h"
 
-#include "Game/Components/Player.hpp"
+#include "Game/Components/Player.h"
 
-InputSystem::InputSystem(
-    std::shared_ptr<inari::EntityRegistry> registry,
-    const std::shared_ptr<inari::InputManager>& inputManager)
-    : ISystem(std::move(registry)), m_inputPtr(inputManager) {}
+void InputSystem::update(const inari::GameTime& gameTime, const EntityRegPtr& entityRegistry, const EntityPtr& entity)
+{
+    assert(entityRegistry != nullptr && "Entity Registry is empty");
 
-void InputSystem::update(const inari::GameTime& gameTime,
-                         const inari::EntityPtr& entity) {
-    auto inputManager = m_inputPtr.lock();
+    const auto& inputManager = inari::GameServices::get<inari::InputManager>();
     if (inputManager == nullptr) {
         return;
     }
 
-    auto* transform = getRegistry()->getComponent<inari::Transform>(entity);
-    auto* rigidBody = getRegistry()->getComponent<inari::RigidBody>(entity);
-    if (rigidBody == nullptr || transform == nullptr ||
-        !getRegistry()->hasComponent<Player>(entity)) {
+    auto* transform = entityRegistry->getComponent<inari::Transform>(entity);
+    auto* rigidBody = entityRegistry->getComponent<inari::RigidBody>(entity);
+    if (rigidBody == nullptr || transform == nullptr || !entityRegistry->hasComponent<Player>(entity)) {
         return;
     }
 
@@ -43,7 +41,6 @@ void InputSystem::update(const inari::GameTime& gameTime,
     }
 
     if (rigidBody->velocity != glm::vec2(0.0f)) {
-        transform->radian =
-            std::atan2(-rigidBody->velocity.y, -rigidBody->velocity.x);
+        transform->radian = std::atan2(-rigidBody->velocity.y, -rigidBody->velocity.x);
     }
 }

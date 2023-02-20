@@ -1,7 +1,7 @@
 target_sources(mazeman PRIVATE
-    AnimationSprite.hpp
-    Sprite.hpp
-    Transform.hpp
+        AnimationSprite.h
+        Sprite.h
+        Transform.h
 
-    CMakeLists.txt
-)
+        CMakeLists.txt
+        )

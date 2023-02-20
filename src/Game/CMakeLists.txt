@@ -3,8 +3,8 @@ add_subdirectory(Prefabs)
 add_subdirectory(Systems)
 
 target_sources(mazeman PRIVATE
-    Game.hpp Game.cpp
-    main.cpp
+        Game.h Game.cpp
+        main.cpp
 
-    CMakeLists.txt
-)
+        CMakeLists.txt
+        )

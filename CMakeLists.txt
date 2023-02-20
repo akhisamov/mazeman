@@ -16,7 +16,7 @@ include(cmake/CPM.cmake)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/sdl2)
 
 add_executable(mazeman)
-target_include_directories(mazeman PRIVATE src "${CMAKE_BINARY_DIR}/include")
+target_include_directories(mazeman PRIVATE src)
 
 add_custom_target(Resources
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/resources ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/res
@@ -24,7 +24,6 @@ add_custom_target(Resources
 add_dependencies(mazeman Resources)
 
 add_subdirectory(third-party)
-add_subdirectory(shaders)
 add_subdirectory(src)
 
 get_target_property(MAZEMAN_FILES mazeman SOURCES)

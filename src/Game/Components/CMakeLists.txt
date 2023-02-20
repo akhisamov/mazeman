@@ -1,5 +1,6 @@
 target_sources(mazeman PRIVATE
-    Player.hpp
+        Collision.h
+        Player.h
 
-    CMakeLists.txt
-)
+        CMakeLists.txt
+        )

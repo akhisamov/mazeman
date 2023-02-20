@@ -1,11 +1,13 @@
+add_subdirectory(Assets)
 add_subdirectory(ECS)
 add_subdirectory(Graphics)
-add_subdirectory(Resources)
 add_subdirectory(Utils)
 
 target_sources(mazeman PRIVATE
-    IGame.hpp IGame.cpp
-    InputManager.hpp InputManager.cpp
+        GameServices.h GameServices.cpp
+        BaseGame.h BaseGame.cpp
+        InputManager.h InputManager.cpp
+        IService.h
 
-    CMakeLists.txt
-)
+        CMakeLists.txt
+        )
