@@ -1,3 +1,3 @@
 # MazeMan 🟢
 
-| PacMan meets SDL2 with OpenGL
+Something in the maze
