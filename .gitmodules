@@ -1,0 +1,3 @@
+[submodule "inari"]
+	path = inari
+	url = git@github.com:akhisamov/inari.git
